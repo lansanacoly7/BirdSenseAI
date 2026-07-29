@@ -17,6 +17,7 @@ from src.main import app
 from src.vision.dataset_prep import DatasetPreparer
 from src.vision.detector import BirdDetector
 from src.vision.tracker import ByteTrackTracker
+from src.vision.bioclip_engine import BioCLIPEngine
 
 client = TestClient(app)
 
@@ -83,6 +84,20 @@ class TestByteTrackTracker:
         tracker = ByteTrackTracker(model_path="yolov8n.pt")
         assert tracker.model is not None
         assert tracker.tracker_type == "bytetrack.yaml"
+
+
+class TestBioCLIPEngine:
+    """Tests BioCLIP-2 fine species identification (Ext 4.1)."""
+
+    def test_bioclip_classification(self):
+        engine = BioCLIPEngine()
+        crop = np.zeros((100, 100, 3), dtype=np.uint8)
+        res = engine.classify_crop(crop)
+        
+        assert "top_species" in res
+        assert "top_confidence" in res
+        assert "is_rare_protected" in res
+        assert len(res["candidates"]) == 3
 
 
 class TestVisionAPI:
