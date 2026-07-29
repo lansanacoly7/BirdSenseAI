@@ -9,7 +9,7 @@ class CameraViewScreen extends StatefulWidget {
 }
 
 class _CameraViewScreenState extends State<CameraViewScreen> {
-  int _birdCount = 3;
+  final int _birdCount = 3;
 
   @override
   Widget build(BuildContext context) {

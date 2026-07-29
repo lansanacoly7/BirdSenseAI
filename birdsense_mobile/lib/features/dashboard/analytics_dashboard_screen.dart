@@ -13,7 +13,7 @@ class AnalyticsDashboardScreen extends StatelessWidget {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Bird Health Score Banner
             Container(
@@ -38,9 +38,9 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                     child: const Icon(Icons.eco, color: AppColors.primaryCanopy, size: 32),
                   ),
                   const SizedBox(width: 16),
-                  const Expanded(
+                  Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Bird Health Score',
@@ -130,7 +130,7 @@ class AnalyticsDashboardScreen extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, color: color, size: 28),
             const SizedBox(height: 12),

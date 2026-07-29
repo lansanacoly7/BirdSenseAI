@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
 import '../camera_detection/camera_view_screen.dart';
 import '../observation_map/observation_map_screen.dart';
 import '../species_catalog/species_catalog_screen.dart';

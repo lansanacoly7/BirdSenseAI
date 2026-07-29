@@ -29,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
           padding: const EdgeInsets.all(24.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Icon(Icons.flutter_dash, size: 72, color: AppColors.accentAmber),
               const SizedBox(height: 16),

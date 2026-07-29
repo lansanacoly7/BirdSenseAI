@@ -40,7 +40,7 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          crossAxisAlignment: CrossAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Header Image Placeholder / Icon
             Container(
@@ -68,7 +68,7 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
               children: [
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: CrossAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         widget.species.commonNameFr,
@@ -120,7 +120,7 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text(
                             'Chant & Cri de l\'espèce',
