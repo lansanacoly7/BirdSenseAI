@@ -177,9 +177,24 @@ class BirdDetector:
             # Label banner
             (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
             cv2.rectangle(img, (x1, max(0, y1 - 22)), (x1 + w + 10, y1), (43, 58, 30), -1)
-            cv2.putText(img, label, (x1 + 5, max(12, y1 - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
         return img
+
+    @staticmethod
+    def compute_iou(boxA: List[float], boxB: List[float]) -> float:
+        """
+        Calculates Intersection over Union (IoU) overlap score between two bounding boxes [x1, y1, x2, y2].
+        """
+        xA = max(boxA[0], boxB[0])
+        yA = max(boxA[1], boxB[1])
+        xB = min(boxA[2], boxB[2])
+        yB = min(boxA[3], boxB[3])
+
+        interArea = max(0.0, xB - xA) * max(0.0, yB - yA)
+        boxAArea = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1])
+        boxBArea = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
+
+        iou = interArea / float(boxAArea + boxBArea - interArea + 1e-9)
+        return round(float(iou), 4)
 
 
 from .logger import log_yolo

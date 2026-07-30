@@ -163,6 +163,17 @@ class ByteTrackTracker:
 
         formatted_tracks = []
         for track_id, data in sorted(tracks_summary.items()):
+            positions = data["positions"]
+            if len(positions) >= 2:
+                dx = positions[-1]["x"] - positions[0]["x"]
+                dy = positions[-1]["y"] - positions[0]["y"]
+                dt = max(1, data["last_frame"] - data["first_frame"])
+                speed_px_per_frame = round(float(np.hypot(dx, dy) / dt), 2)
+                heading_deg = round(float(np.degrees(np.arctan2(dy, dx))), 1)
+            else:
+                speed_px_per_frame = 0.0
+                heading_deg = 0.0
+
             formatted_tracks.append({
                 "track_id": track_id,
                 "class_name": data["class_name"],
@@ -170,7 +181,9 @@ class ByteTrackTracker:
                 "duration_frames": data["last_frame"] - data["first_frame"] + 1,
                 "first_frame": data["first_frame"],
                 "last_frame": data["last_frame"],
-                "trajectory_length": len(data["positions"])
+                "trajectory_length": len(positions),
+                "speed_px_per_frame": speed_px_per_frame,
+                "heading_angle_deg": heading_deg
             })
 
         return {

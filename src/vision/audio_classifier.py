@@ -127,9 +127,14 @@ class AudioBirdClassifier:
 
             duration_sec = round(len(samples) / sample_rate, 2)
 
+            # Spectral Centroid (Weighted mean frequency)
+            total_magnitude = np.sum(fft_data) + 1e-9
+            spectral_centroid_hz = round(float(np.sum(freqs * fft_data) / total_magnitude), 1)
+
             return {
                 "rms_db": rms_db,
                 "peak_frequency_hz": peak_freq,
+                "spectral_centroid_hz": spectral_centroid_hz,
                 "duration_sec": duration_sec
             }
 
