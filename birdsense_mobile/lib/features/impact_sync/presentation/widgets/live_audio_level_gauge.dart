@@ -10,7 +10,7 @@ class LiveAudioLevelGauge extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final service = ref.watch(audioLevelServiceProvider);
 
-    return StreamBuilder(
+    return StreamBuilder<AudioLevelSample>(
       stream: service.audioLevelStream,
       builder: (context, snapshot) {
         final decibels = snapshot.data?.decibels ?? -120.0;

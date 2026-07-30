@@ -26,6 +26,9 @@ class NativeAudioLevelService implements AudioLevelService {
     if (await _recorder.isRecording()) return;
     
     if (await _recorder.hasPermission()) {
+      // Sécurité anti-fuite : annuler les anciennes écoutes si jamais start() est appelé en concurrence
+      await _streamSubscription?.cancel();
+      await _amplitudeSubscription?.cancel();
       // On démarre un enregistrement vers un stream (les données brutes ne nous intéressent pas ici)
       final stream = await _recorder.startStream(const RecordConfig(
         encoder: AudioEncoder.pcm16bits,
