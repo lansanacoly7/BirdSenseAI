@@ -20,9 +20,9 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 | :--- | :---: | :---: | :---: | :--- | :---: |
 | **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | ✅ 100% | ✅ 100% *(2/2)* | ✅ 100% *(4/4)* | Engagement exceptionnel : MVP parfait, extensions validées (MBTiles & Lottie) et Phase 2 entièrement livrée (Radar AR, IA Chat, Jauges). | **9.5 / 10** |
 | **2. Massogui Diop**<br>*Dev Mobile Hardware* | ✅ 100% | ✅ 100% *(2/2)* | ⏳ 0% *(0/2)* | Base MVP très solide (SQLite, Caméra) et extensions de chiffrement/background livrées ! En attente sur la Phase 2. | **10 / 10** |
-| **3. Alioune Sène**<br>*Dev Backend Infra* | ✅ 100% | ✅ 100% *(2/2)* | ⏳ 0% *(0/1)* | Excellente maîtrise backend et infra (Celery/Redis bien présents sur la branche test). Phase 2 à entamer. | **9.5 / 10** |
+| **3. Alioune Sène**<br>*Dev Backend Infra* | ✅ 100% | ✅ 100% *(2/2)* | ✅ 100% *(1/1)* | Sans-faute. Backend complet, infra Celery/Redis livrée et streaming WebSockets de la Phase 2 terminé ! | **10 / 10** |
 | **4. Khalilou Diallo**<br>*Ingénieur CV & YOLO* | ✅ 100% | ✅ 100% *(4/4)* | ⏳ 0% *(0/2)* | Performance d'excellence sur l'IA et C++ (Evidence folder complet). En attente sur les requêtes Phase 2 (HUD/Audio). | **10 / 10** |
-| **5. Pathé Fall**<br>*Dev Fullstack Data* | ✅ 100% | ✅ 100% *(3/3)* | ⏳ 0% *(0/2)* | Très bonne architecture Data. MVP et Extensions (y compris Locust et Audio) validés ! Doit finaliser l'IA générative (Chatbot) pour clore la Phase 2. | **10 / 10** |
+| **5. Pathé Fall**<br>*Dev Fullstack Data* | ✅ 100% | ✅ 100% *(3/3)* | ✅ 100% *(2/2)* | Architecture Data, IA RAG et calcul d'impact 100% livrés. Parcours sans-faute sur tout le périmètre du projet ! | **10 / 10** |
 
 ---
 
@@ -43,8 +43,8 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 ### 3️⃣ Pape Alioune Sène — Dev Backend Core & Infrastructure
 * **MVP Phase 1 :** ✅ **100%** — FastAPI, PostGIS, Auth JWT, Floutage spatial.
 * **Extensions Phase 1 :** ✅ **100%** — Docker, Alembic, et l'architecture **Celery + Redis** (`celery_app.py`, `video_processing.py`) sont vérifiés et mergés avec succès.
-* **Wow Features Phase 2 :** ⏳ **0%** — Doit ouvrir les WebSockets ou SSE (Server-Sent Events) pour le streaming du chatbot (T3.4).
-* **Tâches Restantes :** Endpoint Streaming pour connecter l'IA générative.
+* **Wow Features Phase 2 :** ✅ **100%** — Endpoint WebSocket de streaming en temps réel pour le Chatbot implémenté dans `routers/chat.py` (T3.4).
+* **Tâches Restantes :** Rien ! Le socle backend est 100% prêt.
 
 ### 4️⃣ Ibrahima Khalilou Diallo — Ingénieur Computer Vision & YOLO
 * **MVP Phase 1 :** ✅ **100%** — YOLOv8, ByteTrack.
@@ -55,8 +55,8 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 ### 5️⃣ Pathé Fall — Dev Fullstack Data, Algorithmes & Analytics
 * **MVP Phase 1 :** ✅ **100%** — Fusion bayésienne, APIs, Dashboard Analytics.
 * **Extensions Phase 1 :** ✅ **100%** — Connecteurs APIs (`test_connectors.py`), package Flutter Analytics, traitement audio, et tests de charge Locust (`locustfile.py`) complétés.
-* **Wow Features Phase 2 :** ⏳ **0%** — Doit injecter le prompt RAG pour l'assistant ornithologue avec LLM (T5.5) et calculer la formule d'impact (T5.6).
-* **Tâches Restantes :** RAG Prompting & Calcul d'Impact.
+* **Wow Features Phase 2 :** ✅ **100%** — Moteur RAG injecté (`llm_assistant.py`) et logique de la carte de chaleur écologique développée (`impact.py`).
+* **Tâches Restantes :** Rien, module Analytics / IA complètement terminé.
 
 ---
 
