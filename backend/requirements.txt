@@ -1,0 +1,40 @@
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+python-dotenv==1.0.1
+
+# Base de données
+asyncpg==0.30.0
+sqlalchemy[asyncio]==2.0.36
+alembic==1.14.0
+geoalchemy2==0.16.0
+psycopg2-binary==2.9.10
+
+# Auth & Sécurité
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+bcrypt==4.2.1
+python-multipart==0.0.17
+
+# Validation & Sérialization
+pydantic==2.10.3
+pydantic-settings==2.6.1
+email-validator==2.2.0
+
+# HTTP
+httpx==0.28.1
+
+# Utilitaires géospatiaux
+shapely==2.0.6
+pyproj==3.7.0
+
+# Tests
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1
+
+# Logging & Monitoring
+structlog==24.4.0
+
+# Traitement Asynchrone (Celery + Redis)
+celery==5.4.0
+redis==5.2.0
