@@ -34,9 +34,7 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.species.commonNameFr),
-      ),
+      appBar: AppBar(title: Text(widget.species.commonNameFr)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -54,9 +52,16 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.flutter_dash, size: 80, color: AppColors.accentAmber),
+                  Icon(
+                    Icons.flutter_dash,
+                    size: 80,
+                    color: AppColors.accentAmber,
+                  ),
                   SizedBox(height: 8),
-                  Text('Photo d\'illustration', style: TextStyle(color: AppColors.textMuted)),
+                  Text(
+                    'Photo d\'illustration',
+                    style: TextStyle(color: AppColors.textMuted),
+                  ),
                 ],
               ),
             ),
@@ -72,7 +77,10 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
                     children: [
                       Text(
                         widget.species.commonNameFr,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -87,14 +95,20 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getIucnColor(widget.species.iucnCategory),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'Statut: ${widget.species.iucnCategory}',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -110,7 +124,11 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
                     IconButton(
                       iconSize: 40,
                       color: AppColors.secondaryTerracotta,
-                      icon: Icon(_isPlayingAudio ? Icons.pause_circle_filled : Icons.play_circle_fill),
+                      icon: Icon(
+                        _isPlayingAudio
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_fill,
+                      ),
                       onPressed: () {
                         setState(() {
                           _isPlayingAudio = !_isPlayingAudio;
@@ -128,8 +146,13 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            _isPlayingAudio ? 'Lecture en cours (API eBird/BirdNET)...' : 'Appuyez pour écouter',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
+                            _isPlayingAudio
+                                ? 'Lecture en cours (API eBird/BirdNET)...'
+                                : 'Appuyez pour écouter',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textMuted,
+                            ),
                           ),
                         ],
                       ),
@@ -143,12 +166,20 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
             // Description
             const Text(
               'Description & Habitat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.accentAmber),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.accentAmber,
+              ),
             ),
             const SizedBox(height: 8),
             Text(
               widget.species.description,
-              style: const TextStyle(fontSize: 15, height: 1.4, color: AppColors.textPrimary),
+              style: const TextStyle(
+                fontSize: 15,
+                height: 1.4,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 20),
 

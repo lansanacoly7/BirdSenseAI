@@ -66,7 +66,10 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
                 FloatingActionButton.small(
                   heroTag: 'btn_my_location',
                   backgroundColor: AppColors.primaryCanopy,
-                  child: const Icon(Icons.my_location, color: AppColors.accentAmber),
+                  child: const Icon(
+                    Icons.my_location,
+                    color: AppColors.accentAmber,
+                  ),
                   onPressed: () {},
                 ),
               ],
@@ -90,7 +93,10 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
                         color: AppColors.primaryCanopy,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.location_on, color: AppColors.accentAmber),
+                      child: const Icon(
+                        Icons.location_on,
+                        color: AppColors.accentAmber,
+                      ),
                     ),
                     const SizedBox(width: 14),
                     Expanded(
@@ -100,12 +106,18 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
                         children: [
                           Text(
                             'Zone : Parc National des Oiseaux du Djoudj',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
                           ),
                           SizedBox(height: 4),
                           Text(
                             '142 observations enregistrées cette semaine',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                         ],
                       ),

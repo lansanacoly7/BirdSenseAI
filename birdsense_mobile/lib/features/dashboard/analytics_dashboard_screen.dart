@@ -7,9 +7,7 @@ class AnalyticsDashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tableau de Bord & Impact'),
-      ),
+      appBar: AppBar(title: const Text('Tableau de Bord & Impact')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -35,7 +33,11 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                       color: AppColors.accentAmber,
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(Icons.eco, color: AppColors.primaryCanopy, size: 32),
+                    child: const Icon(
+                      Icons.eco,
+                      color: AppColors.primaryCanopy,
+                      size: 32,
+                    ),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -44,7 +46,10 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                       children: [
                         Text(
                           'Bird Health Score',
-                          style: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 14,
+                          ),
                         ),
                         SizedBox(height: 4),
                         Text(
@@ -58,7 +63,10 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                         SizedBox(height: 4),
                         Text(
                           'Biodiversité Élevée (Indice Shannon-Wiener)',
-                          style: TextStyle(color: AppColors.accentAmber, fontSize: 11),
+                          style: TextStyle(
+                            color: AppColors.accentAmber,
+                            fontSize: 11,
+                          ),
                         ),
                       ],
                     ),
@@ -95,7 +103,11 @@ class AnalyticsDashboardScreen extends StatelessWidget {
             // Distribution Chart Placeholder
             const Text(
               'Répartition des Espèces (FL Chart)',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textPrimary,
+              ),
             ),
             const SizedBox(height: 12),
             Card(
@@ -103,11 +115,23 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    _buildStatRow('Pélican blanc', '45%', AppColors.primaryCanopy),
+                    _buildStatRow(
+                      'Pélican blanc',
+                      '45%',
+                      AppColors.primaryCanopy,
+                    ),
                     const SizedBox(height: 8),
-                    _buildStatRow('Flamant rose', '30%', AppColors.secondaryTerracotta),
+                    _buildStatRow(
+                      'Flamant rose',
+                      '30%',
+                      AppColors.secondaryTerracotta,
+                    ),
                     const SizedBox(height: 8),
-                    _buildStatRow('Héron goliath', '15%', AppColors.accentAmber),
+                    _buildStatRow(
+                      'Héron goliath',
+                      '15%',
+                      AppColors.accentAmber,
+                    ),
                     const SizedBox(height: 8),
                     _buildStatRow('Autres espèces', '10%', AppColors.textMuted),
                   ],
@@ -134,9 +158,18 @@ class AnalyticsDashboardScreen extends StatelessWidget {
           children: [
             Icon(icon, color: color, size: 28),
             const SizedBox(height: 12),
-            Text(value, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+            Text(
+              value,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 4),
-            Text(title, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
+            ),
           ],
         ),
       ),
@@ -152,8 +185,19 @@ class AnalyticsDashboardScreen extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 10),
-        Expanded(child: Text(label, style: const TextStyle(fontWeight: FontWeight.w500))),
-        Text(percentage, style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.textSecondary)),
+        Expanded(
+          child: Text(
+            label,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+        ),
+        Text(
+          percentage,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: AppColors.textSecondary,
+          ),
+        ),
       ],
     );
   }

@@ -31,12 +31,20 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(Icons.flutter_dash, size: 72, color: AppColors.accentAmber),
+              const Icon(
+                Icons.flutter_dash,
+                size: 72,
+                color: AppColors.accentAmber,
+              ),
               const SizedBox(height: 16),
               const Text(
                 'BirdSense AI',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(

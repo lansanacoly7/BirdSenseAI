@@ -38,10 +38,7 @@ class AppTheme {
               fontWeight: FontWeight.bold,
             );
           }
-          return const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 12,
-          );
+          return const TextStyle(color: AppColors.textSecondary, fontSize: 12);
         }),
         iconTheme: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
@@ -53,9 +50,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: AppColors.surfaceDark,
         elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
@@ -83,10 +78,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );

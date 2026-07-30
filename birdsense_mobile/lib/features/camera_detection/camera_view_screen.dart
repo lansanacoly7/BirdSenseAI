@@ -1,177 +1,245 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class CameraViewScreen extends StatefulWidget {
+import '../../core/providers.dart';
+import '../../core/theme/app_colors.dart';
+import '../local_observations/presentation/pages/local_observations_page.dart';
+import 'presentation/widgets/bounding_box_painter.dart';
+import 'providers/camera_provider.dart';
+
+/// Écran principal de capture caméra avec overlay IA.
+///
+/// Responsabilités :
+/// - Afficher le flux vidéo en temps réel.
+/// - Dessiner les bounding boxes des détections IA via [BoundingBoxPainter].
+/// - Permettre la capture photo (sauvegarde offline via [ObservationRepository]).
+/// - Permettre l'enregistrement vidéo MP4.
+/// - Naviguer vers la page [LocalObservationsPage] pour consulter/synchro.
+class CameraViewScreen extends ConsumerWidget {
   const CameraViewScreen({super.key});
 
   @override
-  State<CameraViewScreen> createState() => _CameraViewScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cameraState = ref.watch(cameraProvider);
 
-class _CameraViewScreenState extends State<CameraViewScreen> {
-  final int _birdCount = 3;
+    // Comptage des oiseaux uniques (par trackId, ou par label en fallback).
+    final uniqueBirdCount = cameraState.detections
+        .map((d) => d.trackId ?? d.label)
+        .toSet()
+        .length;
 
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Camera Preview Viewport Placeholder
-          Container(
-            color: Colors.black,
-            width: double.infinity,
-            height: double.infinity,
-            child: Stack(
+          _buildCameraPreview(cameraState),
+          _buildBoundingBoxOverlay(cameraState),
+          _buildTopCounter(cameraState, uniqueBirdCount),
+          _buildBottomBar(context, ref, cameraState),
+        ],
+      ),
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Widgets privés
+  // ---------------------------------------------------------------------------
+
+  /// Aperçu caméra ou indicateur de chargement.
+  Widget _buildCameraPreview(CameraState cameraState) {
+    if (cameraState.isInitialized && cameraState.controller != null) {
+      return SizedBox.expand(child: CameraPreview(cameraState.controller!));
+    }
+    return const Center(
+      child: CircularProgressIndicator(color: AppColors.primaryCanopy),
+    );
+  }
+
+  /// Overlay des bounding boxes (masqué pendant l'enregistrement vidéo).
+  Widget _buildBoundingBoxOverlay(CameraState cameraState) {
+    if (!cameraState.isInitialized ||
+        cameraState.controller == null ||
+        cameraState.isRecordingVideo) {
+      return const SizedBox.shrink();
+    }
+
+    return Positioned.fill(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return CustomPaint(
+            painter: BoundingBoxPainter(
+              detections: cameraState.detections,
+              boxFit: BoxFit.cover,
+              previewSize: Size(constraints.maxWidth, constraints.maxHeight),
+              imageSize: cameraState.controller!.value.previewSize ?? Size.zero,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  /// Bandeau supérieur : compteur d'oiseaux et badge IA.
+  Widget _buildTopCounter(CameraState cameraState, int birdCount) {
+    return Positioned(
+      top: 50,
+      left: 20,
+      right: 20,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: AppColors.surfaceGlass,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.accentAmber.withAlpha(100)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
               children: [
-                Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.camera_alt, size: 80, color: Colors.white.withAlpha(50)),
-                      const SizedBox(height: 12),
-                      const Text(
-                        'Aperçu Caméra 30 FPS (Moteur Hardware Membre 2)',
-                        style: TextStyle(color: AppColors.textMuted),
-                      ),
-                    ],
+                const Icon(Icons.flutter_dash, color: AppColors.accentAmber),
+                const SizedBox(width: 8),
+                Text(
+                  'Oiseaux Détectés : $birdCount',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
                   ),
-                ),
-                // Simulated Overlays (CustomPainter integration point)
-                CustomPaint(
-                  size: Size.infinite,
-                  painter: MockBoundingBoxPainter(),
                 ),
               ],
             ),
-          ),
-
-          // Top Header Overlay Counter
-          Positioned(
-            top: 50,
-            left: 20,
-            right: 20,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppColors.surfaceGlass,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.accentAmber.withAlpha(100)),
+                color: cameraState.isRecordingVideo
+                    ? Colors.red
+                    : AppColors.primaryCanopy,
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.flutter_dash, color: AppColors.accentAmber),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Oiseaux Détectés : $_birdCount',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.primaryCanopy,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Text(
-                      'IA Active',
-                      style: TextStyle(color: AppColors.accentAmber, fontSize: 12),
-                    ),
-                  ),
-                ],
+              child: Text(
+                cameraState.isRecordingVideo ? 'REC' : 'IA Active',
+                style: const TextStyle(
+                  color: AppColors.accentAmber,
+                  fontSize: 12,
+                ),
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Barre inférieure : bouton vidéo, shutter photo, bouton observations.
+  Widget _buildBottomBar(
+    BuildContext context,
+    WidgetRef ref,
+    CameraState cameraState,
+  ) {
+    final notifier = ref.read(cameraProvider.notifier);
+
+    return Positioned(
+      bottom: 30,
+      left: 0,
+      right: 0,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          // Bouton vidéo
+          FloatingActionButton.small(
+            heroTag: 'video_btn',
+            backgroundColor: cameraState.isRecordingVideo
+                ? Colors.red
+                : AppColors.surfaceDark,
+            onPressed: notifier.toggleVideoRecording,
+            child: Icon(
+              cameraState.isRecordingVideo ? Icons.stop : Icons.videocam,
+              color: Colors.white,
             ),
           ),
 
-          // Bottom Shutter & Action Bar
-          Positioned(
-            bottom: 30,
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                FloatingActionButton.small(
-                  heroTag: 'flash_btn',
-                  backgroundColor: AppColors.surfaceDark,
-                  child: const Icon(Icons.flash_off, color: Colors.white),
-                  onPressed: () {},
-                ),
-                GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Observation enregistrée localement (Mode Offline) !'),
-                        backgroundColor: AppColors.primaryCanopy,
-                      ),
-                    );
-                  },
-                  child: Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.secondaryTerracotta,
-                      border: Border.all(color: Colors.white, width: 4),
-                    ),
-                    child: const Icon(Icons.camera, size: 36, color: Colors.white),
-                  ),
-                ),
-                FloatingActionButton.small(
-                  heroTag: 'switch_cam_btn',
-                  backgroundColor: AppColors.surfaceDark,
-                  child: const Icon(Icons.flip_camera_ios, color: Colors.white),
-                  onPressed: () {},
-                ),
-              ],
+          // Shutter photo
+          GestureDetector(
+            onTap: cameraState.isRecordingVideo
+                ? null
+                : () => _onCapture(context, ref, cameraState),
+            child: Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: cameraState.isRecordingVideo
+                    ? Colors.grey
+                    : AppColors.secondaryTerracotta,
+                border: Border.all(color: Colors.white, width: 4),
+              ),
+              child: const Icon(Icons.camera, size: 36, color: Colors.white),
             ),
+          ),
+
+          // Bouton observations locales
+          FloatingActionButton.small(
+            heroTag: 'observations_btn',
+            backgroundColor: AppColors.surfaceDark,
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const LocalObservationsPage(),
+                ),
+              );
+            },
+            child: const Icon(Icons.cloud_upload, color: Colors.white),
           ),
         ],
       ),
     );
   }
-}
 
-class MockBoundingBoxPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = const Color(0xFFF4A261)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3.0;
+  // ---------------------------------------------------------------------------
+  // Actions
+  // ---------------------------------------------------------------------------
 
-    final textStyle = const TextStyle(
-      color: Colors.white,
-      backgroundColor: Color(0xFF1E3A2B),
-      fontSize: 12,
-      fontWeight: FontWeight.bold,
-    );
+  /// Capture une photo, sauvegarde en base locale via le repository.
+  Future<void> _onCapture(
+    BuildContext context,
+    WidgetRef ref,
+    CameraState cameraState,
+  ) async {
+    HapticFeedback.lightImpact(); // Retour tactile premium
+    final notifier = ref.read(cameraProvider.notifier);
+    final path = await notifier.takePicture();
 
-    // Mock bounding box 1
-    final rect1 = Rect.fromLTWH(size.width * 0.2, size.height * 0.3, 140, 100);
-    canvas.drawRect(rect1, paint);
-    _drawLabel(canvas, rect1, 'Pélican blanc (94%)', textStyle);
+    if (!context.mounted || path == null) return;
 
-    // Mock bounding box 2
-    final rect2 = Rect.fromLTWH(size.width * 0.55, size.height * 0.45, 120, 90);
-    canvas.drawRect(rect2, paint);
-    _drawLabel(canvas, rect2, 'Flamant rose (88%)', textStyle);
+    try {
+      final repo = ref.read(observationRepositoryProvider);
+      final userId = ref.read(authUserIdProvider);
+
+      await repo.saveObservation(
+        userId: userId,
+        photoPath: path,
+        detections: cameraState.detections,
+      );
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Observation sauvegardée (Pending)'),
+            backgroundColor: AppColors.primaryCanopy,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Erreur de sauvegarde : $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
-
-  void _drawLabel(Canvas canvas, Rect rect, String text, TextStyle style) {
-    final span = TextSpan(text: ' $text ', style: style);
-    final tp = TextPainter(text: span, textDirection: TextDirection.ltr);
-    tp.layout();
-    tp.paint(canvas, Offset(rect.left, rect.top - 18));
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

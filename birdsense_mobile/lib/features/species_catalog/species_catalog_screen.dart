@@ -37,7 +37,8 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
       commonNameFr: 'Pélican blanc',
       family: 'Pelecanidae',
       iucnCategory: 'LC',
-      description: 'Grand oiseau aquatique caractérisé par une large poche sous le bec.',
+      description:
+          'Grand oiseau aquatique caractérisé par une large poche sous le bec.',
     ),
     SpeciesItem(
       id: '2',
@@ -45,7 +46,8 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
       commonNameFr: 'Flamant rose',
       family: 'Phoenicopteridae',
       iucnCategory: 'LC',
-      description: 'Grand échassier aux plumes roses vivant dans les lagunes et lacs salés.',
+      description:
+          'Grand échassier aux plumes roses vivant dans les lagunes et lacs salés.',
     ),
     SpeciesItem(
       id: '3',
@@ -53,7 +55,8 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
       commonNameFr: 'Aigle pêcheur d\'Afrique',
       family: 'Accipitridae',
       iucnCategory: 'LC',
-      description: 'Rapace emblématique des zones humides africaines au cri puissant.',
+      description:
+          'Rapace emblématique des zones humides africaines au cri puissant.',
     ),
     SpeciesItem(
       id: '4',
@@ -61,7 +64,8 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
       commonNameFr: 'Vautour charognard',
       family: 'Accipitridae',
       iucnCategory: 'CR',
-      description: 'Petit vautour d\'Afrique de l\'Ouest, en danger critique d\'extinction.',
+      description:
+          'Petit vautour d\'Afrique de l\'Ouest, en danger critique d\'extinction.',
     ),
     SpeciesItem(
       id: '5',
@@ -99,9 +103,7 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
     }).toList();
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Catalogue des Espèces'),
-      ),
+      appBar: AppBar(title: const Text('Catalogue des Espèces')),
       body: Column(
         children: [
           Padding(
@@ -131,11 +133,18 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
                         color: AppColors.primaryCanopy.withAlpha(80),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Icon(Icons.flutter_dash, color: AppColors.accentAmber, size: 28),
+                      child: const Icon(
+                        Icons.flutter_dash,
+                        color: AppColors.accentAmber,
+                        size: 28,
+                      ),
                     ),
                     title: Text(
                       item.commonNameFr,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                     subtitle: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,17 +152,29 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
                         const SizedBox(height: 4),
                         Text(
                           item.scientificName,
-                          style: const TextStyle(fontStyle: FontStyle.italic, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                         const SizedBox(height: 4),
-                        Text(item.family, style: const TextStyle(fontSize: 12, color: AppColors.textMuted)),
+                        Text(
+                          item.family,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textMuted,
+                          ),
+                        ),
                       ],
                     ),
                     trailing: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
                           decoration: BoxDecoration(
                             color: _getIucnColor(item.iucnCategory),
                             borderRadius: BorderRadius.circular(6),
@@ -173,7 +194,8 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => SpeciesDetailScreen(species: item),
+                          builder: (context) =>
+                              SpeciesDetailScreen(species: item),
                         ),
                       );
                     },

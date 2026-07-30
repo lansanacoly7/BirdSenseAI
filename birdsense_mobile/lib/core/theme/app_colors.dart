@@ -16,7 +16,9 @@ class AppColors {
   static const Color iucnNearThreatened = Color(0xFFF9A825); // NT - Jaune
   static const Color iucnVulnerable = Color(0xFFEF6C00); // VU - Orange
   static const Color iucnEndangered = Color(0xFFC62828); // EN - Rouge
-  static const Color iucnCriticallyEndangered = Color(0xFF880E4F); // CR - Rouge Sombre
+  static const Color iucnCriticallyEndangered = Color(
+    0xFF880E4F,
+  ); // CR - Rouge Sombre
 
   // Text
   static const Color textPrimary = Color(0xFFF5F7F6);
