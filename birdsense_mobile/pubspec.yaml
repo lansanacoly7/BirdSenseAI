@@ -46,6 +46,10 @@ dependencies:
   json_annotation: ^4.12.0
   uuid: ^4.6.0
   workmanager: ^0.5.2
+  flutter_map: ^8.3.1
+  latlong2: ^0.10.1
+  lottie: ^3.3.3
+  sqlite3: ^3.5.0
 
 dev_dependencies:
   flutter_test:
@@ -72,12 +76,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
-
-  # An image asset can refer to one or more resolution-specific "variants", see
+  assets:
+    - assets/lottie/
   # https://flutter.dev/to/resolution-aware-images
 
   # For details regarding adding assets from package dependencies, see

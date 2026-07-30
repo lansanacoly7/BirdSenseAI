@@ -14,7 +14,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
 
   void _login() {
-    // Navigate to Main Application Navigation
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const MainNavigationScreen()),
@@ -24,70 +23,120 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              const Icon(
-                Icons.flutter_dash,
-                size: 72,
-                color: AppColors.accentAmber,
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'BirdSense AI',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Logo Area
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryAction.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.eco, size: 54, color: AppColors.primaryAction),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                'Suivi & Détection Intelligente de la Biodiversité',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
-              ),
-              const SizedBox(height: 40),
-
-              TextField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email d\'ornithologue',
-                  prefixIcon: Icon(Icons.email, color: AppColors.textSecondary),
+                const SizedBox(height: 32),
+                
+                // Titles
+                const Text(
+                  'BirdSense AI',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 32, 
+                    fontWeight: FontWeight.w800, 
+                    color: AppColors.textPrimary,
+                    letterSpacing: -1.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-
-              TextField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Mot de passe',
-                  prefixIcon: Icon(Icons.lock, color: AppColors.textSecondary),
+                const SizedBox(height: 8),
+                const Text(
+                  'Détection Intelligente & Suivi Aviaire',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16, 
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: -0.2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 48),
 
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text('Se Connecter'),
-              ),
-              const SizedBox(height: 16),
-
-              TextButton(
-                onPressed: _login,
-                child: const Text(
-                  'Continuer en mode Invité / Hors-Ligne',
-                  style: TextStyle(color: AppColors.accentAmber),
+                // Form Area
+                Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.02),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      )
+                    ],
+                  ),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: const InputDecoration(
+                          hintText: 'Adresse Email',
+                          prefixIcon: Icon(Icons.person_outline, color: AppColors.textSecondary),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          fillColor: Colors.transparent,
+                        ),
+                      ),
+                      const Divider(height: 1, color: AppColors.border),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: const InputDecoration(
+                          hintText: 'Mot de passe',
+                          prefixIcon: Icon(Icons.lock_outline, color: AppColors.textSecondary),
+                          border: InputBorder.none,
+                          enabledBorder: InputBorder.none,
+                          focusedBorder: InputBorder.none,
+                          fillColor: Colors.transparent,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+                const SizedBox(height: 32),
+
+                // Actions
+                ElevatedButton(
+                  onPressed: _login,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  child: const Text('Se Connecter'),
+                ),
+                const SizedBox(height: 16),
+                
+                TextButton(
+                  onPressed: _login,
+                  child: const Text(
+                    'Continuer en mode Invité',
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

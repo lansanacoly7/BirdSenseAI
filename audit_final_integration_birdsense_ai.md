@@ -19,8 +19,8 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 | Membre & Rôle | Branche | Statut Fusion | MVP Complétude | Extensions Complétude | Score Global |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **0%** *(0/2)* | **8.5 / 10** |
-| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **40%** | **0%** *(0/2)* | **4.0 / 10** |
-| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **75%** *(1.5/2)* | **9.5 / 10** |
+| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **100%** | **0%** *(0/2)* | **8.0 / 10** |
+| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **100%** *(2/2)* | **10 / 10** |
 | **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | **100%** | **100%** *(4/4)* | **10 / 10** |
 | **5. Pathé Fall**<br>*Dev Fullstack Data & Analytics* | `pathe-fall` | **MERGED** | **100%** | **66%** *(2/3)* | **9.5 / 10** |
 
@@ -31,23 +31,24 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 ---
 
 ### 1️⃣ Lansana Coly — Lead Mobile UI & Cartographie
-* **Extension 1 (Tuiles offline .mbtiles) :** ❌ **Non réalisée** — L'UI Mapbox avec bascule Heatmap/Marqueurs est opérationnelle, mais le système de stockage local `.mbtiles` n'a pas été codé.
+* **Extension 1 (Tuiles offline .mbtiles) :** ❌ **Non réalisée** — L'UI Mapbox avec bascule Heatmap/Marqueurs est opérationnelle, mais le système de stockage local `.mbtiles` n'a pas été codé. (Note : Des fonctionnalités "WOW" Phase 2 ont été ajoutées à la place : Radar AR, Chatbot IA, Jauges Écolo).
 * **Extension 2 (Animations Lottie/Rive) :** ❌ **Non réalisée** — Aucun package ni asset Lottie/Rive n'a été importé.
 * **Bilan Extensions : 0 / 2 (0%)**
 
 ---
 
 ### 2️⃣ El Hadji Massogui Diop — Dev Mobile Hardware, Camera & SQLite
-* **Extension 1 (Sync automatique WorkManager) :** ❌ **Non réalisée** — Seul `Hackathon_Context.md` a été poussé sur sa branche.
-* **Extension 2 (Chiffrement SQLCipher) :** ❌ **Non réalisée**.
+* **MVP (Base de données & Caméra) :** ✅ **Réalisé (100%)** — Le stockage local SQLite (Drift), le `CameraProvider` et le service de synchronisation réseau ont été intégrés.
+* **Extension 1 (Sync automatique WorkManager) :** ❌ **Non réalisée** — L'exécution en arrière-plan via WorkManager n'a pas été configurée.
+* **Extension 2 (Chiffrement SQLCipher) :** ❌ **Non réalisée** — Utilisation de `sqlite3_flutter_libs` sans module de chiffrement.
 * **Bilan Extensions : 0 / 2 (0%)**
 
 ---
 
 ### 3️⃣ Pape Alioune Sène — Dev Backend Core & Infrastructure
 * **Extension 1 (Dockerfile & Migrations Alembic) :** ✅ **Réalisée (100%)** — Présence de `backend/Dockerfile`, `backend/alembic.ini` et du dossier `backend/migrations/`.
-* **Extension 2 (Queue Celery + Redis) :** 🟡 **Partiellement réalisée (50%)** — `docker-compose.yml` inclut les services Redis/PostgreSQL, mais l'exécution asynchrone utilise les `BackgroundTasks` natives de FastAPI.
-* **Bilan Extensions : 1.5 / 2 (75%)**
+* **Extension 2 (Queue Celery + Redis) :** ✅ **Réalisée (100%)** — `celery_app.py`, workers et redis configurés dans `docker-compose.yml`.
+* **Bilan Extensions : 2 / 2 (100%)**
 
 ---
 
@@ -70,5 +71,5 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 
 ## 🎯 Bilan Global des Extensions
 * **Champion de l'Innovation & Extensions :** **Ibrahima Khalilou Diallo** (100% des extensions réalisées avec livraison de code C++ native, bindings FFI et classifier BioCLIP).
-* **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF).
+* **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic + Celery + Redis) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF).
 * **Focus prioritaire à poursuivre :** Les extensions UI/Hardware mobile (tuiles offline Mapbox et synchronisation automatique).

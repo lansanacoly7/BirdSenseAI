@@ -61,7 +61,7 @@ class _RadarPainter extends CustomPainter {
       final opacity = (1.0 - waveProgress).clamp(0.0, 1.0);
 
       final wavePaint = Paint()
-        ..color = AppColors.accentAmber.withAlpha((opacity * 120).toInt())
+        ..color = AppColors.primaryAction.withAlpha((opacity * 120).toInt())
         ..style = PaintingStyle.stroke
         ..strokeWidth = 2.0;
 
@@ -70,7 +70,7 @@ class _RadarPainter extends CustomPainter {
 
     // Concentric Target Rings
     final ringPaint = Paint()
-      ..color = AppColors.primaryCanopy.withAlpha(100)
+      ..color = AppColors.primaryAction.withAlpha(50)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
@@ -81,7 +81,7 @@ class _RadarPainter extends CustomPainter {
     // Rotating Radar Line
     final angle = progress * 2 * math.pi;
     final linePaint = Paint()
-      ..color = AppColors.accentAmber.withAlpha(180)
+      ..color = AppColors.primaryAction.withAlpha(180)
       ..strokeWidth = 2.5
       ..strokeCap = StrokeCap.round;
 
@@ -94,7 +94,7 @@ class _RadarPainter extends CustomPainter {
 
     // Center Core Dot
     final corePaint = Paint()
-      ..color = AppColors.accentAmber
+      ..color = AppColors.primaryAction
       ..style = PaintingStyle.fill;
     canvas.drawCircle(center, 5.0, corePaint);
   }

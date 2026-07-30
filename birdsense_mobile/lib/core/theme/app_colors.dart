@@ -1,27 +1,28 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Brand Colors
-  static const Color primaryCanopy = Color(0xFF1E3A2B); // Vert Canopée
-  static const Color secondaryTerracotta = Color(0xFFE07A5F); // Terre Cuite
-  static const Color accentAmber = Color(0xFFF4A261); // Jaune Ambré
+  // Brand Colors (Apple Style Professional)
+  static const Color primaryAction = Color(0xFF34C759); // Vert vif (Nature/Action)
+  static const Color secondaryAction = Color(0xFF007AFF); // Bleu (Liens/Infos)
+  static const Color accent = Color(0xFFFF9500); // Orange (Alertes)
 
-  // Background & Surfaces (Dark Mode Default)
-  static const Color backgroundDark = Color(0xFF121513); // Noir Profond
-  static const Color surfaceDark = Color(0xFF1A211D); // Surface sombre
-  static const Color surfaceGlass = Color(0xCC1A211D); // Translucide 80%
+  // Background & Surfaces (Apple Light Mode)
+  static const Color background = Color(0xFFF2F2F7); // Gris très clair reposant
+  static const Color surface = Color(0xFFFFFFFF); // Blanc pur pour les cartes
+  static const Color surfaceElevated = Color(0xFFFFFFFF); 
 
-  // Status & Badges
-  static const Color iucnLeastConcern = Color(0xFF2E7D32); // LC - Vert
-  static const Color iucnNearThreatened = Color(0xFFF9A825); // NT - Jaune
-  static const Color iucnVulnerable = Color(0xFFEF6C00); // VU - Orange
-  static const Color iucnEndangered = Color(0xFFC62828); // EN - Rouge
-  static const Color iucnCriticallyEndangered = Color(
-    0xFF880E4F,
-  ); // CR - Rouge Sombre
+  // Status & Badges (IUCN)
+  static const Color iucnLeastConcern = Color(0xFF34C759); 
+  static const Color iucnNearThreatened = Color(0xFFFFCC00); 
+  static const Color iucnVulnerable = Color(0xFFFF9500); 
+  static const Color iucnEndangered = Color(0xFFFF3B30); 
+  static const Color iucnCriticallyEndangered = Color(0xFF8B0000); 
 
   // Text
-  static const Color textPrimary = Color(0xFFF5F7F6);
-  static const Color textSecondary = Color(0xFF9EA7A1);
-  static const Color textMuted = Color(0xFF6B746E);
+  static const Color textPrimary = Color(0xFF000000);
+  static const Color textSecondary = Color(0xFF8E8E93);
+  static const Color textMuted = Color(0xFFC7C7CC);
+
+  // Borders & Dividers
+  static const Color border = Color(0xFFE5E5EA);
 }

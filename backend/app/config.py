@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     # Géospatial — Floutage GPS pour espèces protégées
     gps_blur_radius_meters: float = 5000.0  # 5 km
 
+    # Celery & Redis (File d'attente pour traitement vidéo)
+    redis_url: str = "redis://localhost:6379/0"
+
 
 @lru_cache
 def get_settings() -> Settings:
