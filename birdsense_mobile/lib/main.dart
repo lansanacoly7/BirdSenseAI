@@ -1,13 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:workmanager/workmanager.dart';
+
 import 'core/network/network_observer.dart';
 import 'core/providers.dart';
 import 'core/theme/app_theme.dart';
 import 'features/auth/login_screen.dart';
 
+@pragma('vm:entry-point')
+void callbackDispatcher() {
+  Workmanager().executeTask((taskName, inputData) async {
+    if (taskName == 'syncObservationsTask') {
+      final container = ProviderContainer();
+      try {
+        final syncService = container.read(syncServiceProvider);
+        await syncService.syncPendingObservations();
+      } finally {
+        container.dispose();
+      }
+    }
+    return Future.value(true);
+  });
+}
+
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  Workmanager().initialize(
+    callbackDispatcher,
+    isInDebugMode: true,
+  );
+  
+  Workmanager().registerPeriodicTask(
+    'sync_observations',
+    'syncObservationsTask',
+    frequency: const Duration(minutes: 30),
+    constraints: Constraints(
+      networkType: NetworkType.connected,
+    ),
+  );
+
   runApp(const ProviderScope(child: BirdSenseApp()));
 }
 
