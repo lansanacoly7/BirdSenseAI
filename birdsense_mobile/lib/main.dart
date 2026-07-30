@@ -15,7 +15,7 @@ class BirdSenseApp extends StatelessWidget {
     return MaterialApp(
       title: 'BirdSense AI',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
       home: const LoginScreen(),
     );
   }

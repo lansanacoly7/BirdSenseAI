@@ -33,145 +33,259 @@ class _SpeciesDetailScreenState extends State<SpeciesDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.species.commonNameFr),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header Image Placeholder / Icon
-            Container(
-              height: 200,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.primaryCanopy.withAlpha(120),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: AppColors.accentAmber.withAlpha(80)),
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.flutter_dash, size: 80, color: AppColors.accentAmber),
-                  SizedBox(height: 8),
-                  Text('Photo d\'illustration', style: TextStyle(color: AppColors.textMuted)),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
+    final iucnColor = _getIucnColor(widget.species.iucnCategory);
 
-            // Names & Status
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      backgroundColor: AppColors.background,
+      body: CustomScrollView(
+        slivers: [
+          // Elegant Large Header
+          SliverAppBar(
+            expandedHeight: 350.0,
+            pinned: true,
+            elevation: 0,
+            backgroundColor: AppColors.surface,
+            iconTheme: const IconThemeData(color: AppColors.textPrimary),
+            flexibleSpace: FlexibleSpaceBar(
+              background: Hero(
+                tag: 'species_img_${widget.species.id}',
+                child: Container(
+                  color: AppColors.background,
+                  child: Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Text(
-                        widget.species.commonNameFr,
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      const Icon(
+                        Icons.eco,
+                        size: 140,
+                        color: AppColors.textMuted,
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        widget.species.scientificName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontStyle: FontStyle.italic,
-                          color: AppColors.textSecondary,
+                      Positioned(
+                        bottom: 0,
+                        left: 0,
+                        right: 0,
+                        height: 120,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomCenter,
+                              end: Alignment.topCenter,
+                              colors: [
+                                AppColors.surface.withOpacity(1),
+                                AppColors.surface.withOpacity(0),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: _getIucnColor(widget.species.iucnCategory),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Text(
-                    'Statut: ${widget.species.iucnCategory}',
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Audio Player Mock Card (BirdNET / eBird audio call)
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    IconButton(
-                      iconSize: 40,
-                      color: AppColors.secondaryTerracotta,
-                      icon: Icon(_isPlayingAudio ? Icons.pause_circle_filled : Icons.play_circle_fill),
-                      onPressed: () {
-                        setState(() {
-                          _isPlayingAudio = !_isPlayingAudio;
-                        });
-                      },
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Chant & Cri de l\'espèce',
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            _isPlayingAudio ? 'Lecture en cours (API eBird/BirdNET)...' : 'Appuyez pour écouter',
-                            style: const TextStyle(fontSize: 12, color: AppColors.textMuted),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
-            const SizedBox(height: 20),
-
-            // Description
-            const Text(
-              'Description & Habitat',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.accentAmber),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              widget.species.description,
-              style: const TextStyle(fontSize: 15, height: 1.4, color: AppColors.textPrimary),
-            ),
-            const SizedBox(height: 20),
-
-            // Family Info
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.surfaceDark,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Row(
+          ),
+          
+          // Content
+          SliverToBoxAdapter(
+            child: Container(
+              color: AppColors.surface,
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.category, color: AppColors.textSecondary),
-                  const SizedBox(width: 10),
-                  Text(
-                    'Famille taxonomique : ${widget.species.family}',
-                    style: const TextStyle(color: AppColors.textSecondary),
+                  // Names and IUCN Badge
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.species.commonNameFr,
+                              style: const TextStyle(
+                                fontSize: 32,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -1.2,
+                                height: 1.1,
+                              ),
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              widget.species.scientificName,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontStyle: FontStyle.italic,
+                                color: AppColors.textSecondary,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: iucnColor.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: iucnColor.withOpacity(0.3)),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              'UICN',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: iucnColor,
+                              ),
+                            ),
+                            Text(
+                              widget.species.iucnCategory,
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w900,
+                                color: iucnColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
+                  const SizedBox(height: 32),
+
+                  // Audio Player Mock Card (Apple style)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: AppColors.background,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    padding: const EdgeInsets.all(16.0),
+                    child: Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              _isPlayingAudio = !_isPlayingAudio;
+                            });
+                          },
+                          child: Container(
+                            width: 54,
+                            height: 54,
+                            decoration: BoxDecoration(
+                              color: AppColors.primaryAction,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.primaryAction.withOpacity(0.3),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Icon(
+                              _isPlayingAudio ? Icons.pause : Icons.play_arrow,
+                              color: Colors.white,
+                              size: 32,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Chant & Cri',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 16,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              const SizedBox(height: 2),
+                              Text(
+                                _isPlayingAudio ? 'Lecture en cours...' : 'Appuyez pour écouter (BirdNET)',
+                                style: const TextStyle(
+                                  fontSize: 13, 
+                                  color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Description Section
+                  const Text(
+                    'Description & Habitat',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    widget.species.description,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      height: 1.6,
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+
+                  // Family Section
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: AppColors.border),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.account_tree_outlined, color: AppColors.primaryAction, size: 28),
+                        const SizedBox(width: 16),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Classification Taxonomique',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textSecondary,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              'Famille: ${widget.species.family}',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 60), // Bottom padding
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

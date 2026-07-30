@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
 import '../../core/theme/app_colors.dart';
 import 'offline_map_manager.dart';
 
@@ -10,44 +12,79 @@ class ObservationMapScreen extends StatefulWidget {
 }
 
 class _ObservationMapScreenState extends State<ObservationMapScreen> {
-  bool _showHeatmap = true;
+  final MapController _mapController = MapController();
   final OfflineMapManager _offlineManager = OfflineMapManager();
+  
+  // Coordonnées du Parc National des Oiseaux du Djoudj
+  final LatLng _djoudjCenter = const LatLng(16.4258, -16.2333);
 
-  void _showOfflinePackSheet() {
+  // Exemple de points d'observations
+  final List<Marker> _markers = [
+    Marker(
+      point: const LatLng(16.43, -16.23),
+      width: 40,
+      height: 40,
+      child: const Icon(Icons.location_on, color: AppColors.primaryAction, size: 36),
+    ),
+    Marker(
+      point: const LatLng(16.42, -16.24),
+      width: 40,
+      height: 40,
+      child: const Icon(Icons.location_on, color: AppColors.accent, size: 36),
+    ),
+    Marker(
+      point: const LatLng(16.44, -16.22),
+      width: 40,
+      height: 40,
+      child: const Icon(Icons.location_on, color: AppColors.iucnEndangered, size: 36),
+    ),
+  ];
+
+  void _zoomIn() {
+    _mapController.move(_mapController.camera.center, _mapController.camera.zoom + 1);
+  }
+
+  void _zoomOut() {
+    _mapController.move(_mapController.camera.center, _mapController.camera.zoom - 1);
+  }
+
+  void _goToDjoudj() {
+    _mapController.move(_djoudjCenter, 12);
+  }
+
+  void _showOfflineSheet() {
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: AppColors.surface,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) => ListenableBuilder(
         listenable: _offlineManager,
         builder: (context, _) {
-          return Padding(
-            padding: const EdgeInsets.all(20.0),
+          return Container(
+            padding: const EdgeInsets.all(24),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Icon(Icons.download_for_offline, color: AppColors.accentAmber),
-                    const SizedBox(width: 10),
                     const Text(
-                      'Cartes Hors-Ligne (.mbtiles)',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'Cartes Hors-Ligne',
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                     ),
-                    const Spacer(),
                     IconButton(
                       icon: const Icon(Icons.close, color: AppColors.textMuted),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 const Text(
-                  'Téléchargez les tuiles vectorielles Mapbox pour une navigation 100% hors-ligne en zone blanche.',
-                  style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  'Téléchargez les cartes pour une utilisation en zone blanche.',
+                  style: TextStyle(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 16),
                 Flexible(
@@ -57,83 +94,51 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
                     itemBuilder: (context, index) {
                       final pack = _offlineManager.availablePacks[index];
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(12),
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: AppColors.backgroundDark,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: pack.status == OfflinePackStatus.downloaded
-                                ? AppColors.primaryCanopy
-                                : AppColors.surfaceDark,
-                          ),
+                          color: AppColors.background,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: AppColors.border),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Expanded(
-                                  child: Text(
-                                    pack.regionName,
-                                    style: const TextStyle(fontWeight: FontWeight.bold),
-                                  ),
+                                Text(
+                                  pack.regionName,
+                                  style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
                                 ),
+                                const SizedBox(height: 4),
                                 Text(
                                   '${pack.estimatedSizeMb} MB',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: AppColors.accentAmber,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              pack.boundsDescription,
-                              style: const TextStyle(fontSize: 11, color: AppColors.textMuted),
-                            ),
-                            const SizedBox(height: 8),
-                            if (pack.status == OfflinePackStatus.downloading) ...[
-                              LinearProgressIndicator(
-                                value: pack.downloadProgress,
-                                backgroundColor: AppColors.surfaceDark,
-                                color: AppColors.accentAmber,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Téléchargement: ${(pack.downloadProgress * 100).toStringAsFixed(0)}%',
-                                style: const TextStyle(fontSize: 10, color: AppColors.textSecondary),
-                              ),
-                            ] else if (pack.status == OfflinePackStatus.downloaded) ...[
-                              Row(
-                                children: [
-                                  const Icon(Icons.check_circle, color: AppColors.iucnLeastConcern, size: 16),
-                                  const SizedBox(width: 4),
-                                  const Text(
-                                    'Pack Téléchargé & Prêt',
-                                    style: TextStyle(fontSize: 11, color: AppColors.iucnLeastConcern),
-                                  ),
-                                  const Spacer(),
-                                  TextButton(
-                                    onPressed: () => _offlineManager.deletePack(pack.id),
-                                    child: const Text('Supprimer', style: TextStyle(color: Colors.red, fontSize: 11)),
-                                  ),
-                                ],
-                              ),
-                            ] else ...[
+                            if (pack.status == OfflinePackStatus.downloading)
+                              const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.primaryAction),
+                              )
+                            else if (pack.status == OfflinePackStatus.downloaded)
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: AppColors.iucnEndangered),
+                                onPressed: () => _offlineManager.deletePack(pack.id),
+                              )
+                            else
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.primaryCanopy,
-                                  minimumSize: const Size(double.infinity, 36),
+                                  backgroundColor: AppColors.primaryAction,
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                                 ),
                                 icon: const Icon(Icons.download, size: 16),
-                                label: const Text('Télécharger le Pack Vectoriel'),
+                                label: const Text('Pack'),
                                 onPressed: () => _offlineManager.downloadPack(pack.id),
-                              ),
-                            ],
+                              )
                           ],
                         ),
                       );
@@ -143,7 +148,7 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
               ],
             ),
           );
-        },
+        }
       ),
     );
   }
@@ -151,109 +156,119 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Carte des Observations (Mapbox)'),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         actions: [
-          IconButton(
-            icon: const Icon(Icons.download_for_offline, color: AppColors.accentAmber),
-            tooltip: 'Gestionnaire Cartes Hors-Ligne',
-            onPressed: _showOfflinePackSheet,
-          ),
-          IconButton(
-            icon: Icon(
-              _showHeatmap ? Icons.map : Icons.local_fire_department,
-              color: AppColors.accentAmber,
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton.small(
+              heroTag: 'btn_offline',
+              backgroundColor: AppColors.surface,
+              onPressed: _showOfflineSheet,
+              child: const Icon(Icons.cloud_download_outlined, color: AppColors.primaryAction),
             ),
-            tooltip: _showHeatmap ? 'Vue Marqueurs' : 'Vue Carte de Chaleur',
-            onPressed: () {
-              setState(() {
-                _showHeatmap = !_showHeatmap;
-              });
-            },
           ),
         ],
       ),
       body: Stack(
         children: [
-          // Map Background Placeholder (Simulating Dark Mapbox Layer)
-          Container(
-            color: const Color(0xFF0F1713),
-            width: double.infinity,
-            height: double.infinity,
-            child: CustomPaint(
-              painter: MapGridPainter(showHeatmap: _showHeatmap),
+          // The Actual Interactive Map
+          FlutterMap(
+            mapController: _mapController,
+            options: MapOptions(
+              initialCenter: _djoudjCenter,
+              initialZoom: 12.0,
+              maxZoom: 18.0,
             ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                userAgentPackageName: 'com.birdsense.app',
+              ),
+              MarkerLayer(
+                markers: _markers,
+              ),
+            ],
           ),
 
-          // Map Control Floating Buttons
+          // Floating Controls
           Positioned(
-            top: 16,
             right: 16,
+            bottom: 150,
             child: Column(
               children: [
                 FloatingActionButton.small(
-                  heroTag: 'btn_zoom_in',
-                  backgroundColor: AppColors.surfaceGlass,
+                  heroTag: 'zoom_in',
+                  backgroundColor: AppColors.surface,
+                  onPressed: _zoomIn,
                   child: const Icon(Icons.add, color: AppColors.textPrimary),
-                  onPressed: () {},
                 ),
                 const SizedBox(height: 8),
                 FloatingActionButton.small(
-                  heroTag: 'btn_zoom_out',
-                  backgroundColor: AppColors.surfaceGlass,
+                  heroTag: 'zoom_out',
+                  backgroundColor: AppColors.surface,
+                  onPressed: _zoomOut,
                   child: const Icon(Icons.remove, color: AppColors.textPrimary),
-                  onPressed: () {},
                 ),
                 const SizedBox(height: 8),
                 FloatingActionButton.small(
-                  heroTag: 'btn_my_location',
-                  backgroundColor: AppColors.primaryCanopy,
-                  child: const Icon(Icons.my_location, color: AppColors.accentAmber),
-                  onPressed: () {},
+                  heroTag: 'my_loc',
+                  backgroundColor: AppColors.primaryAction,
+                  onPressed: _goToDjoudj,
+                  child: const Icon(Icons.my_location, color: Colors.white),
                 ),
               ],
             ),
           ),
 
-          // Bottom Info Card
+          // Bottom Info Sheet
           Positioned(
-            bottom: 20,
+            bottom: 30,
             left: 16,
             right: 16,
-            child: Card(
-              color: AppColors.surfaceGlass,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryCanopy,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: const Icon(Icons.location_on, color: AppColors.accentAmber),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  )
+                ],
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primaryAction.withOpacity(0.1),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Zone : Parc National des Oiseaux du Djoudj',
-                            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                          ),
-                          SizedBox(height: 4),
-                          Text(
-                            '142 observations enregistrées cette semaine',
-                            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                          ),
-                        ],
-                      ),
+                    child: const Icon(Icons.park, color: AppColors.primaryAction, size: 28),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Parc National du Djoudj',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '142 observations enregistrées cette semaine',
+                          style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -261,70 +276,4 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
       ),
     );
   }
-}
-
-class MapGridPainter extends CustomPainter {
-  final bool showHeatmap;
-
-  MapGridPainter({required this.showHeatmap});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final gridPaint = Paint()
-      ..color = Colors.white.withAlpha(15)
-      ..strokeWidth = 1.0;
-
-    // Draw Map Grid Lines
-    for (double i = 0; i < size.width; i += 40) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), gridPaint);
-    }
-    for (double j = 0; j < size.height; j += 40) {
-      canvas.drawLine(Offset(0, j), Offset(size.width, j), gridPaint);
-    }
-
-    if (showHeatmap) {
-      // Heatmap gradient spots
-      final heatPaints = [
-        Offset(size.width * 0.4, size.height * 0.35),
-        Offset(size.width * 0.65, size.height * 0.5),
-        Offset(size.width * 0.3, size.height * 0.65),
-      ];
-
-      for (var center in heatPaints) {
-        final gradient = RadialGradient(
-          colors: [
-            const Color(0xFFE07A5F).withAlpha(180),
-            const Color(0xFFF4A261).withAlpha(100),
-            Colors.transparent,
-          ],
-        );
-        final rect = Rect.fromCircle(center: center, radius: 80);
-        final paint = Paint()..shader = gradient.createShader(rect);
-        canvas.drawCircle(center, 80, paint);
-      }
-    } else {
-      // Marker Pin Points
-      final pins = [
-        Offset(size.width * 0.4, size.height * 0.35),
-        Offset(size.width * 0.65, size.height * 0.5),
-        Offset(size.width * 0.3, size.height * 0.65),
-        Offset(size.width * 0.5, size.height * 0.2),
-      ];
-
-      final pinPaint = Paint()..color = const Color(0xFFF4A261);
-      final borderPaint = Paint()
-        ..color = const Color(0xFF1E3A2B)
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3;
-
-      for (var pin in pins) {
-        canvas.drawCircle(pin, 10, pinPaint);
-        canvas.drawCircle(pin, 10, borderPaint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant MapGridPainter oldDelegate) =>
-      oldDelegate.showHeatmap != showHeatmap;
 }
