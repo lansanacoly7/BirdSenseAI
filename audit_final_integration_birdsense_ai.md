@@ -22,7 +22,7 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 | **2. Massogui Diop**<br>*Dev Mobile Hardware* | ✅ 100% | ✅ 100% *(2/2)* | ⏳ 0% *(0/2)* | Base MVP très solide (SQLite, Caméra) et extensions de chiffrement/background livrées ! En attente sur la Phase 2. | **10 / 10** |
 | **3. Alioune Sène**<br>*Dev Backend Infra* | ✅ 100% | ✅ 100% *(2/2)* | ✅ 100% *(1/1)* | Sans-faute. Backend complet, infra Celery/Redis livrée et streaming WebSockets de la Phase 2 terminé ! | **10 / 10** |
 | **4. Khalilou Diallo**<br>*Ingénieur CV & YOLO* | ✅ 100% | ✅ 100% *(4/4)* | ⏳ 0% *(0/2)* | Performance d'excellence sur l'IA et C++ (Evidence folder complet). En attente sur les requêtes Phase 2 (HUD/Audio). | **10 / 10** |
-| **5. Pathé Fall**<br>*Dev Fullstack Data* | ✅ 100% | ✅ 100% *(3/3)* | ⏳ 0% *(0/2)* | Très bonne architecture Data. MVP et Extensions (y compris Locust et Audio) validés ! Doit finaliser l'IA générative (Chatbot) pour clore la Phase 2. | **10 / 10** |
+| **5. Pathé Fall**<br>*Dev Fullstack Data* | ✅ 100% | ✅ 100% *(3/3)* | ✅ 100% *(2/2)* | Architecture Data, IA RAG et calcul d'impact 100% livrés. Parcours sans-faute sur tout le périmètre du projet ! | **10 / 10** |
 
 ---
 
@@ -55,8 +55,8 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 ### 5️⃣ Pathé Fall — Dev Fullstack Data, Algorithmes & Analytics
 * **MVP Phase 1 :** ✅ **100%** — Fusion bayésienne, APIs, Dashboard Analytics.
 * **Extensions Phase 1 :** ✅ **100%** — Connecteurs APIs (`test_connectors.py`), package Flutter Analytics, traitement audio, et tests de charge Locust (`locustfile.py`) complétés.
-* **Wow Features Phase 2 :** ⏳ **0%** — Doit injecter le prompt RAG pour l'assistant ornithologue avec LLM (T5.5) et calculer la formule d'impact (T5.6).
-* **Tâches Restantes :** RAG Prompting & Calcul d'Impact.
+* **Wow Features Phase 2 :** ✅ **100%** — Moteur RAG injecté (`llm_assistant.py`) et logique de la carte de chaleur écologique développée (`impact.py`).
+* **Tâches Restantes :** Rien, module Analytics / IA complètement terminé.
 
 ---
 
