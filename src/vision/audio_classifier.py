@@ -59,6 +59,7 @@ BIRD_SPECIES_AUDIO_SIGNATURES = [
 
 
 from .config import vision_config
+from .performance import performance_tracker
 
 
 class AudioBirdClassifier:
@@ -70,39 +71,41 @@ class AudioBirdClassifier:
     def __init__(self, sample_rate: Optional[int] = None):
         self.sample_rate = sample_rate if sample_rate is not None else vision_config.audio_sample_rate
 
+
     def _analyze_pcm_samples(self, samples: np.ndarray, sample_rate: int) -> Dict[str, Any]:
         """
         Calculates spectral centroid, peak frequency, RMS decibels and spectral energy.
         """
-        if len(samples) == 0:
+        with performance_tracker.measure("fft"):
+            if len(samples) == 0:
+                return {
+                    "rms_db": -100.0,
+                    "peak_frequency_hz": 0.0,
+                    "duration_sec": 0.0
+                }
+
+            # RMS & Decibels
+            samples_float = samples.astype(np.float32)
+            rms = np.sqrt(np.mean(samples_float ** 2)) + 1e-9
+            rms_db = round(float(20 * math.log10(rms / 32768.0)), 2)
+
+            # FFT Spectrum Analysis
+            fft_data = np.abs(np.fft.rfft(samples_float))
+            freqs = np.fft.rfftfreq(len(samples_float), 1.0 / sample_rate)
+
+            if len(fft_data) > 0:
+                peak_idx = np.argmax(fft_data)
+                peak_freq = round(float(freqs[peak_idx]), 1)
+            else:
+                peak_freq = 1000.0
+
+            duration_sec = round(len(samples) / sample_rate, 2)
+
             return {
-                "rms_db": -100.0,
-                "peak_frequency_hz": 0.0,
-                "duration_sec": 0.0
+                "rms_db": rms_db,
+                "peak_frequency_hz": peak_freq,
+                "duration_sec": duration_sec
             }
-
-        # RMS & Decibels
-        samples_float = samples.astype(np.float32)
-        rms = np.sqrt(np.mean(samples_float ** 2)) + 1e-9
-        rms_db = round(float(20 * math.log10(rms / 32768.0)), 2)
-
-        # FFT Spectrum Analysis
-        fft_data = np.abs(np.fft.rfft(samples_float))
-        freqs = np.fft.rfftfreq(len(samples_float), 1.0 / sample_rate)
-
-        if len(fft_data) > 0:
-            peak_idx = np.argmax(fft_data)
-            peak_freq = round(float(freqs[peak_idx]), 1)
-        else:
-            peak_freq = 1000.0
-
-        duration_sec = round(len(samples) / sample_rate, 2)
-
-        return {
-            "rms_db": rms_db,
-            "peak_frequency_hz": peak_freq,
-            "duration_sec": duration_sec
-        }
 
     def classify_audio_bytes(self, audio_bytes: bytes, filename: str = "audio.wav") -> Dict[str, Any]:
         """

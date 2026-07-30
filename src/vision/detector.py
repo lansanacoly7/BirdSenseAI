@@ -13,6 +13,7 @@ from ultralytics import YOLO
 
 # COCO Class ID for Bird is 14
 from .config import vision_config
+from .performance import performance_tracker
 
 # COCO Class ID for Bird is 14
 COCO_BIRD_CLASS_ID = 14
@@ -75,12 +76,13 @@ class BirdDetector:
         height, width = img.shape[:2]
         confidence = conf if conf is not None else self.confidence_threshold
 
-        results = self.model.predict(
-            source=img,
-            conf=confidence,
-            classes=self.target_classes,
-            verbose=False
-        )
+        with performance_tracker.measure("yolo"):
+            results = self.model.predict(
+                source=img,
+                conf=confidence,
+                classes=self.target_classes,
+                verbose=False
+            )
 
         detections: List[Dict[str, Any]] = []
         if len(results) > 0 and results[0].boxes is not None:

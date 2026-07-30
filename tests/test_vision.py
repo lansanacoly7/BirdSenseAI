@@ -205,3 +205,37 @@ class TestPhase2Features:
         assert response.status_code == 400
         json_resp = response.json()
         assert "Impossible de décoder le fichier audio" in json_resp["detail"]
+
+
+from src.vision.performance import VisionPerformanceTracker, performance_tracker
+
+class TestVisionPerformanceTracker:
+    """Tests VisionPerformanceTracker metrics calculation, FPS, and JSON export."""
+
+    def test_performance_measurement_and_summary(self):
+        tracker = VisionPerformanceTracker()
+        tracker.record_execution_time("yolo", 10.0)
+        tracker.record_execution_time("yolo", 20.0)
+        
+        summary = tracker.get_summary()
+        assert summary["yolo"]["count"] == 2
+        assert summary["yolo"]["mean_ms"] == 15.0
+        assert summary["yolo"]["min_ms"] == 10.0
+        assert summary["yolo"]["max_ms"] == 20.0
+        assert summary["yolo"]["fps"] == 66.67
+
+    def test_measure_context_manager(self):
+        tracker = VisionPerformanceTracker()
+        with tracker.measure("fft"):
+            _ = sum(i for i in range(1000))
+        
+        summary = tracker.get_summary()
+        assert summary["fft"]["count"] == 1
+        assert summary["fft"]["mean_ms"] >= 0.0
+
+    def test_export_json(self):
+        tracker = VisionPerformanceTracker()
+        tracker.record_execution_time("onnx", 50.0)
+        json_str = tracker.export_json()
+        assert '"onnx"' in json_str
+        assert '"mean_ms": 50.0' in json_str

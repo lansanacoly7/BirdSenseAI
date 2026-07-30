@@ -31,6 +31,11 @@
 
 ---
 
+### [2026-07-30] — Module de Métriques de Performance (`src/vision/performance.py`)
+- ✅ **Tracker de Métriques :** Création de `src/vision/performance.py` (`VisionPerformanceTracker`) mesurant automatiquement la latence (ms), le min, le max, la moyenne, les FPS et le nombre d'exécutions pour `yolo`, `bytetrack`, `bioclip`, `fft` et `onnx`.
+- ✅ **Export JSON :** Méthode `export_json()` générant le résumé structuré au format JSON.
+- ✅ **Validation :** Suite de tests unitaires dédiée ajoutée dans `tests/test_vision.py` avec **16/16 tests passés à 100%**.
+
 ### [2026-07-30] — Système de Logging Professionnel Catégorisé (`src/vision/logger.py`)
 - ✅ **Logger Structuré :** Création de `src/vision/logger.py` avec formateur standardisé et émission par catégories (`[VISION]`, `[YOLO]`, `[TRACKING]`, `[AUDIO]`, `[BIOCLIP]`, `[ONNX]`).
 - ✅ **Élimination des `print()` :** Remplacement de 100% des instructions `print()` dans le dossier `src/vision/` et dans `vision_router.py`.

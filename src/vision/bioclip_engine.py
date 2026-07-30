@@ -45,6 +45,7 @@ def _check_hf_network() -> tuple[bool, str]:
 
 from .config import vision_config
 from .logger import log_bioclip
+from .performance import performance_tracker
 
 class BioCLIPEngine:
     """
@@ -119,17 +120,18 @@ class BioCLIPEngine:
             err_msg = f"CLIP model unavailable — real classification cannot run. Detail: {self.init_error or 'OpenCLIP package not loaded or disabled'}"
             raise RuntimeError(err_msg)
 
-        rgb_img = cv2.cvtColor(bird_crop, cv2.COLOR_BGR2RGB)
-        pil_img = Image.fromarray(rgb_img)
+        with performance_tracker.measure("bioclip"):
+            rgb_img = cv2.cvtColor(bird_crop, cv2.COLOR_BGR2RGB)
+            pil_img = Image.fromarray(rgb_img)
 
-        img_tensor = self.preprocess(pil_img).unsqueeze(0).to(self.device)
-        with torch.no_grad():
-            img_embed = self.model.encode_image(img_tensor)
-            img_embed = img_embed / img_embed.norm(dim=-1, keepdim=True)
+            img_tensor = self.preprocess(pil_img).unsqueeze(0).to(self.device)
+            with torch.no_grad():
+                img_embed = self.model.encode_image(img_tensor)
+                img_embed = img_embed / img_embed.norm(dim=-1, keepdim=True)
 
-            similarities = (img_embed @ self.text_features.T).squeeze(0)
-            probs = (100.0 * similarities).softmax(dim=-1).cpu().numpy()
-            scores = similarities.cpu().numpy()
+                similarities = (img_embed @ self.text_features.T).squeeze(0)
+                probs = (100.0 * similarities).softmax(dim=-1).cpu().numpy()
+                scores = similarities.cpu().numpy()
 
         candidates = []
         for idx, species in enumerate(self.species_taxonomy):

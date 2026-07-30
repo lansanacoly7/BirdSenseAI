@@ -13,6 +13,7 @@ COCO_BIRD_CLASS_ID = 14
 
 
 from .config import vision_config
+from .performance import performance_tracker
 
 
 class ByteTrackTracker:
@@ -72,14 +73,15 @@ class ByteTrackTracker:
         tracks_summary: Dict[int, Dict[str, Any]] = {}
         frame_idx = 0
 
-        results = self.model.track(
-            source=str(video_path),
-            conf=confidence,
-            classes=self.target_classes,
-            tracker=self.tracker_type,
-            stream=True,
-            verbose=False
-        )
+        with performance_tracker.measure("bytetrack"):
+            results = self.model.track(
+                source=str(video_path),
+                conf=confidence,
+                classes=self.target_classes,
+                tracker=self.tracker_type,
+                stream=True,
+                verbose=False
+            )
 
         for result in results:
             frame_idx += 1

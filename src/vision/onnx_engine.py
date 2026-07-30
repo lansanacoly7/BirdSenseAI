@@ -13,6 +13,9 @@ import onnxruntime as ort
 from .config import vision_config
 
 
+from .performance import performance_tracker
+
+
 class ONNXInferenceEngine:
     """
     Direct ONNX Runtime execution engine for YOLO models exported to .onnx format with Class-wise NMS.
@@ -66,7 +69,8 @@ class ONNXInferenceEngine:
         h_orig, w_orig = image.shape[:2]
         input_tensor = self.preprocess(image)
 
-        outputs = self.session.run(self.output_names, {self.input_name: input_tensor})
+        with performance_tracker.measure("onnx"):
+            outputs = self.session.run(self.output_names, {self.input_name: input_tensor})
         raw_output = outputs[0]  # Shape: [1, 84, 8400] or similar
 
         scale = min(self.input_size / h_orig, self.input_size / w_orig)
