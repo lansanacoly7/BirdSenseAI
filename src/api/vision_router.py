@@ -194,6 +194,11 @@ async def classify_bird_audio(
         classifier = get_audio_classifier()
         result = classifier.classify_audio_bytes(contents, filename=file.filename or "audio.wav")
         return result
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

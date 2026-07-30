@@ -1,6 +1,7 @@
 """
 BirdSense AI - Bioacoustic Audio Bird Classifier (Phase 2 - T4.5)
-Performs real bioacoustic sound recognition and spectral analysis on audio files & microphone decibel streams.
+Classifieur spectral simplifié par analyse FFT des bandes de fréquences dominantes (table de correspondance fréquence/espèce).
+Ne constitue pas un réseau de neurones BirdNET entraîné sur spectrogrammes.
 """
 
 import io
@@ -59,8 +60,8 @@ BIRD_SPECIES_AUDIO_SIGNATURES = [
 
 class AudioBirdClassifier:
     """
-    Bioacoustic classifier analyzing audio recordings & decibel streams to identify bird species.
-    Couples with Massogui's mobile hardware microphone decibel stream.
+    Classifieur bioacoustique par analyse FFT de la fréquence spectrale dominante.
+    Interfaçable avec le flux microphone / décibels matériel de Massogui.
     """
 
     def __init__(self, sample_rate: int = 22050):
@@ -103,22 +104,34 @@ class AudioBirdClassifier:
     def classify_audio_bytes(self, audio_bytes: bytes, filename: str = "audio.wav") -> Dict[str, Any]:
         """
         Classifies WAV / PCM bytes and identifies bird species from bioacoustic signatures.
+        Raises ValueError if audio cannot be decoded.
         """
         sample_rate = self.sample_rate
         samples = np.array([], dtype=np.int16)
+        decoded = False
 
-        try:
-            with wave.open(io.BytesIO(audio_bytes), "rb") as wf:
-                sample_rate = wf.getframerate()
-                n_frames = wf.getnframes()
-                raw_data = wf.readframes(n_frames)
-                samples = np.frombuffer(raw_data, dtype=np.int16)
-        except Exception:
-            # Fallback for raw byte buffer or decibel array
+        if audio_bytes and len(audio_bytes) > 0:
             try:
-                samples = np.frombuffer(audio_bytes, dtype=np.int16)
+                with wave.open(io.BytesIO(audio_bytes), "rb") as wf:
+                    sample_rate = wf.getframerate()
+                    n_frames = wf.getnframes()
+                    raw_data = wf.readframes(n_frames)
+                    samples = np.frombuffer(raw_data, dtype=np.int16)
+                    if len(samples) > 0:
+                        decoded = True
             except Exception:
-                samples = np.random.randint(-5000, 5000, size=sample_rate, dtype=np.int16)
+                pass
+
+            if not decoded and len(audio_bytes) >= 100:
+                try:
+                    samples = np.frombuffer(audio_bytes, dtype=np.int16)
+                    if len(samples) > 0:
+                        decoded = True
+                except Exception:
+                    pass
+
+        if not decoded or len(samples) == 0:
+            raise ValueError(f"Impossible de décoder le fichier audio '{filename}' — format non supporté ou fichier corrompu.")
 
         analysis = self._analyze_pcm_samples(samples, sample_rate)
         peak_freq = analysis["peak_frequency_hz"]

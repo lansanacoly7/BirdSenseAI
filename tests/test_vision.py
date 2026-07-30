@@ -197,3 +197,11 @@ class TestPhase2Features:
         json_resp = response.json()
         assert json_resp["success"] is True
         assert "top_species" in json_resp
+
+    def test_audio_classify_invalid_file_returns_400(self):
+        corrupted_io = io.BytesIO(b"corrupted_non_wav_bytes_123456789")
+        files = {"file": ("invalid_audio.wav", corrupted_io, "audio/wav")}
+        response = client.post("/api/v1/vision/audio-classify", files=files)
+        assert response.status_code == 400
+        json_resp = response.json()
+        assert "Impossible de décoder le fichier audio" in json_resp["detail"]
