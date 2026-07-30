@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/radar_pulse_animation.dart';
+import '../../core/widgets/detection_success_dialog.dart';
 
 class CameraViewScreen extends StatefulWidget {
   const CameraViewScreen({super.key});
@@ -27,11 +29,11 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.camera_alt, size: 80, color: Colors.white.withAlpha(50)),
-                      const SizedBox(height: 12),
+                      const RadarPulseAnimation(size: 220),
+                      const SizedBox(height: 16),
                       const Text(
-                        'Aperçu Caméra 30 FPS (Moteur Hardware Membre 2)',
-                        style: TextStyle(color: AppColors.textMuted),
+                        'Scanner IA Radar en direct (30 FPS)',
+                        style: TextStyle(color: AppColors.accentAmber, fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -106,11 +108,12 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                 ),
                 GestureDetector(
                   onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Observation enregistrée localement (Mode Offline) !'),
-                        backgroundColor: AppColors.primaryCanopy,
-                      ),
+                    DetectionSuccessDialog.show(
+                      context,
+                      speciesName: 'Pélican blanc',
+                      scientificName: 'Pelecanus onocrotalus',
+                      confidence: 0.94,
+                      iucnCategory: 'LC',
                     );
                   },
                   child: Container(
