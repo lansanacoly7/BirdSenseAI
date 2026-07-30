@@ -14,7 +14,29 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 @dataclass
 class VisionConfig:
     """
-    Centralized configuration dataclass for Computer Vision, Audio, and AI inference engines.
+    Description:
+        Engine de configuration centralisé réagissant comme source unique de vérité
+        pour l'ensemble des modules Vision, YOLO, ByteTrack, BioCLIP et Audio FFT.
+
+    Responsabilités:
+        - Centraliser les constantes de seuils de confiance, résolutions et chemins de modèles.
+        - Résoudre dynamiquement le chemin des poids fine-tunés `best.pt` ou repli `yolov8n.pt`.
+
+    Entrées:
+        - Paramètres d'instanciation de la dataclass (optionnels).
+
+    Sorties:
+        - Instances de configuration `vision_config` avec valeurs typées.
+
+    Exceptions:
+        - Aucune exception levée lors de l'instanciation par défaut.
+
+    Exemple d'utilisation:
+        >>> from src.vision.config import vision_config
+        >>> print(vision_config.confidence_threshold)
+        0.25
+        >>> print(vision_config.resolve_yolo_weights())
+        'runs/detect/.../weights/best.pt'
     """
     # YOLO & Detection Parameters
     yolo_model_path: str = "yolov8n.pt"

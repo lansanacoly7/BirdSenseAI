@@ -18,7 +18,31 @@ class VisionLogFormatter(logging.Formatter):
 
 
 def setup_vision_logger(name: str = "BirdSenseVision", level: int = logging.INFO) -> logging.Logger:
-    """Configures and returns the central vision logger."""
+    """
+    Description:
+        Initialise et configure le logger central pour le périmètre Computer Vision.
+
+    Responsabilités:
+        - Créer le handler de sortie stdout avec le format catégorisé `[LEVEL] [CATEGORY] Message`.
+        - Fournir des fonctions d'émission par sous-système (YOLO, TRACKING, AUDIO, BIOCLIP, ONNX).
+
+    Entrées:
+        - `name`: Nom du logger Python (par défaut: 'BirdSenseVision').
+        - `level`: Niveau de filtre de sévérité (par défaut: `logging.INFO`).
+
+    Sorties:
+        - Instance `logging.Logger` configurée.
+
+    Exceptions:
+        - Aucune exception levée.
+
+    Exemple d'utilisation:
+        >>> from src.vision.logger import log_yolo, log_audio
+        >>> log_yolo("YOLO Model loaded")
+        [INFO] [YOLO] YOLO Model loaded
+        >>> log_audio("FFT analysis complete")
+        [INFO] [AUDIO] FFT analysis complete
+    """
     logger = logging.getLogger(name)
     logger.setLevel(level)
 

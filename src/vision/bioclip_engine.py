@@ -49,8 +49,31 @@ from .performance import performance_tracker
 
 class BioCLIPEngine:
     """
-    BioCLIP / OpenCLIP Engine for fine-grained bird species zero-shot classification using image-text embeddings.
-    Replaces pseudo-histogram matching with real vector similarity matching.
+    Description:
+        Moteur d'identification fine d'espèces d'oiseaux zéro-shot basé sur OpenCLIP (Stage 2).
+        Utilise des embeddings multimodaux image-texte pour faire correspondre le visuel aux noms scientifiques/communs.
+
+    Responsabilités:
+        - Charger le modèle OpenCLIP (`ViT-B-32`, checkpoint `laion2b_s34b_b79k`).
+        - Pré-calculer les embeddings textuels de la taxonomie des espèces cibles.
+        - Classer la découpe (*crop*) BGR d'un oiseau en calculant la similarité cosinus avec les vecteurs d'espèces.
+
+    Entrées:
+        - `bird_crop`: Tableau NumPy (BGR) de l'oiseau découpé à partir de la bounding box.
+
+    Sorties:
+        - Dictionnaire contenant `top_species`, `top_confidence` et la liste classée des `candidates`.
+
+    Exceptions:
+        - `ValueError`: Si l'image découpée est invalide, `None` ou vide (`crop.size == 0`).
+        - `RuntimeError`: Si le modèle OpenCLIP n'est pas chargé ou accessible.
+
+    Exemple d'utilisation:
+        >>> from src.vision.bioclip_engine import BioCLIPEngine
+        >>> engine = BioCLIPEngine(enable_clip=True)
+        >>> res = engine.classify_crop(bird_crop_numpy)
+        >>> print(res["top_species"])
+        'Haliaeetus vocifer (Aigle Pêcheur)'
     """
 
     def __init__(

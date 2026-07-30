@@ -11,7 +11,32 @@ from typing import Dict, List, Any, Optional, Generator
 
 class VisionPerformanceTracker:
     """
-    Tracks, calculates, and exports performance metrics for YOLO, ByteTrack, BioCLIP, Audio FFT, and ONNX engines.
+    Description:
+        Gestionnaire de métriques de performance enregistrant les temps d'exécution (ms),
+        les fréquences d'images par seconde (FPS) et calculant les statistiques (min, max, moyenne, count).
+
+    Responsabilités:
+        - Fournir le context manager `measure(category)` pour chronométrer sans modifier la logique.
+        - Calculer les moyennes, min/max ms et FPS équivalents par sous-système (`yolo`, `bytetrack`, `bioclip`, `fft`, `onnx`).
+        - Exporter le résumé structuré au format dictionnaire Python et chaîne JSON.
+
+    Entrées:
+        - Nom de la catégorie sous forme de chaîne et durées en millisecondes.
+
+    Sorties:
+        - Dictionnaire de métriques ou chaîne JSON via `export_json()`.
+
+    Exceptions:
+        - Aucune exception levée lors du chronométrage.
+
+    Exemple d'utilisation:
+        >>> from src.vision.performance import performance_tracker
+        >>> with performance_tracker.measure("yolo"):
+        ...     # Inférence YOLO
+        ...     pass
+        >>> summary = performance_tracker.get_summary()
+        >>> print(summary["yolo"]["fps"])
+        66.67
     """
 
     SUPPORTED_CATEGORIES = {"yolo", "bytetrack", "bioclip", "fft", "onnx"}

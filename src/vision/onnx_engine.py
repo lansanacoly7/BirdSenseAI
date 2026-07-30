@@ -18,7 +18,30 @@ from .performance import performance_tracker
 
 class ONNXInferenceEngine:
     """
-    Direct ONNX Runtime execution engine for YOLO models exported to .onnx format with Class-wise NMS.
+    Description:
+        Moteur d'inférence direct ONNX Runtime pour les modèles YOLO exportés au format `.onnx`.
+        Utilisé pour les déploiements optimisés C++ natifs et mobiles sans dépendance PyTorch.
+
+    Responsabilités:
+        - Charger la session d'inférence ONNX Runtime (`InferenceSession`).
+        - Prétraiter l'image (letterboxing, redimensionnement 640x640, BGR vers RGB, normalisation $[0, 1]$, format CHW).
+        - Effectuer le post-traitement avec suppression des non-maximaux par classe (Class-wise NMS).
+
+    Entrées:
+        - `image`: Tableau NumPy (BGR) de l'image d'entrée.
+
+    Sorties:
+        - Dictionnaire contenant `count`, `image_shape` et la liste des `detections` (box pixel, score, class_id).
+
+    Exceptions:
+        - `FileNotFoundError`: Si le fichier modèle `.onnx` est introuvable.
+
+    Exemple d'utilisation:
+        >>> from src.vision.onnx_engine import ONNXInferenceEngine
+        >>> engine = ONNXInferenceEngine("yolov8n.onnx")
+        >>> res = engine.run_inference(img_numpy)
+        >>> print(res["count"])
+        1
     """
 
     def __init__(

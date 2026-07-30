@@ -20,7 +20,34 @@ COCO_BIRD_CLASS_ID = 14
 
 class BirdDetector:
     """
-    BirdDetector handles loading YOLO model weights and performing generic bird object detection on images.
+    Description:
+        Moteur de détection d'objets générique d'oiseaux basatif sur YOLOv8.
+        Exécute le premier étage (Stage 1) du pipeline multimodal.
+
+    Responsabilités:
+        - Charger les poids du modèle YOLO (`best.pt` fine-tuné ou `yolov8n.pt`).
+        - Préparer et normaliser l'image d'entrée (Path, bytes, ndarray, PIL Image).
+        - Extraire les bounding boxes pixel et normalisées ($[0.0, 1.0]$).
+        - Formater les coordonnées `ar_hud_box: { "x": x, "y": y, "width": width, "height": height }` pour le HUD AR Flutter de Lansana (T4.4).
+        - Dessiner les superpositions graphiques et bannières sur l'image d'origine.
+
+    Entrées:
+        - `image_input`: Image sous forme de fichier Path, chaîne de caractères, bytes bruts, tableau NumPy BGR ou PIL Image.
+        - `conf`: Seuil de confiance optionnel.
+
+    Sorties:
+        - Dictionnaire contenant `width`, `height`, `count`, `detections` (liste des objets détectés) et `raw_image`.
+
+    Exceptions:
+        - `ValueError`: Si le fichier image est introuvable ou illisible.
+        - `TypeError`: Si le format de l'image d'entrée n'est pas supporté.
+
+    Exemple d'utilisation:
+        >>> from src.vision.detector import BirdDetector
+        >>> detector = BirdDetector()
+        >>> res = detector.detect("sample.jpg", conf=0.25)
+        >>> print(res["count"])
+        2
     """
 
     def __init__(

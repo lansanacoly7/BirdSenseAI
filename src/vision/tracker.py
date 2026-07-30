@@ -18,8 +18,33 @@ from .performance import performance_tracker
 
 class ByteTrackTracker:
     """
-    ByteTrackTracker runs YOLO object detection integrated with ByteTrack algorithm
-    to track object trajectories across video frames and eliminate over-counting.
+    Description:
+        Moteur de suivi multi-objets vidéo (Multi-Object Tracking - MOT) utilisant l'algorithme ByteTrack.
+        Associe des trajectoires temporelles aux oiseaux et évite le sur-comptage.
+
+    Responsabilités:
+        - Traiter les fichiers vidéo frame par frame.
+        - Assigner des identifiants uniques de trajectoire `track_id` à chaque oiseau unique.
+        - Calculer le nombre total d'individus uniques observés au fil de la séquence.
+        - Générer la vidéo annotée d'exportation avec les identifiants visuels.
+
+    Entrées:
+        - `video_path`: Chemin du fichier vidéo (.mp4, .avi, .mov).
+        - `output_path`: Chemin d'export optionnel pour la vidéo annotée.
+        - `conf`: Seuil de confiance optionnel.
+
+    Sorties:
+        - Dictionnaire contenant `total_frames`, `fps`, `width`, `height`, `unique_birds_count` et la liste des `tracks`.
+
+    Exceptions:
+        - `FileNotFoundError`: Si le fichier vidéo spécifié n'existe pas.
+
+    Exemple d'utilisation:
+        >>> from src.vision.tracker import ByteTrackTracker
+        >>> tracker = ByteTrackTracker()
+        >>> res = tracker.track_video("flight.mp4", output_path="annotated_flight.mp4")
+        >>> print(res["unique_birds_count"])
+        4
     """
 
     def __init__(

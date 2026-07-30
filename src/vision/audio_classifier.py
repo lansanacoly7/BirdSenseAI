@@ -64,8 +64,32 @@ from .performance import performance_tracker
 
 class AudioBirdClassifier:
     """
-    Classifieur bioacoustique par analyse FFT de la fréquence spectrale dominante.
-    Interfaçable avec le flux microphone / décibels matériel de Massogui.
+    Description:
+        Classifieur bioacoustique par analyse spectrale FFT (Fast Fourier Transform).
+        Extrait la fréquence spectrale dominante (Hz) et l'amplitude RMS (dB) des chants d'oiseaux (T4.5).
+
+    Responsabilités:
+        - Décoder les fichiers WAV et tampons audio 16-bit PCM.
+        - Calculer le spectre fréquentiel via `np.fft.rfft` et repérer le pic fréquentiel principal (Hz).
+        - Mesurer le volume sonore relatif RMS en décibels (dB).
+        - Faire correspondre la signature spectrale avec la base bioacoustique des espèces régionales.
+
+    Entrées:
+        - `audio_bytes`: Tampon d'octets bruts du fichier WAV ou flux PCM audio.
+        - `filename`: Nom d'origine du fichier audio (optionnel).
+
+    Sorties:
+        - Dictionnaire contenant `success`, `top_species`, `top_confidence`, `peak_frequency_hz`, `rms_db`, `duration_sec` et `candidates`.
+
+    Exceptions:
+        - `ValueError`: Si le fichier audio est corrompu, tronqué ou illisible.
+
+    Exemple d'utilisation:
+        >>> from src.vision.audio_classifier import AudioBirdClassifier
+        >>> classifier = AudioBirdClassifier()
+        >>> res = classifier.classify_audio_bytes(wav_bytes)
+        >>> print(res["top_species"])
+        'Haliaeetus vocifer (Aigle Pêcheur)'
     """
 
     def __init__(self, sample_rate: Optional[int] = None):
