@@ -1,4 +1,6 @@
 """
+Non utilisé dans le pipeline de production actuel — conservé pour une itération future si un dataset d'espèces sénégalaises annoté devient disponible.
+
 Dataset Preparation & Management Module for BirdSense AI YOLO Fine-Tuning (T4.1)
 Handles Roboflow/YOLO dataset creation, validation, real dataset ingestion, and data.yaml generation.
 """
@@ -27,16 +29,6 @@ class DatasetPreparer:
         self.species_names = species_names or SPECIES_LIST
 
     def setup_directories(self) -> Dict[str, Path]:
-        """
-        Creates canonical YOLO dataset layout:
-        dataset/
-          ├── images/
-          │   ├── train/
-          │   └── val/
-          └── labels/
-              ├── train/
-              └── val/
-        """
         paths = {
             "images_train": self.dataset_dir / "images" / "train",
             "images_val": self.dataset_dir / "images" / "val",
@@ -48,16 +40,9 @@ class DatasetPreparer:
         return paths
 
     def seed_real_bird_dataset(self) -> int:
-        """
-        Ingests real bird images (Unsplash/Wikimedia Commons) with YOLO annotation labels.
-        """
         return download_real_bird_dataset(self.dataset_dir)
 
     def seed_placeholder_data_FOR_TESTS_ONLY(self) -> None:
-        """
-        FOR UNIT TESTS ONLY: Generates synthetic images when network access is unavailable.
-        NEVER used by the real training pipeline.
-        """
         paths = self.setup_directories()
         train_count = len(list(paths["images_train"].glob("*.*")))
         if train_count > 0:
@@ -79,12 +64,7 @@ class DatasetPreparer:
             create_sample_pair(paths["images_val"] / f"sample_bird_val_{i}.jpg", paths["labels_val"] / f"sample_bird_val_{i}.txt", class_id=i % len(self.species_names))
 
     def create_yaml_config(self, yaml_filename: str = "data.yaml") -> Path:
-        """
-        Generates standard data.yaml required by Ultralytics YOLOv8/v11.
-        """
         self.setup_directories()
-        
-        # Ensure real dataset is downloaded/ingested
         paths = self.setup_directories()
         train_count = len(list(paths["images_train"].glob("*.*")))
         if train_count == 0:
@@ -105,9 +85,6 @@ class DatasetPreparer:
         return yaml_path
 
     def validate_dataset(self) -> Dict[str, int]:
-        """
-        Validates presence of images and label files.
-        """
         paths = self.setup_directories()
         counts = {
             "train_images": len(list(paths["images_train"].glob("*.*"))),

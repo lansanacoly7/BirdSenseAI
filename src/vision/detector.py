@@ -1,6 +1,6 @@
 """
-Bird Sense AI - Core Bird Detection Engine (T4.1 & T4.3)
-Wraps YOLO inference for single image detection, bounding box normalization, and structured output.
+BirdSense AI - Core Bird Detection Engine (Stage 1 Pipeline)
+Uses pretrained YOLO model to perform generic bird detection (COCO class ID 14).
 """
 
 import io
@@ -11,10 +11,13 @@ import cv2
 from PIL import Image
 from ultralytics import YOLO
 
+# COCO Class ID for Bird is 14
+COCO_BIRD_CLASS_ID = 14
+
 
 class BirdDetector:
     """
-    BirdDetector handles loading YOLO model weights and performing object detection on images.
+    BirdDetector handles loading YOLO model weights and performing generic bird object detection on images.
     """
 
     def __init__(
@@ -24,13 +27,13 @@ class BirdDetector:
         target_classes: Optional[List[int]] = None
     ):
         """
-        :param model_path: Path to .pt or .onnx model weights file.
+        :param model_path: Path to .pt or .onnx model weights file (default: yolov8n.pt).
         :param confidence_threshold: Minimum confidence score to accept detection.
-        :param target_classes: Optional list of target class IDs (e.g. COCO 14 for bird).
+        :param target_classes: Target class IDs (defaults to [14] for generic COCO bird detection).
         """
         self.model_path = model_path
         self.confidence_threshold = confidence_threshold
-        self.target_classes = target_classes
+        self.target_classes = target_classes if target_classes is not None else [COCO_BIRD_CLASS_ID]
         self.model = YOLO(model_path)
 
     def _prepare_image(self, image_input: Union[str, Path, bytes, np.ndarray, Image.Image]) -> np.ndarray:
@@ -62,7 +65,7 @@ class BirdDetector:
         conf: Optional[float] = None
     ) -> Dict[str, Any]:
         """
-        Performs detection on an image.
+        Performs generic bird detection on an image.
         Returns a dictionary containing summary counts, image dimensions, and detailed detection list.
         """
         img = self._prepare_image(image_input)
@@ -83,9 +86,8 @@ class BirdDetector:
                 xyxy = box.xyxy[0].cpu().numpy().tolist()  # [x1, y1, x2, y2]
                 conf_score = float(box.conf[0].cpu().numpy())
                 cls_id = int(box.cls[0].cpu().numpy())
-                cls_name = self.model.names.get(cls_id, f"class_{cls_id}")
+                cls_name = "bird" if cls_id == COCO_BIRD_CLASS_ID else self.model.names.get(cls_id, f"class_{cls_id}")
 
-                # Normalized coordinates [0.0 - 1.0]
                 norm_box = [
                     round(xyxy[0] / width, 4),
                     round(xyxy[1] / height, 4),
@@ -105,7 +107,8 @@ class BirdDetector:
             "width": width,
             "height": height,
             "count": len(detections),
-            "detections": detections
+            "detections": detections,
+            "raw_image": img
         }
 
     def draw_detections(
@@ -120,22 +123,26 @@ class BirdDetector:
         
         for det in detections:
             x1, y1, x2, y2 = [int(v) for v in det["box_pixel"]]
-            label = f"{det['class_name']} {det['confidence']*100:.1f}%"
+            
+            # Display species name if present (Stage 2 output), otherwise class name
+            species_label = det.get("species_identification", {}).get("top_species", det["class_name"])
+            conf_percent = det.get("species_identification", {}).get("top_confidence", det["confidence"]) * 100
+            
+            label = f"{species_label} ({conf_percent:.1f}%)"
 
-            # Draw rectangle (Canopy Green #1E3A2B in BGR -> (43, 58, 30))
+            # Draw rectangle (Canopy Green #1E3A2B)
             cv2.rectangle(img, (x1, y1), (x2, y2), (43, 58, 30), 2)
 
             # Label banner
             (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
-            cv2.rectangle(img, (x1, max(0, y1 - 20)), (x1 + w, y1), (43, 58, 30), -1)
-            cv2.putText(img, label, (x1, max(12, y1 - 5)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+            cv2.rectangle(img, (x1, max(0, y1 - 22)), (x1 + w + 10, y1), (43, 58, 30), -1)
+            cv2.putText(img, label, (x1 + 5, max(12, y1 - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
 
         return img
 
 
 if __name__ == "__main__":
-    detector = BirdDetector(model_path="yolov8n.pt")
-    # Quick test on synthetic empty canvas
+    detector = BirdDetector()
     test_img = np.zeros((480, 640, 3), dtype=np.uint8)
     res = detector.detect(test_img)
-    print(f"[BirdDetector] Operational. Test detection output: {res}")
+    print(f"[BirdDetector] Stage 1 Generic Bird Detector initialized. Output: count={res['count']}")

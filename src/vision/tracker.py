@@ -1,6 +1,6 @@
 """
-BirdSense AI - Video Multi-Object Tracking Module using ByteTrack (T4.2)
-Tracks individual birds across video frames, assigns unique track_ids, and calculates exact unique bird count.
+BirdSense AI - Video Multi-Object Tracking Module using ByteTrack (Stage 1 Pipeline)
+Tracks individual generic birds across video frames, assigns unique track_ids, and calculates exact unique bird count.
 """
 
 from pathlib import Path
@@ -8,6 +8,8 @@ from typing import List, Dict, Any, Union, Optional
 import numpy as np
 import cv2
 from ultralytics import YOLO
+
+COCO_BIRD_CLASS_ID = 14
 
 
 class ByteTrackTracker:
@@ -20,16 +22,19 @@ class ByteTrackTracker:
         self,
         model_path: str = "yolov8n.pt",
         tracker_type: str = "bytetrack.yaml",
-        confidence_threshold: float = 0.25
+        confidence_threshold: float = 0.25,
+        target_classes: Optional[List[int]] = None
     ):
         """
         :param model_path: Path to YOLO weights.
         :param tracker_type: Tracker configuration file ('bytetrack.yaml' or 'botsort.yaml').
         :param confidence_threshold: Minimum detection confidence threshold.
+        :param target_classes: Target class IDs (defaults to [14] for generic COCO bird detection).
         """
         self.model_path = model_path
         self.tracker_type = tracker_type
         self.confidence_threshold = confidence_threshold
+        self.target_classes = target_classes if target_classes is not None else [COCO_BIRD_CLASS_ID]
         self.model = YOLO(model_path)
 
     def track_video(
@@ -61,14 +66,13 @@ class ByteTrackTracker:
             fourcc = cv2.VideoWriter_fourcc(*"mp4v")
             writer = cv2.VideoWriter(output_path, fourcc, fps, (width, height))
 
-        # Tracking state accumulators
         tracks_summary: Dict[int, Dict[str, Any]] = {}
         frame_idx = 0
 
-        # Execute tracking using YOLO stream
         results = self.model.track(
             source=str(video_path),
             conf=confidence,
+            classes=self.target_classes,
             tracker=self.tracker_type,
             stream=True,
             verbose=False
@@ -86,7 +90,7 @@ class ByteTrackTracker:
 
                     track_id = int(box.id[0].cpu().numpy())
                     cls_id = int(box.cls[0].cpu().numpy())
-                    cls_name = self.model.names.get(cls_id, f"class_{cls_id}")
+                    cls_name = "bird" if cls_id == COCO_BIRD_CLASS_ID else self.model.names.get(cls_id, f"class_{cls_id}")
                     conf_score = float(box.conf[0].cpu().numpy())
                     xyxy = box.xyxy[0].cpu().numpy().tolist()
 
@@ -104,7 +108,6 @@ class ByteTrackTracker:
                             "positions": []
                         }
 
-                    # Update track state
                     tracks_summary[track_id]["last_frame"] = frame_idx
                     if conf_score > tracks_summary[track_id]["max_confidence"]:
                         tracks_summary[track_id]["max_confidence"] = conf_score
@@ -115,7 +118,6 @@ class ByteTrackTracker:
                         "box": [round(c, 2) for c in xyxy]
                     })
 
-                    # Draw on frame if writing output video
                     if writer and frame_img is not None:
                         x1, y1, x2, y2 = [int(v) for v in xyxy]
                         label = f"ID:{track_id} {cls_name}"
@@ -129,7 +131,6 @@ class ByteTrackTracker:
         if writer:
             writer.release()
 
-        # Format tracks list
         formatted_tracks = []
         for track_id, data in sorted(tracks_summary.items()):
             formatted_tracks.append({
@@ -155,4 +156,4 @@ class ByteTrackTracker:
 
 if __name__ == "__main__":
     tracker = ByteTrackTracker()
-    print(f"[ByteTrackTracker] ByteTrack Tracker initialized successfully.")
+    print(f"[ByteTrackTracker] ByteTrack Tracker initialized on generic bird detection (COCO class 14).")

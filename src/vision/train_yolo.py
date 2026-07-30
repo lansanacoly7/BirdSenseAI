@@ -1,4 +1,6 @@
 """
+Non utilisé dans le pipeline de production actuel — conservé pour une itération future si un dataset d'espèces sénégalaises annoté devient disponible.
+
 YOLOv8 / YOLOv11 Fine-Tuning & Export Module for BirdSense AI (T4.1)
 Handles fine-tuning on bird datasets, weights checkpointing, and ONNX export.
 """
@@ -41,9 +43,6 @@ class YOLOTrainer:
         device: str = "cpu",
         kwargs: Optional[Dict[str, Any]] = None
     ) -> Dict[str, str]:
-        """
-        Executes YOLO fine-tuning and returns paths to best PyTorch model and exported ONNX model.
-        """
         extra_args = kwargs or {}
         model = YOLO(self.base_model)
         
@@ -63,7 +62,6 @@ class YOLOTrainer:
         save_dir = Path(self.project_dir) / self.experiment_name / "weights"
         best_pt_path = save_dir / "best.pt"
         
-        # Export best model to ONNX
         onnx_path = None
         if best_pt_path.exists():
             print(f"[YOLOTrainer] Exporting best model to ONNX format...")
@@ -79,5 +77,4 @@ class YOLOTrainer:
 
 if __name__ == "__main__":
     trainer = YOLOTrainer(base_model="yolov8n.pt")
-    # Quick sanity check run
     print("[YOLOTrainer] Ready to execute training pipeline.")

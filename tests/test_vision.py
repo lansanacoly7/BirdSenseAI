@@ -1,5 +1,5 @@
 """
-BirdSense AI - Automated Unit & Integration Tests for Vision Engine & FastAPI Endpoints
+BirdSense AI - Automated Unit & Integration Tests for 2-Stage Vision Engine & FastAPI Endpoints
 """
 
 import io
@@ -24,7 +24,7 @@ client = TestClient(app)
 
 
 class TestDatasetPrep:
-    """Tests dataset preparation and structure validation (T4.1)."""
+    """Tests dataset preparation structure."""
 
     def test_setup_directories_and_yaml(self):
         with tempfile.TemporaryDirectory() as tmp_dir:
@@ -42,7 +42,7 @@ class TestDatasetPrep:
 
 
 class TestBirdDetector:
-    """Tests BirdDetector YOLO model loading, image processing, and drawing (T4.1 & T4.3)."""
+    """Tests Stage 1 BirdDetector generic bird detection."""
 
     @pytest.fixture
     def detector(self):
@@ -50,7 +50,7 @@ class TestBirdDetector:
 
     def test_detector_initialization(self, detector):
         assert detector.model is not None
-        assert detector.confidence_threshold == 0.25
+        assert detector.target_classes == [14]  # COCO bird class ID
 
     def test_detect_synthetic_numpy_array(self, detector):
         canvas = np.zeros((480, 640, 3), dtype=np.uint8)
@@ -65,11 +65,15 @@ class TestBirdDetector:
     def test_draw_detections(self, detector):
         canvas = np.zeros((480, 640, 3), dtype=np.uint8)
         fake_detections = [{
-            "class_id": 1,
-            "class_name": "Aigle",
+            "class_id": 14,
+            "class_name": "bird",
             "confidence": 0.89,
             "box_pixel": [50.0, 50.0, 200.0, 200.0],
-            "box_normalized": [0.0781, 0.1042, 0.3125, 0.4167]
+            "box_normalized": [0.0781, 0.1042, 0.3125, 0.4167],
+            "species_identification": {
+                "top_species": "Phoenicopterus roseus (Flamant Rose)",
+                "top_confidence": 0.92
+            }
         }]
         annotated = detector.draw_detections(canvas, fake_detections)
         assert annotated.shape == (480, 640, 3)
@@ -77,18 +81,19 @@ class TestBirdDetector:
 
 
 class TestByteTrackTracker:
-    """Tests ByteTrack tracker initialization (T4.2)."""
+    """Tests ByteTrack tracker initialization."""
 
     def test_tracker_init(self):
         tracker = ByteTrackTracker(model_path="yolov8n.pt")
         assert tracker.model is not None
+        assert tracker.target_classes == [14]
         assert tracker.tracker_type == "bytetrack.yaml"
 
 
 class TestBioCLIPEngine:
-    """Tests BioCLIP-2 fine species identification (Ext 4.1)."""
+    """Tests BioCLIP-2 fine species zero-shot identification & ranking consistency (Stage 2)."""
 
-    def test_bioclip_classification(self):
+    def test_bioclip_classification_structure(self):
         engine = BioCLIPEngine(enable_clip=False)
         crop = np.ones((100, 100, 3), dtype=np.uint8) * 150
         res = engine.classify_crop(crop)
@@ -98,9 +103,32 @@ class TestBioCLIPEngine:
         assert "is_rare_protected" in res
         assert len(res["candidates"]) == 3
 
+    def test_bioclip_species_reproducibility_and_ranking(self):
+        """Verifies ranking consistency across crops and distinct species separation."""
+        engine = BioCLIPEngine(enable_clip=False)
+        
+        # Pinkish crop 1 (simulating flamingo)
+        flamingo_crop1 = np.full((120, 120, 3), (180, 100, 220), dtype=np.uint8)
+        # Pinkish crop 2 (simulating flamingo with slight variation)
+        flamingo_crop2 = np.full((120, 120, 3), (170, 95, 215), dtype=np.uint8)
+        
+        # Dark raptor crop (simulating eagle)
+        eagle_crop = np.full((120, 120, 3), (30, 40, 50), dtype=np.uint8)
+
+        res_flam1 = engine.classify_crop(flamingo_crop1)
+        res_flam2 = engine.classify_crop(flamingo_crop2)
+        res_eagle = engine.classify_crop(eagle_crop)
+
+        # 1. Reproducibility test: similar crops yield top species consistency
+        assert res_flam1["top_species"] == res_flam2["top_species"]
+        assert abs(res_flam1["top_confidence"] - res_flam2["top_confidence"]) < 0.15
+
+        # 2. Distinct species test: different crops yield distinct ranking candidates
+        assert res_flam1["candidates"] != res_eagle["candidates"]
+
 
 class TestVisionAPI:
-    """Tests FastAPI Vision Router REST endpoints."""
+    """Tests FastAPI 2-Stage Vision Router REST endpoints."""
 
     def test_root_endpoint(self):
         response = client.get("/")
@@ -113,7 +141,8 @@ class TestVisionAPI:
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "online"
-        assert "backend" in data
+        assert "stage_1_detector" in data
+        assert "stage_2_classifier" in data
 
     def test_detect_image_endpoint(self):
         img = Image.new("RGB", (300, 300), color=(73, 109, 137))
