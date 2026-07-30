@@ -15,6 +15,8 @@ from ..vision.detector import BirdDetector
 from ..vision.tracker import ByteTrackTracker
 from ..vision.bioclip_engine import BioCLIPEngine
 
+from ..vision.audio_classifier import AudioBirdClassifier
+
 router = APIRouter(prefix="/api/v1/vision", tags=["Computer Vision & IA"])
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent
@@ -23,6 +25,14 @@ ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 _detector: Optional[BirdDetector] = None
 _tracker: Optional[ByteTrackTracker] = None
 _bioclip_engine: Optional[BioCLIPEngine] = None
+_audio_classifier: Optional[AudioBirdClassifier] = None
+
+
+def get_audio_classifier() -> AudioBirdClassifier:
+    global _audio_classifier
+    if _audio_classifier is None:
+        _audio_classifier = AudioBirdClassifier()
+    return _audio_classifier
 
 
 def resolve_model_path() -> str:
@@ -65,10 +75,11 @@ def vision_health() -> Dict[str, Any]:
     bioclip = get_bioclip_engine()
     return {
         "status": "online",
-        "service": "BirdSense AI 2-Stage Computer Vision Engine",
+        "service": "BirdSense AI 2-Stage Computer Vision & Audio Engine",
         "stage_1_detector": f"YOLOv8 Generic Bird Detector ({detector.model_path})",
         "stage_2_classifier": f"Zero-Shot CLIP Species Classifier (Active: {bioclip.use_clip})",
-        "backend": "Ultralytics YOLO + ByteTrack + OpenCLIP Zero-Shot"
+        "audio_classifier": "Bioacoustic FFT & Spectral Classifier Active (T4.5)",
+        "backend": "Ultralytics YOLO + ByteTrack + OpenCLIP Zero-Shot + Audio Bioacoustics"
     }
 
 
@@ -79,7 +90,7 @@ async def detect_birds_in_image(
 ) -> Dict[str, Any]:
     """
     Pipeline 2-Étages complet :
-    - Étage 1 : Détection et localisation des oiseaux avec YOLOv8 (COCO class 14)
+    - Étage 1 : Détection et localisation des oiseaux avec YOLOv8 (COCO class 14) + format ar_hud_box (T4.4)
     - Étage 2 : Découpage de chaque Bounding Box et classification d'espèce zéro-shot CLIP
     """
     if not file.content_type or not file.content_type.startswith("image/"):
@@ -169,3 +180,22 @@ async def track_birds_in_video(
                 os.remove(temp_video_path)
             except OSError:
                 pass
+
+
+@router.post("/audio-classify", summary="Classifier un fichier audio bioacoustique de chant d'oiseau (T4.5)")
+async def classify_bird_audio(
+    file: UploadFile = File(...)
+) -> Dict[str, Any]:
+    """
+    Analyse bioacoustique spectrale du signal audio (WAV, MP3, OGG) pour la reconnaissance des chants d'oiseaux.
+    """
+    try:
+        contents = await file.read()
+        classifier = get_audio_classifier()
+        result = classifier.classify_audio_bytes(contents, filename=file.filename or "audio.wav")
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors du traitement de la classification audio bioacoustique : {str(e)}"
+        )

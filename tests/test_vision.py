@@ -165,3 +165,35 @@ class TestVisionAPI:
         assert "data" in json_resp
         assert json_resp["data"]["width"] == 300
         assert json_resp["data"]["height"] == 300
+
+
+from src.vision.audio_classifier import AudioBirdClassifier
+
+class TestPhase2Features:
+    """Tests Phase 2 features (T4.4 AR HUD Box and T4.5 Audio Bioacoustic Classifier)."""
+
+    def test_ar_hud_box_formatting(self):
+        detector = BirdDetector(model_path="yolov8n.pt", confidence_threshold=0.1)
+        canvas = np.zeros((480, 640, 3), dtype=np.uint8)
+        res = detector.detect(canvas)
+        assert "detections" in res
+
+    def test_audio_bird_classifier(self):
+        classifier = AudioBirdClassifier()
+        dummy_signal = (np.sin(2 * np.pi * 3200 * np.linspace(0, 1, 22050)) * 10000).astype(np.int16)
+        dummy_bytes = dummy_signal.tobytes()
+        res = classifier.classify_audio_bytes(dummy_bytes)
+        assert res["success"] is True
+        assert "top_species" in res
+        assert "top_confidence" in res
+        assert res["peak_frequency_hz"] > 0
+
+    def test_audio_classify_endpoint(self):
+        dummy_signal = (np.sin(2 * np.pi * 3200 * np.linspace(0, 1, 22050)) * 10000).astype(np.int16)
+        audio_io = io.BytesIO(dummy_signal.tobytes())
+        files = {"file": ("test_audio.wav", audio_io, "audio/wav")}
+        response = client.post("/api/v1/vision/audio-classify", files=files)
+        assert response.status_code == 200
+        json_resp = response.json()
+        assert json_resp["success"] is True
+        assert "top_species" in json_resp

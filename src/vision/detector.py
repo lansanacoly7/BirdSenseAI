@@ -95,12 +95,22 @@ class BirdDetector:
                     round(xyxy[3] / height, 4),
                 ]
 
+                # T4.4: Normalized (x, y, width, height) format for Lansana's AR HUD DetectionDto
+                x1_n, y1_n, x2_n, y2_n = norm_box
+                ar_hud_box = {
+                    "x": round(x1_n, 4),
+                    "y": round(y1_n, 4),
+                    "width": round(max(0.0, x2_n - x1_n), 4),
+                    "height": round(max(0.0, y2_n - y1_n), 4)
+                }
+
                 detections.append({
                     "class_id": cls_id,
                     "class_name": cls_name,
                     "confidence": round(conf_score, 4),
                     "box_pixel": [round(c, 2) for c in xyxy],
-                    "box_normalized": norm_box
+                    "box_normalized": norm_box,
+                    "ar_hud_box": ar_hud_box
                 })
 
         return {
