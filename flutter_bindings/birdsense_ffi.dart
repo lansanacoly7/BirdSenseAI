@@ -1,9 +1,32 @@
-// BirdSense AI - Flutter Dart FFI Native Bindings (Ext 4.1)
+// BirdSense AI - Flutter Dart FFI Native Bindings (Ext 4.1 & Problem 3 Fix)
 // Connects Flutter Mobile UI to C++ Native ONNX Inference Engine for zero-latency offline detection.
 
 import 'dart:ffi' as ffi;
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:ffi/ffi.dart';
+
+// Dart-facing Detection Model
+class BirdDetection {
+  final double x1;
+  final double y1;
+  final double x2;
+  final double y2;
+  final double confidence;
+  final int classId;
+
+  BirdDetection({
+    required this.x1,
+    required this.y1,
+    required this.x2,
+    required this.y2,
+    required this.confidence,
+    required this.classId,
+  });
+
+  @override
+  String toString() => 'BirdDetection(classId: $classId, confidence: ${(confidence * 100).toStringAsFixed(1)}%, box: [$x1, $y1, $x2, $y2])';
+}
 
 // FFI C Struct Definitions
 base class CBirdDetectionItem extends ffi.Struct {
@@ -61,7 +84,7 @@ typedef NativeFreeResult = ffi.Void Function(ffi.Pointer<CBirdDetectionResult> r
 typedef DartFreeResult = void Function(ffi.Pointer<CBirdDetectionResult> result);
 
 typedef NativeDestroyModel = ffi.Void Function(ffi.Pointer<ffi.Void> session);
-typedef DartDestroyModel = void Function(ffi.Pointer<ffi.Void> session);
+typedef DartDestroyModel = void Function(ffi.Pointer<CBirdDetectionResult> session);
 
 /// BirdSenseNativeFFI provides Dart bindings to execute C++ YOLO ONNX inference.
 class BirdSenseNativeFFI {
@@ -96,6 +119,61 @@ class BirdSenseNativeFFI {
     _session = _initModel(nativePath);
     calloc.free(nativePath);
     return _session != null && _session != ffi.nullptr;
+  }
+
+  /// Executes C++ native detection on a raw Uint8List image buffer.
+  List<BirdDetection> detectFrame({
+    required Uint8List imageBytes,
+    required int width,
+    required int height,
+    int channels = 3,
+    double confidenceThreshold = 0.25,
+  }) {
+    if (_session == null || _session == ffi.nullptr) {
+      throw StateError('Model is not initialized. Call loadModel() first.');
+    }
+
+    // Allocate native memory for input image bytes
+    final nativeImage = calloc<ffi.Uint8>(imageBytes.length);
+    final pointerList = nativeImage.asTypedList(imageBytes.length);
+    pointerList.setAll(0, imageBytes);
+
+    // Allocate native memory for output result struct
+    final outResult = calloc<CBirdDetectionResult>();
+
+    try {
+      final success = _detectFrame(
+        _session!,
+        nativeImage,
+        width,
+        height,
+        channels,
+        confidenceThreshold,
+        outResult,
+      );
+
+      final List<BirdDetection> detections = [];
+      if (success != 0 && outResult.ref.count > 0 && outResult.ref.items != ffi.nullptr) {
+        for (var i = 0; i < outResult.ref.count; i++) {
+          final item = outResult.ref.items[i];
+          detections.add(BirdDetection(
+            x1: item.x1,
+            y1: item.y1,
+            x2: item.x2,
+            y2: item.y2,
+            confidence: item.confidence,
+            classId: item.classId,
+          ));
+        }
+      }
+
+      // Free C++ allocated result array
+      _freeResult(outResult);
+      return detections;
+    } finally {
+      calloc.free(nativeImage);
+      calloc.free(outResult);
+    }
   }
 
   void destroy() {

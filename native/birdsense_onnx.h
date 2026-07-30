@@ -1,5 +1,5 @@
 /**
- * BirdSense AI - C Native API Header for ONNX Inference Engine (Ext 4.1)
+ * BirdSense AI - C Native API Header for ONNX Inference Engine (Ext 4.1 & Problem 3 Fix)
  * Enables Flutter integration via dart:ffi on Android, iOS, Windows, and Linux.
  */
 
@@ -41,7 +41,7 @@ typedef struct {
 BIRDSENSE_EXPORT void* birdsense_init_model(const char* model_path);
 
 /**
- * Executes inference on an uncompressed RGB/BGR image frame buffer.
+ * Executes real C++ ONNX inference on an uncompressed RGB/BGR image frame buffer.
  * @param session Handle returned by birdsense_init_model.
  * @param image_data Pointer to image byte array.
  * @param width Image width in pixels.

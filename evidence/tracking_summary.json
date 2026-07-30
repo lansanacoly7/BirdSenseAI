@@ -3,17 +3,7 @@
   "fps": 10,
   "width": 320,
   "height": 240,
-  "unique_birds_count": 1,
-  "tracks": [
-    {
-      "track_id": 1,
-      "class_name": "sports ball",
-      "confidence": 0.2722,
-      "duration_frames": 1,
-      "first_frame": 1,
-      "last_frame": 1,
-      "trajectory_length": 1
-    }
-  ],
+  "unique_birds_count": 0,
+  "tracks": [],
   "annotated_video_path": "C:\\Users\\Kalz\\Documents\\Serward Buspro\\Team Projects\\BirdSense\\BirdSenseAI\\evidence\\test_tracking_annotated.mp4"
 }
