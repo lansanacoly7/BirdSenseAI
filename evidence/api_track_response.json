@@ -1,0 +1,23 @@
+{
+  "success": true,
+  "filename": "sample_test_video.mp4",
+  "data": {
+    "total_frames": 20,
+    "fps": 10,
+    "width": 320,
+    "height": 240,
+    "unique_birds_count": 1,
+    "tracks": [
+      {
+        "track_id": 1,
+        "class_name": "sports ball",
+        "confidence": 0.2722,
+        "duration_frames": 1,
+        "first_frame": 1,
+        "last_frame": 1,
+        "trajectory_length": 1
+      }
+    ],
+    "annotated_video_path": null
+  }
+}

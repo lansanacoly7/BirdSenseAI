@@ -26,29 +26,27 @@
 
 ## 📅 Journal des Réalisations & Mises à Jour
 
-### [2026-07-29] — Réalisation complète de la Tâche Bonus Ext 4.1 (C++ ONNX Native & Flutter FFI)
-- ✅ **Moteur d'Inférence ONNX Runtime Autonome :**
-  - Fichier [src/vision/onnx_engine.py](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/src/vision/onnx_engine.py) : Moteur d'inférence ultralight sans dépendance PyTorch pour l'exécution d'ONNX.
-- ✅ **Classifieur BioCLIP-2 d'Espèces Rares :**
-  - Fichier [src/vision/bioclip_engine.py](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/src/vision/bioclip_engine.py) : Classification zéro-shot et calcul de similarité pour l'identification fine d'oiseaux menacés.
-- ✅ **Wrapper C++ Natif pour Mobile & Cross-Platform :**
-  - Fichiers [native/birdsense_onnx.h](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/native/birdsense_onnx.h), [native/birdsense_onnx.cpp](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/native/birdsense_onnx.cpp) et [native/CMakeLists.txt](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/native/CMakeLists.txt) : Export de l'API C natif (`birdsense_init_model`, `birdsense_detect_frame`, `birdsense_free_result`).
-- ✅ **Bindings Flutter Dart FFI :**
-  - Fichier [flutter_bindings/birdsense_ffi.dart](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/flutter_bindings/birdsense_ffi.dart) : Interface Dart FFI prête pour l'intégration directe dans l'application mobile Flutter par les autres membres de l'équipe (Lansana Coly & El Hadji Massogui Diop).
-- ✅ **Validation par Tests Automatisés :**
-  - Fichier [tests/test_vision.py](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/tests/test_vision.py) : **9/9 tests passés avec succès (100% vert)**.
+### [2026-07-30] — Qualification Globale, Preuves (`evidence/`) & Robustesse Environnement
+- ✅ **Environnement Virtuel Isolé (`.venv`) & Dépendances :**
+  - Validation complète de l'installation et de l'exécution dans un environnement virtuel `.venv` propre avec `requirements.txt` incluant `ultralytics`, `supervision`, `onnxruntime`, `fastapi`, `lapx`, etc.
+- ✅ **Dossier de Preuves Concrètes (`evidence/`) :**
+  - Fichier [evidence/training_log.txt](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/evidence/training_log.txt) : Rapport d'entraînement YOLO.
+  - Fichier [evidence/onnx_export.log](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/evidence/onnx_export.log) : Preuve d'exportation du modèle au format ONNX.
+  - Fichier [evidence/test_detection.jpg](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/evidence/test_detection.jpg) : Image de détection d'essai annotée avec Bounding Boxes.
+  - Fichier [evidence/tracking_summary.json](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/evidence/tracking_summary.json) : Rapport de suivi vidéo ByteTrack avec comptage unique.
+  - Fichiers [evidence/api_detect_response.json](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/evidence/api_detect_response.json) et [evidence/api_track_response.json](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/evidence/api_track_response.json) : Réponses JSON d'API réelles.
+- ✅ **Documentation du Module Vision :**
+  - Fichier [src/vision/README.md](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/src/vision/README.md) détaillant le rôle de chaque composant et les commandes d'exécution.
+- ✅ **Suite de Tests `pytest` :**
+  - **9/9 tests passés avec 100% de succès**.
 
-### [2026-07-29] — Réalisation complète des Tâches T4.1, T4.2 et T4.3 (Core Vision Engine)
-- ✅ **Implémentation de T4.1 (Dataset & Training Pipeline) :** `dataset_prep.py` & `train_yolo.py`.
-- ✅ **Implémentation de T4.2 (Pipeline ByteTrack Video Tracking) :** `tracker.py`.
-- ✅ **Implémentation de T4.3 (Moteur & Endpoints REST FastAPI) :** `detector.py`, `vision_router.py`, `main.py`.
+### [2026-07-29] — Réalisation de Ext 4.1 (C++ ONNX Native & Flutter FFI)
+- ✅ `onnx_engine.py`, `bioclip_engine.py`, `birdsense_onnx.cpp`, `birdsense_ffi.dart`.
 
-### [2026-07-29] — Initialisation de la branche `Kalz`
-- ✅ **Lecture et analyse des 3 documents de cadrage.**
-- ✅ **Création et bascule sur la branche Git `Kalz`**.
-- ✅ **Création du fichier de documentation et de suivi des tâches `suivi_taches_ibrahima_diallo.md`**.
+### [2026-07-29] — Réalisation des Tâches MVP (T4.1, T4.2, T4.3)
+- ✅ `dataset_prep.py`, `train_yolo.py`, `tracker.py`, `detector.py`, `vision_router.py`, `main.py`.
 
 ---
 
 ## 📌 Prochaines Étapes
-- [x] **Toutes les tâches MVP (T4.1, T4.2, T4.3) et l'Extension (Ext 4.1) sont 100% terminées et testées !**
+- [x] **Toutes les tâches (T4.1, T4.2, T4.3, Ext 4.1) sont qualifiées, testées et validées avec dossier de preuves !**

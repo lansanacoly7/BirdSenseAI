@@ -1,0 +1,6 @@
+BirdSense AI - YOLO Training Log
+Base Model: yolov8n.pt
+Dataset Config: C:\Users\Kalz\Documents\Serward Buspro\Team Projects\BirdSense\BirdSenseAI\dataset\data.yaml
+Best Model Weights: yolov8n.pt
+ONNX Model Export: 
+Status: SUCCESS

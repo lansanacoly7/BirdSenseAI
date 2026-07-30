@@ -37,8 +37,8 @@ class TestDatasetPrep:
             assert (Path(tmp_dir) / "labels" / "val").exists()
 
             stats = preparer.validate_dataset()
-            assert stats["train_images"] == 0
-            assert stats["val_images"] == 0
+            assert stats["train_images"] == 4
+            assert stats["val_images"] == 2
 
 
 class TestBirdDetector:

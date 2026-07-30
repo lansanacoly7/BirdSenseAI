@@ -1,0 +1,10 @@
+{
+  "success": true,
+  "filename": "bird_test.jpg",
+  "data": {
+    "width": 400,
+    "height": 400,
+    "count": 0,
+    "detections": []
+  }
+}
