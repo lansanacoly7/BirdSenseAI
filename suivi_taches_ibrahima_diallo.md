@@ -30,6 +30,11 @@
 
 ## 📅 Journal des Réalisations & Audits
 
+### [2026-07-30] — Revue de Sécurité & Renforcement API (`docs/Security_Review.md`)
+- ✅ **Sécurisation des Téléversements :** Implémentation de `validate_upload_security` dans `src/api/vision_router.py` (anti-Path Traversal via `Path(filename).name`, validation des extensions autorisées et limitations anti-DoS de 10 Mo pour images / 50 Mo pour vidéos).
+- ✅ **Publication du Rapport :** Création du document [docs/Security_Review.md](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/docs/Security_Review.md).
+- ✅ **Tests de Sécurité :** Ajout de `TestVisionSecurity` dans `tests/test_vision.py` et validation de **20/20 tests réels `pytest` réussis à 100%**.
+
 ### [2026-07-30] — Validation Automatisée Pré-Démonstration (`scripts/demo_validation.py`)
 - ✅ **Script de Contrôle Système (`PASS` / `FAIL`) :** Création du script `scripts/demo_validation.py` validant automatiquement les 8 points clés (poids des modèles, chargeabilité, API REST `/health`, `/detect`, `/track`, `/audio-classify`, benchmark et pipeline démo).
 - ✅ **Guide de Présentation (`docs/Demo_Checklist.md`) :** Publication du guide pas à pas pour le jour de la démonstration officielle.

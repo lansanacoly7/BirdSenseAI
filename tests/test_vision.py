@@ -253,3 +253,28 @@ class TestVisionBenchmark:
         assert (tmp_path / "benchmark.json").exists()
         assert (tmp_path / "benchmark.md").exists()
         assert (tmp_path / "benchmark.csv").exists()
+
+
+class TestVisionSecurity:
+    """Tests security controls: extension filtering, Path Traversal protection, and max file size limits."""
+
+    def test_invalid_extension_rejected(self):
+        malicious_io = io.BytesIO(b"echo 'malicious'")
+        files = {"file": ("malicious_script.exe", malicious_io, "application/x-msdownload")}
+        response = client.post("/api/v1/vision/detect", files=files)
+        assert response.status_code == 400
+        assert "Format de fichier non autorisé" in response.json()["detail"]
+
+    def test_path_traversal_sanitized(self):
+        dummy_signal = (np.sin(2 * np.pi * 3200 * np.linspace(0, 1, 22050)) * 10000).astype(np.int16)
+        audio_io = io.BytesIO(dummy_signal.tobytes())
+        files = {"file": ("../../etc/passwd_test.wav", audio_io, "audio/wav")}
+        response = client.post("/api/v1/vision/audio-classify", files=files)
+        assert response.status_code == 200
+
+    def test_file_too_large_rejected(self):
+        oversized_io = io.BytesIO(b"0" * (11 * 1024 * 1024))  # 11 MB > 10 MB limit
+        files = {"file": ("oversized.jpg", oversized_io, "image/jpeg")}
+        response = client.post("/api/v1/vision/detect", files=files)
+        assert response.status_code == 400
+        assert "Taille de fichier trop grande" in response.json()["detail"]

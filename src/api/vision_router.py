@@ -69,6 +69,46 @@ def get_bioclip_engine() -> BioCLIPEngine:
     return _bioclip_engine
 
 
+MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024  # 50 MB
+MAX_AUDIO_SIZE_BYTES = 20 * 1024 * 1024  # 20 MB
+
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv"}
+ALLOWED_AUDIO_EXTENSIONS = {".wav", ".mp3", ".ogg", ".flac", ".pcm"}
+
+
+def validate_upload_security(
+    file: UploadFile,
+    contents: bytes,
+    allowed_extensions: set,
+    max_bytes: int,
+    file_type_label: str
+) -> str:
+    """
+    Validates file extension, sanitizes filename against Path Traversal, and enforces max size to prevent DoS.
+    """
+    raw_filename = file.filename or f"upload.{file_type_label}"
+    # Sanitize against Path Traversal
+    safe_filename = Path(raw_filename).name
+
+    ext = Path(safe_filename).suffix.lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Format de fichier non autorisé ('{ext}'). Formats acceptés : {', '.join(sorted(allowed_extensions))}"
+        )
+
+    if len(contents) > max_bytes:
+        max_mb = max_bytes // (1024 * 1024)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Taille de fichier trop grande ({len(contents) / (1024*1024):.1f} Mo). Limite maximale : {max_mb} Mo."
+        )
+
+    return safe_filename
+
+
 @router.get("/health", summary="Statut du Service Vision IA")
 def vision_health() -> Dict[str, Any]:
     detector = get_detector()
@@ -93,14 +133,10 @@ async def detect_birds_in_image(
     - Étage 1 : Détection et localisation des oiseaux avec YOLOv8 (COCO class 14) + format ar_hud_box (T4.4)
     - Étage 2 : Découpage de chaque Bounding Box et classification d'espèce zéro-shot CLIP
     """
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Le fichier fourni doit être une image valide (image/jpeg, image/png, etc.)"
-        )
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE_BYTES, "image")
 
     try:
-        contents = await file.read()
         detector = get_detector()
         bioclip = get_bioclip_engine()
 
@@ -147,25 +183,22 @@ async def track_birds_in_video(
     file: UploadFile = File(...),
     conf: float = Query(0.25, ge=0.01, le=1.0, description="Seuil de confiance minimum")
 ) -> Dict[str, Any]:
-    if not file.filename or not any(file.filename.endswith(ext) for ext in [".mp4", ".avi", ".mov", ".mkv"]):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Le fichier fourni doit être un fichier vidéo (.mp4, .avi, .mov, .mkv)"
-        )
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_VIDEO_EXTENSIONS, MAX_VIDEO_SIZE_BYTES, "video")
 
     temp_dir = tempfile.mkdtemp()
-    temp_video_path = Path(temp_dir) / file.filename
+    temp_video_path = Path(temp_dir) / safe_filename
 
     try:
         with open(temp_video_path, "wb") as buffer:
-            buffer.write(await file.read())
+            buffer.write(contents)
 
         tracker = get_tracker()
         result = tracker.track_video(video_path=temp_video_path, conf=conf)
 
         return {
             "success": True,
-            "filename": file.filename,
+            "filename": safe_filename,
             "data": result
         }
 
@@ -189,10 +222,12 @@ async def classify_bird_audio(
     """
     Analyse bioacoustique spectrale du signal audio (WAV, MP3, OGG) pour la reconnaissance des chants d'oiseaux.
     """
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_AUDIO_EXTENSIONS, MAX_AUDIO_SIZE_BYTES, "audio")
+
     try:
-        contents = await file.read()
         classifier = get_audio_classifier()
-        result = classifier.classify_audio_bytes(contents, filename=file.filename or "audio.wav")
+        result = classifier.classify_audio_bytes(contents, filename=safe_filename)
         return result
     except ValueError as ve:
         raise HTTPException(
