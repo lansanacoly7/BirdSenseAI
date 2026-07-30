@@ -9,6 +9,7 @@ import '../../core/theme/app_colors.dart';
 import '../local_observations/presentation/pages/local_observations_page.dart';
 import 'presentation/widgets/bounding_box_painter.dart';
 import 'providers/camera_provider.dart';
+import '../../impact_sync/presentation/widgets/live_audio_level_gauge.dart';
 
 /// Écran principal de capture caméra avec overlay IA.
 ///
@@ -69,6 +70,13 @@ class CameraViewScreen extends ConsumerWidget {
                 ),
                 // AR HUD Radar Sweep
                 const RadarScannerOverlay(),
+                // Audio Level Gauge on the right
+                if (cameraState.isRecordingVideo)
+                  const Positioned(
+                    right: 16,
+                    bottom: 150,
+                    child: LiveAudioLevelGauge(),
+                  ),
               ],
             ),
           ),
@@ -216,7 +224,7 @@ class CameraViewScreen extends ConsumerWidget {
             backgroundColor: cameraState.isRecordingVideo
                 ? Colors.red
                 : AppColors.surfaceDark,
-            onPressed: notifier.toggleVideoRecording,
+            onPressed: ref.read(cameraProvider.notifier).toggleVideoRecording,
             child: Icon(
               cameraState.isRecordingVideo ? Icons.stop : Icons.videocam,
               color: Colors.white,
@@ -226,6 +234,7 @@ class CameraViewScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
 class MockBoundingBoxPainter extends CustomPainter {
   @override
