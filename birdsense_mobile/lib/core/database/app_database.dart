@@ -106,7 +106,7 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-/// Ouvre la connexion SQLite en arrière-plan.
+/// Ouvre la connexion SQLite en arrière-plan avec chiffrement SQLCipher.
 ///
 /// Le fichier de base de données est stocké dans le répertoire
 /// documents de l'application sous le nom `birdsense_db.sqlite`.
@@ -115,6 +115,18 @@ LazyDatabase _openConnection() {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, 'birdsense_db.sqlite'));
 
-    return NativeDatabase.createInBackground(file);
+    // Chiffrement SQLCipher activé
+    return NativeDatabase.createInBackground(
+      file,
+      setup: (rawDb) {
+        // En production, cette clé doit provenir du module Auth ou du SecureStorage.
+        // Pour l'extension, on utilise une clé statique forte configurée via environnement.
+        const cipherKey = String.fromEnvironment(
+          'SQLCIPHER_KEY',
+          defaultValue: 'birdsense_secure_key_2026',
+        );
+        rawDb.execute("PRAGMA key = '$cipherKey';");
+      },
+    );
   });
 }
