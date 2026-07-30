@@ -7,6 +7,8 @@ import json
 import logging
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
+from app.analytics.llm_assistant import get_bird_assistant_response
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/chat", tags=["Chat & IA"])
@@ -17,7 +19,7 @@ async def chat_stream(websocket: WebSocket):
     """
     Endpoint WebSocket pour la Phase 2 :
     Permet de recevoir un message et de streamer la réponse
-    mot par mot (effet machine à écrire).
+    mot par mot (effet machine à écrire) à partir du RAG/LLM.
     """
     await websocket.accept()
     logger.info("Nouvelle connexion WebSocket acceptée sur /chat/stream")
@@ -28,17 +30,17 @@ async def chat_stream(websocket: WebSocket):
             data = await websocket.receive_text()
             logger.info(f"Message reçu via WS: {data}")
             
-            # Simulation d'une réponse de l'IA (en attendant l'intégration RAG de Pathé)
-            mock_response = (
-                f"Je suis l'Assistant Ornithologue. Vous m'avez dit : '{data}'. "
-                "Ceci est une réponse streamée mot par mot pour valider la fonctionnalité "
-                "de la Phase 2. Bientôt, je serai connecté au LLM."
-            )
+            # On pourrait extraire ces données du contexte de l'utilisateur ou de la requête JSON
+            # Pour l'instant, on fournit des valeurs par défaut pour valider le RAG de Pathé
+            local_species = ["Aigle royal", "Héron garde-bœufs"]
+            user_stats = {"total_scans": 5, "impact_score": 120}
+
+            # Appel au service RAG/LLM développé par Pathé Fall
+            llm_response = await get_bird_assistant_response(data, local_species, user_stats)
             
-            # Streaming de la réponse en simulant un délai de calcul LLM
-            words = mock_response.split(" ")
+            # Streaming de la réponse en simulant un délai de frappe (chunking)
+            words = llm_response.split(" ")
             for word in words:
-                # On renvoie chaque mot sous forme de JSON (ou texte brut)
                 chunk = {"chunk": word + " "}
                 await websocket.send_text(json.dumps(chunk))
                 await asyncio.sleep(0.05)  # 50ms entre chaque mot
