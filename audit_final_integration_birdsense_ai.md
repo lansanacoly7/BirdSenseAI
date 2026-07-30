@@ -1,71 +1,62 @@
-# 🏆 RAPPORT D'AUDIT FINAL D'INTÉGRATION & ANALYSE DES EXTENSIONS (BRANCHE `test`)
+# 🏆 RAPPORT D'AUDIT COMPLET : MVP, EXTENSIONS & WOW FEATURES (BRANCHE `test`)
 
 **Projet :** BirdSense AI — Hackathon APD  
-**Branche d'intégration :** `test` (`https://github.com/lansanacoly7/BirdSenseAI/tree/test`)  
+**Branche d'intégration :** `test`  
 **Date :** 30 Juillet 2026  
 
 ---
 
-## 📌 Résumé Exécutif de la Fusion
-L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionné avec succès sur la branche d'intégration **`test`**.
-
-* **Restauration de la branche personnelle :** La branche **`LansannaColy`** contient **exclusivement le travail personnel de Lansana Coly**.
-* **Intégration centralisée :** La branche **`test`** rassemble désormais l'application Mobile Flutter, le Backend FastAPI/PostGIS, le pipeline de Computer Vision YOLO/ByteTrack, l'inférence C++ ONNX, la Fusion Bayésienne, les connecteurs d'APIs et les tests.
-
----
-
-## 📊 Tableau Synthétique de l'Audit (MVP & Extensions)
-
-| Membre & Rôle | Branche | Statut Fusion | MVP Complétude | Extensions Complétude | Score Global |
-| :--- | :--- | :---: | :---: | :---: | :---: |
-| **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **0%** *(0/2)* | **8.5 / 10** |
-| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **100%** | **0%** *(0/2)* | **8.0 / 10** |
-| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **100%** *(2/2)* | **10 / 10** |
-| **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | **100%** | **100%** *(4/4)* | **10 / 10** |
-| **5. Pathé Fall**<br>*Dev Fullstack Data & Analytics* | `pathe-fall` | **MERGED** | **100%** | **66%** *(2/3)* | **9.5 / 10** |
+## 📌 Résumé Exécutif
+Ce document est la source de vérité absolue de l'état d'avancement du projet **BirdSense AI**. Il audite l'ensemble des travaux de l'équipe sur la branche `test`, en passant au peigne fin :
+1. Le **MVP (Phase 1)** : Les fonctionnalités de base obligatoires.
+2. Les **Extensions (Bonus Phase 1)** : Les défis techniques additionnels.
+3. Les **Wow Features (Phase 2)** : L'effort final pour remporter le Hackathon.
 
 ---
 
-## 🔍 Vérification Détaillée des Tâches en Extension (Bonus)
+## 📊 Tableau Synthétique de l'Audit
+
+| Membre & Rôle | MVP (Base) | Extensions (Bonus) | Wow Features (Phase 2) | Bilan / Engagement | Score Global |
+| :--- | :---: | :---: | :---: | :--- | :---: |
+| **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | ✅ 100% | ❌ 0% *(0/2)* | ✅ 100% *(4/4)* | Très fort engagement sur la Phase 2 (UI impressionnante) rattrapant l'impasse sur ses extensions. | **9.0 / 10** |
+| **2. Massogui Diop**<br>*Dev Mobile Hardware* | ✅ 100% | ❌ 0% *(0/2)* | ⏳ 0% *(0/2)* | Base MVP solide, mais en retard sur les extensions et la Phase 2. A besoin d'accélérer. | **7.5 / 10** |
+| **3. Alioune Sène**<br>*Dev Backend Infra* | ✅ 100% | ✅ 100% *(2/2)* | ⏳ 0% *(0/1)* | Excellente maîtrise backend et infra (Celery/Redis validés). Phase 2 à entamer. | **9.5 / 10** |
+| **4. Khalilou Diallo**<br>*Ingénieur CV & YOLO* | ✅ 100% | ✅ 100% *(4/4)* | ⏳ 0% *(0/2)* | Performance d'excellence sur l'IA et C++. En attente sur les requêtes Phase 2 (HUD/Audio). | **10 / 10** |
+| **5. Pathé Fall**<br>*Dev Fullstack Data* | ✅ 100% | 🟡 66% *(2/3)* | ⏳ 0% *(0/2)* | Très bonne architecture Data. Doit finaliser l'IA générative (Chatbot) pour clore la Phase 2. | **9.0 / 10** |
 
 ---
+
+## 🔍 Vérification Détaillée par Membre
 
 ### 1️⃣ Lansana Coly — Lead Mobile UI & Cartographie
-* **Extension 1 (Tuiles offline .mbtiles) :** ❌ **Non réalisée** — L'UI Mapbox avec bascule Heatmap/Marqueurs est opérationnelle, mais le système de stockage local `.mbtiles` n'a pas été codé. (Note : Des fonctionnalités "WOW" Phase 2 ont été ajoutées à la place : Radar AR, Chatbot IA, Jauges Écolo).
-* **Extension 2 (Animations Lottie/Rive) :** ❌ **Non réalisée** — Aucun package ni asset Lottie/Rive n'a été importé.
-* **Bilan Extensions : 0 / 2 (0%)**
-
----
+* **MVP Phase 1 :** ✅ **100%** — UI Dark Theme, Navigation, Carte, Catalogue.
+* **Extensions Phase 1 :** ❌ **0%** — Tuiles hors-ligne (`.mbtiles`) et animations Lottie/Rive ignorées au profit de la Phase 2.
+* **Wow Features Phase 2 :** ✅ **100%** — Création complète et fusionnée du HUD AR Radar (`RadarScannerOverlay`), du Scan Bioacoustique animé (`AudioWaveformWidget`), du Chatbot IA effet machine à écrire, et des jauges écologiques.
+* **Tâches Restantes :** Rien ! Lansana a livré toute la coquille visuelle.
 
 ### 2️⃣ El Hadji Massogui Diop — Dev Mobile Hardware, Camera & SQLite
-* **MVP (Base de données & Caméra) :** ✅ **Réalisé (100%)** — Le stockage local SQLite (Drift), le `CameraProvider` et le service de synchronisation réseau ont été intégrés.
-* **Extension 1 (Sync automatique WorkManager) :** ❌ **Non réalisée** — L'exécution en arrière-plan via WorkManager n'a pas été configurée.
-* **Extension 2 (Chiffrement SQLCipher) :** ❌ **Non réalisée** — Utilisation de `sqlite3_flutter_libs` sans module de chiffrement.
-* **Bilan Extensions : 0 / 2 (0%)**
-
----
+* **MVP Phase 1 :** ✅ **100%** — Base SQLite (Drift), flux Caméra et Sync Réseau.
+* **Extensions Phase 1 :** ❌ **0%** — Pas de WorkManager (sync background) ni de chiffrement SQLCipher.
+* **Wow Features Phase 2 :** ⏳ **0%** — Doit coder l'extraction du micro natif (T2.4) et la sauvegarde de l'impact local (T2.5).
+* **Tâches Restantes :** Focus absolu sur la **Phase 2 (Microphone & Base de données Impact)**.
 
 ### 3️⃣ Pape Alioune Sène — Dev Backend Core & Infrastructure
-* **Extension 1 (Dockerfile & Migrations Alembic) :** ✅ **Réalisée (100%)** — Présence de `backend/Dockerfile`, `backend/alembic.ini` et du dossier `backend/migrations/`.
-* **Extension 2 (Queue Celery + Redis) :** ✅ **Réalisée (100%)** — `celery_app.py`, workers et redis configurés dans `docker-compose.yml`.
-* **Bilan Extensions : 2 / 2 (100%)**
-
----
+* **MVP Phase 1 :** ✅ **100%** — FastAPI, PostGIS, Auth JWT, Floutage spatial.
+* **Extensions Phase 1 :** ✅ **100%** — Docker, Alembic, et surtout l'architecture **Celery + Redis** pour le traitement lourd, mergée avec succès !
+* **Wow Features Phase 2 :** ⏳ **0%** — Doit ouvrir les WebSockets ou SSE (Server-Sent Events) pour le streaming du chatbot (T3.4).
+* **Tâches Restantes :** Endpoint Streaming pour connecter l'IA générative.
 
 ### 4️⃣ Ibrahima Khalilou Diallo — Ingénieur Computer Vision & YOLO
-* **Extension 1 (Moteur C++ ONNX Native) :** ✅ **Réalisée (100%)** — Fichiers `native/birdsense_onnx.cpp`, `native/birdsense_onnx.h` et `native/CMakeLists.txt` présents.
-* **Extension 2 (Bindings Flutter Dart FFI) :** ✅ **Réalisée (100%)** — Fichier `flutter_bindings/birdsense_ffi.dart` présent.
-* **Extension 3 (Classifier BioCLIP-2 / OpenCLIP) :** ✅ **Réalisée (100%)** — Fichier `src/vision/bioclip_engine.py` présent.
-* **Extension 4 (Dossier de Preuves / Qualification) :** ✅ **Réalisée (100%)** — Dossier `evidence/` complet (vidéos de tracking annotées, logs d'entraînement et réponses JSON).
-* **Bilan Extensions : 4 / 4 (100% — Performance d'Excellence)**
-
----
+* **MVP Phase 1 :** ✅ **100%** — YOLOv8, ByteTrack.
+* **Extensions Phase 1 :** ✅ **100%** — C++ ONNX natif, Bindings FFI Dart, BioCLIP Zero-shot, Dossier Preuves complet. Travail parfait.
+* **Wow Features Phase 2 :** ⏳ **0%** — Doit adapter l'export des Bounding Boxes pour correspondre au HUD AR de Lansana (T4.4) et potentiellement brancher un modèle Audio (BirdNET) (T4.5).
+* **Tâches Restantes :** Ajustement des BBox et IA Audio.
 
 ### 5️⃣ Pathé Fall — Dev Fullstack Data, Algorithmes & Analytics
-* **Extension 1 (Connecteurs APIs eBird / GBIF / Audio) :** ✅ **Réalisée (100%)** — Fichiers `tests/analytics/test_connectors.py` et documentation `docs/pathe-analytics.md` présents.
-* **Extension 2 (Intégration Mobile Analytics Flutter) :** ✅ **Réalisée (100%)** — Package `birdsense_mobile/lib/features/analytics/` et tests unitaires `test/features/analytics/analytics_test.dart` présents.
-* **Extension 3 (Tests de charge Locust) :** ❌ **Non réalisée** — Pas de `locustfile.py` commité.
-* **Bilan Extensions : 2 / 3 (66%)**
+* **MVP Phase 1 :** ✅ **100%** — Fusion bayésienne, APIs, Dashboard Analytics.
+* **Extensions Phase 1 :** 🟡 **66%** — Connecteurs eBird/GBIF et package Flutter Analytics faits, mais pas de tests de charge Locust.
+* **Wow Features Phase 2 :** ⏳ **0%** — Doit injecter le prompt RAG pour l'assistant ornithologue avec LLM (T5.5) et calculer la formule d'impact (T5.6).
+* **Tâches Restantes :** RAG Prompting & Calcul d'Impact.
 
 ---
 
@@ -73,3 +64,8 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 * **Champion de l'Innovation & Extensions :** **Ibrahima Khalilou Diallo** (100% des extensions réalisées avec livraison de code C++ native, bindings FFI et classifier BioCLIP).
 * **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic + Celery + Redis) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF).
 * **Focus prioritaire à poursuivre :** Les extensions UI/Hardware mobile (tuiles offline Mapbox et synchronisation automatique).
+
+---
+
+> **Prochaine étape critique pour l'équipe (Blocage Phase 2) :**
+> Lansana a terminé l'intégralité des vues UI de la Phase 2. Les 4 autres membres doivent maintenant brancher leurs logiques sous-jacentes (Hardware, WebSockets, Modèles et Prompts) dans cette nouvelle UI pour rendre l'application totalement fonctionnelle et remporter le Hackathon !
