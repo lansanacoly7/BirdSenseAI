@@ -6,7 +6,7 @@
 set -e
 
 echo "=== Installation des dépendances Python ==="
-pip install pytest pytest-asyncio fastapi httpx pydantic python-dotenv sqlalchemy anyio
+pip install pytest pytest-asyncio fastapi httpx pydantic python-dotenv sqlalchemy anyio librosa soundfile matplotlib locust
 
 echo ""
 echo "=== Lancement des tests unitaires (T5.1, T5.2, T5.4) ==="
