@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 
 import 'tables/local_observation_items.dart';
 import 'tables/local_observations.dart';
+import 'tables/local_impact_scores.dart';
 
 part 'app_database.g.dart';
 
@@ -15,7 +16,7 @@ part 'app_database.g.dart';
 /// Gère le stockage offline des observations de terrain et de leurs
 /// détections IA associées. Fournit des méthodes CRUD spécialisées
 /// pour le workflow de synchronisation.
-@DriftDatabase(tables: [LocalObservations, LocalObservationItems])
+@DriftDatabase(tables: [LocalObservations, LocalObservationItems, LocalImpactScores])
 class AppDatabase extends _$AppDatabase {
   /// Constructeur par défaut utilisant la connexion SQLite native.
   AppDatabase() : super(_openConnection());
@@ -103,6 +104,33 @@ class AppDatabase extends _$AppDatabase {
         retryCount: Value(newRetryCount),
       ),
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Écriture — Impact Scores (Phase 2)
+  // ---------------------------------------------------------------------------
+
+  /// Ajoute ou met à jour un score d'impact pour une observation
+  Future<void> upsertImpactScore(LocalImpactScore score) async {
+    await into(localImpactScores).insertOnConflictUpdate(score);
+  }
+
+  /// Récupère le score le plus récent pour une observation
+  Future<LocalImpactScore?> getLatestImpactScoreForObservation(String observationId) async {
+    return (select(localImpactScores)
+          ..where((t) => t.observationId.equals(observationId))
+          ..orderBy([(t) => OrderingTerm(expression: t.computedAt, mode: OrderingMode.desc)])
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  /// Observe en temps réel le score d'impact d'une observation
+  Stream<LocalImpactScore?> watchLatestImpactScoreForObservation(String observationId) {
+    return (select(localImpactScores)
+          ..where((t) => t.observationId.equals(observationId))
+          ..orderBy([(t) => OrderingTerm(expression: t.computedAt, mode: OrderingMode.desc)])
+          ..limit(1))
+        .watchSingleOrNull();
   }
 }
 
