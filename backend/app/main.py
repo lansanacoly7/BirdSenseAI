@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import auth_router, obs_router
+from app.routers import auth_router, obs_router, chat_router
 
 settings = get_settings()
 
@@ -50,6 +50,7 @@ app.add_middleware(
 # Inscription des routeurs (Endpoints REST)
 app.include_router(auth_router)
 app.include_router(obs_router)
+app.include_router(chat_router, prefix="/api/v1")
 
 
 @app.get("/health", tags=["Système"], summary="Vérification de l'état du serveur")
