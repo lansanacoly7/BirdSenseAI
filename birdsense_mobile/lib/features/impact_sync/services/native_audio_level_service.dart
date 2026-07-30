@@ -9,7 +9,7 @@ import 'package:birdsense_mobile/features/impact_sync/services/audio_level_servi
 /// Utilise le package `record` pour écouter l'amplitude sans enregistrer de fichier.
 class NativeAudioLevelService implements AudioLevelService {
   final AudioRecorder _recorder = AudioRecorder();
-  StreamController<AudioLevelSample>? _controller;
+  final StreamController<AudioLevelSample> _controller = StreamController<AudioLevelSample>.broadcast();
   StreamSubscription<Amplitude>? _amplitudeSubscription;
   StreamSubscription<Uint8List>? _streamSubscription;
 
@@ -26,8 +26,6 @@ class NativeAudioLevelService implements AudioLevelService {
     if (await _recorder.isRecording()) return;
     
     if (await _recorder.hasPermission()) {
-      _controller = StreamController<AudioLevelSample>.broadcast();
-      
       // On démarre un enregistrement vers un stream (les données brutes ne nous intéressent pas ici)
       final stream = await _recorder.startStream(const RecordConfig(
         encoder: AudioEncoder.pcm16bits,
@@ -39,8 +37,8 @@ class NativeAudioLevelService implements AudioLevelService {
       _streamSubscription = stream.listen((_) {});
 
       _amplitudeSubscription = _recorder.onAmplitude().listen((amplitude) {
-        if (_controller != null && !_controller!.isClosed) {
-          _controller!.add(AudioLevelSample(
+        if (!_controller.isClosed) {
+          _controller.add(AudioLevelSample(
             timestamp: DateTime.now(),
             decibels: amplitude.current,
           ));
@@ -60,16 +58,10 @@ class NativeAudioLevelService implements AudioLevelService {
     if (await _recorder.isRecording()) {
       await _recorder.stop();
     }
-    
-    await _controller?.close();
-    _controller = null;
+    // Ne pas fermer le controller principal pour que le StreamBuilder de l'UI reste branché
+    // aux prochains démarrages !
   }
 
   @override
-  Stream<AudioLevelSample> get audioLevelStream {
-    if (_controller == null) {
-      return const Stream.empty();
-    }
-    return _controller!.stream;
-  }
+  Stream<AudioLevelSample> get audioLevelStream => _controller.stream;
 }
