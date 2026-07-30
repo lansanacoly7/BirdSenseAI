@@ -30,6 +30,11 @@
 
 ## 📅 Journal des Réalisations & Audits
 
+### [2026-07-30] — Validation Automatisée Pré-Démonstration (`scripts/demo_validation.py`)
+- ✅ **Script de Contrôle Système (`PASS` / `FAIL`) :** Création du script `scripts/demo_validation.py` validant automatiquement les 8 points clés (poids des modèles, chargeabilité, API REST `/health`, `/detect`, `/track`, `/audio-classify`, benchmark et pipeline démo).
+- ✅ **Guide de Présentation (`docs/Demo_Checklist.md`) :** Publication du guide pas à pas pour le jour de la démonstration officielle.
+- ✅ **Validation :** Exécution du script validée avec le verdict **`PASS`** et **17/17 tests `pytest` réussis à 100%**.
+
 ### [2026-07-30] — Qualification Technique Finale (`docs/Qualification_Report.md`)
 - ✅ **Audit Technique Complet :** Contrôle rigoureux de la gestion mémoire, descripteurs de fichiers, logs, tests et scripts.
 - ✅ **Publication du Rapport :** Rédaction du rapport de qualification technique dans [docs/Qualification_Report.md](file:///c:/Users/Kalz/Documents/Serward%20Buspro/Team%20Projects/BirdSense/BirdSenseAI/docs/Qualification_Report.md).
