@@ -18,7 +18,7 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 
 | Membre & Rôle | Branche | Statut Fusion | MVP Complétude | Extensions Complétude | Score Global |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **100%** *(2/2)* | **9.5 / 10** |
+| **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **0%** *(0/2)* | **8.5 / 10** |
 | **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **100%** | **0%** *(0/2)* | **8.0 / 10** |
 | **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **75%** *(1.5/2)* | **9.5 / 10** |
 | **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | **100%** | **100%** *(4/4)* | **10 / 10** |
@@ -31,9 +31,9 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 ---
 
 ### 1️⃣ Lansana Coly — Lead Mobile UI & Cartographie
-* **Extension 1 (Tuiles offline .mbtiles) :** ✅ **Réalisée (100%)** — L'application intègre désormais une couche cartographique hors-ligne via un `MbTilesTileProvider` et une base SQLite `.mbtiles`.
-* **Extension 2 (Animations Lottie/Rive) :** ✅ **Réalisée (100%)** — L'écran de succès de détection a été enrichi avec une micro-animation vectorielle Lottie fluide (`success.json`).
-* **Bilan Extensions : 2 / 2 (100%)**
+* **Extension 1 (Tuiles offline .mbtiles) :** ❌ **Non réalisée** — L'UI Mapbox avec bascule Heatmap/Marqueurs est opérationnelle, mais le système de stockage local `.mbtiles` n'a pas été codé. (Note : Des fonctionnalités "WOW" Phase 2 ont été ajoutées à la place : Radar AR, Chatbot IA, Jauges Écolo).
+* **Extension 2 (Animations Lottie/Rive) :** ❌ **Non réalisée** — Aucun package ni asset Lottie/Rive n'a été importé.
+* **Bilan Extensions : 0 / 2 (0%)**
 
 ---
 
