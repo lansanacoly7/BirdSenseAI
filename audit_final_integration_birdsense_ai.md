@@ -20,7 +20,7 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **0%** *(0/2)* | **8.5 / 10** |
 | **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **100%** | **0%** *(0/2)* | **8.0 / 10** |
-| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **75%** *(1.5/2)* | **9.5 / 10** |
+| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **100%** *(2/2)* | **10 / 10** |
 | **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | **100%** | **100%** *(4/4)* | **10 / 10** |
 | **5. Pathé Fall**<br>*Dev Fullstack Data & Analytics* | `pathe-fall` | **MERGED** | **100%** | **66%** *(2/3)* | **9.5 / 10** |
 
@@ -47,8 +47,8 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 
 ### 3️⃣ Pape Alioune Sène — Dev Backend Core & Infrastructure
 * **Extension 1 (Dockerfile & Migrations Alembic) :** ✅ **Réalisée (100%)** — Présence de `backend/Dockerfile`, `backend/alembic.ini` et du dossier `backend/migrations/`.
-* **Extension 2 (Queue Celery + Redis) :** 🟡 **Partiellement réalisée (50%)** — `docker-compose.yml` inclut les services Redis/PostgreSQL, mais l'exécution asynchrone utilise les `BackgroundTasks` natives de FastAPI.
-* **Bilan Extensions : 1.5 / 2 (75%)**
+* **Extension 2 (Queue Celery + Redis) :** ✅ **Réalisée (100%)** — `celery_app.py`, workers et redis configurés dans `docker-compose.yml`.
+* **Bilan Extensions : 2 / 2 (100%)**
 
 ---
 
@@ -71,5 +71,5 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 
 ## 🎯 Bilan Global des Extensions
 * **Champion de l'Innovation & Extensions :** **Ibrahima Khalilou Diallo** (100% des extensions réalisées avec livraison de code C++ native, bindings FFI et classifier BioCLIP).
-* **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF).
+* **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic + Celery + Redis) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF).
 * **Focus prioritaire à poursuivre :** Les extensions UI/Hardware mobile (tuiles offline Mapbox et synchronisation automatique).
