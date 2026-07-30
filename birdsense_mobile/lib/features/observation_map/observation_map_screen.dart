@@ -93,9 +93,9 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
                       child: const Icon(Icons.location_on, color: AppColors.accentAmber),
                     ),
                     const SizedBox(width: 14),
-                    const Expanded(
+                    Expanded(
                       child: Column(
-                        crossAxisAlignment: CrossAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
