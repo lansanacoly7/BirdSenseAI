@@ -1,0 +1,89 @@
+{
+  "timestamp": "2026-07-30 14:38:20",
+  "input_image": "dataset\\images\\train\\aigle_2.jpg",
+  "pipeline": "YOLOv8 Detection -> AR HUD Bounding Boxes -> BioCLIP Zero-Shot -> Audio FFT",
+  "vision_summary": {
+    "image_width": 640,
+    "image_height": 960,
+    "detected_birds_count": 0,
+    "bioclip_status": "Network constraint in sandbox: HuggingFace checkpoint download unreachable (URLError). Real CLIP requires network access on Ibrahima's machine.",
+    "detections": []
+  },
+  "audio_summary": {
+    "success": true,
+    "filename": "bird_call_sample.wav",
+    "sample_rate_hz": 22050,
+    "duration_sec": 1.0,
+    "peak_frequency_hz": 3200.0,
+    "volume_rms_db": -9.8,
+    "top_species": "Haliaeetus vocifer (Aigle Pêcheur)",
+    "top_confidence": 0.97,
+    "candidates": [
+      {
+        "species": "Haliaeetus vocifer (Aigle Pêcheur)",
+        "confidence": 0.97,
+        "typical_call": "Kyiow-kow-kow puissant",
+        "freq_range_hz": [
+          1200,
+          3200
+        ]
+      },
+      {
+        "species": "Falco tinnunculus (Faucon Crécerelle)",
+        "confidence": 0.95,
+        "typical_call": "Kee-kee-kee aigu",
+        "freq_range_hz": [
+          3000,
+          6500
+        ]
+      },
+      {
+        "species": "Passer domesticus (Passereau / Moineau)",
+        "confidence": 0.93,
+        "typical_call": "Chirp aigu & pépitement",
+        "freq_range_hz": [
+          2800,
+          5500
+        ]
+      }
+    ],
+    "bioacoustic_status": "CLASSIFIED_REAL_SPECTRAL_MATCH"
+  },
+  "performance_metrics": {
+    "yolo": {
+      "count": 1,
+      "mean_ms": 112.46,
+      "min_ms": 112.46,
+      "max_ms": 112.46,
+      "fps": 8.89
+    },
+    "onnx": {
+      "count": 0,
+      "mean_ms": 0.0,
+      "min_ms": 0.0,
+      "max_ms": 0.0,
+      "fps": 0.0
+    },
+    "fft": {
+      "count": 1,
+      "mean_ms": 1.03,
+      "min_ms": 1.03,
+      "max_ms": 1.03,
+      "fps": 973.33
+    },
+    "bytetrack": {
+      "count": 0,
+      "mean_ms": 0.0,
+      "min_ms": 0.0,
+      "max_ms": 0.0,
+      "fps": 0.0
+    },
+    "bioclip": {
+      "count": 0,
+      "mean_ms": 0.0,
+      "min_ms": 0.0,
+      "max_ms": 0.0,
+      "fps": 0.0
+    }
+  }
+}

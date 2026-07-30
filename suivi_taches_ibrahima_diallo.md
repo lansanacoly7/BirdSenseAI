@@ -31,6 +31,11 @@
 
 ---
 
+### [2026-07-30] — Point d'Entrée Unique de Démo Vision (`run_demo.py`)
+- ✅ **Orchestrateur de Pipeline :** Création du script `run_demo.py` exécutant de bout en bout la chaîne multimodal Vision & Audio (Image -> YOLO -> AR HUD Bounding Box -> ByteTrack -> BioCLIP -> Audio FFT).
+- ✅ **Artéfacts de Sortie (`demo_output/`) :** Génération automatique de `demo_output/annotated.jpg`, `demo_output/result.json` et `demo_output/summary.txt`.
+- ✅ **Commande de Lancement :** `python run_demo.py`.
+
 ### [2026-07-30] — Module de Métriques de Performance (`src/vision/performance.py`)
 - ✅ **Tracker de Métriques :** Création de `src/vision/performance.py` (`VisionPerformanceTracker`) mesurant automatiquement la latence (ms), le min, le max, la moyenne, les FPS et le nombre d'exécutions pour `yolo`, `bytetrack`, `bioclip`, `fft` et `onnx`.
 - ✅ **Export JSON :** Méthode `export_json()` générant le résumé structuré au format JSON.
