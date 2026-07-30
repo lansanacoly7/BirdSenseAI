@@ -10,6 +10,9 @@ import cv2
 import onnxruntime as ort
 
 
+from .config import vision_config
+
+
 class ONNXInferenceEngine:
     """
     Direct ONNX Runtime execution engine for YOLO models exported to .onnx format with Class-wise NMS.
@@ -18,14 +21,14 @@ class ONNXInferenceEngine:
     def __init__(
         self,
         onnx_model_path: str,
-        input_size: int = 640,
-        confidence_threshold: float = 0.25,
-        iou_threshold: float = 0.45
+        input_size: Optional[int] = None,
+        confidence_threshold: Optional[float] = None,
+        iou_threshold: Optional[float] = None
     ):
         self.model_path = Path(onnx_model_path)
-        self.input_size = input_size
-        self.confidence_threshold = confidence_threshold
-        self.iou_threshold = iou_threshold
+        self.input_size = input_size if input_size is not None else vision_config.image_size[0]
+        self.confidence_threshold = confidence_threshold if confidence_threshold is not None else vision_config.confidence_threshold
+        self.iou_threshold = iou_threshold if iou_threshold is not None else vision_config.iou_threshold
 
         if not self.model_path.exists():
             raise FileNotFoundError(f"ONNX model not found at {self.model_path}")

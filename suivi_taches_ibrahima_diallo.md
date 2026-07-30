@@ -31,7 +31,10 @@
 
 ---
 
-## 📅 Journal des Réalisations & Corrections d'Audit
+### [2026-07-30] — Centralisation de la Configuration Vision (`src/vision/config.py`)
+- ✅ **Module Centralisé de Configuration :** Création de `src/vision/config.py` (`VisionConfig`) regroupant l'ensemble des constantes et paramètres d'inférence (YOLO, ONNX, seuils de confiance, NMS IOU, taille d'image, device, tracking ByteTrack, modèle BioCLIP et taux d'échantillonnage audio FFT).
+- ✅ **Refactorisation des Modules Vision :** Mise à jour de `detector.py`, `tracker.py`, `bioclip_engine.py`, `onnx_engine.py`, `audio_classifier.py` et `vision_router.py` pour importer et consommer `vision_config`.
+- ✅ **Validation :** 13/13 tests passés à 100% dans `tests/test_vision.py` sans aucune régression.
 
 ### [2026-07-30] — Correction de l'Intégrité Audio et Alignement de Suivi
 - ✅ **Correction Audio sans Fallback Factice (T4.5) :** Supprimé la génération de bruit aléatoire (`np.random.randint`) dans `src/vision/audio_classifier.py`. En cas de fichier audio corrompu ou non décodable, une `ValueError` est levée et retournée sous forme d'erreur **HTTP 400 Bad Request** dans `src/api/vision_router.py`.

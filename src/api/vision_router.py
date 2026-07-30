@@ -16,6 +16,7 @@ from ..vision.tracker import ByteTrackTracker
 from ..vision.bioclip_engine import BioCLIPEngine
 
 from ..vision.audio_classifier import AudioBirdClassifier
+from ..vision.config import vision_config
 
 router = APIRouter(prefix="/api/v1/vision", tags=["Computer Vision & IA"])
 
@@ -37,15 +38,12 @@ def get_audio_classifier() -> AudioBirdClassifier:
 
 def resolve_model_path() -> str:
     """Detects fine-tuned best.pt weights under runs/ or falls back to base COCO yolov8n.pt with warning."""
-    runs_dir = ROOT_DIR / "runs"
-    best_weights = list(runs_dir.glob("**/weights/best.pt"))
-    if best_weights and best_weights[0].exists() and best_weights[0].stat().st_size > 0:
-        model_p = str(best_weights[0])
+    model_p = vision_config.resolve_yolo_weights()
+    if "best.pt" in model_p:
         print(f"[Vision Router] Loaded fine-tuned YOLO model weights: {model_p}")
-        return model_p
     else:
         print("[WARN] Aucun modèle fine-tuné trouvé, utilisation du modèle COCO de base — détection limitée à la classe générique 'bird'.")
-        return "yolov8n.pt"
+    return model_p
 
 
 def get_detector() -> BirdDetector:

@@ -58,14 +58,17 @@ BIRD_SPECIES_AUDIO_SIGNATURES = [
 ]
 
 
+from .config import vision_config
+
+
 class AudioBirdClassifier:
     """
     Classifieur bioacoustique par analyse FFT de la fréquence spectrale dominante.
     Interfaçable avec le flux microphone / décibels matériel de Massogui.
     """
 
-    def __init__(self, sample_rate: int = 22050):
-        self.sample_rate = sample_rate
+    def __init__(self, sample_rate: Optional[int] = None):
+        self.sample_rate = sample_rate if sample_rate is not None else vision_config.audio_sample_rate
 
     def _analyze_pcm_samples(self, samples: np.ndarray, sample_rate: int) -> Dict[str, Any]:
         """

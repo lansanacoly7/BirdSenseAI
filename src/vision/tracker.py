@@ -12,6 +12,9 @@ from ultralytics import YOLO
 COCO_BIRD_CLASS_ID = 14
 
 
+from .config import vision_config
+
+
 class ByteTrackTracker:
     """
     ByteTrackTracker runs YOLO object detection integrated with ByteTrack algorithm
@@ -20,22 +23,22 @@ class ByteTrackTracker:
 
     def __init__(
         self,
-        model_path: str = "yolov8n.pt",
-        tracker_type: str = "bytetrack.yaml",
-        confidence_threshold: float = 0.25,
+        model_path: Optional[str] = None,
+        tracker_type: Optional[str] = None,
+        confidence_threshold: Optional[float] = None,
         target_classes: Optional[List[int]] = None
     ):
         """
-        :param model_path: Path to YOLO weights.
+        :param model_path: Path to YOLO weights (defaults to vision_config.yolo_model_path).
         :param tracker_type: Tracker configuration file ('bytetrack.yaml' or 'botsort.yaml').
         :param confidence_threshold: Minimum detection confidence threshold.
         :param target_classes: Target class IDs (defaults to [14] for generic COCO bird detection).
         """
-        self.model_path = model_path
-        self.tracker_type = tracker_type
-        self.confidence_threshold = confidence_threshold
+        self.model_path = model_path if model_path is not None else vision_config.yolo_model_path
+        self.tracker_type = tracker_type if tracker_type is not None else vision_config.tracker_config
+        self.confidence_threshold = confidence_threshold if confidence_threshold is not None else vision_config.tracking_threshold
         self.target_classes = target_classes if target_classes is not None else [COCO_BIRD_CLASS_ID]
-        self.model = YOLO(model_path)
+        self.model = YOLO(self.model_path)
 
     def track_video(
         self,

@@ -43,6 +43,9 @@ def _check_hf_network() -> tuple[bool, str]:
     return _HF_NETWORK_AVAILABLE, _HF_NETWORK_ERROR
 
 
+from .config import vision_config
+
+
 class BioCLIPEngine:
     """
     BioCLIP / OpenCLIP Engine for fine-grained bird species zero-shot classification using image-text embeddings.
@@ -52,10 +55,12 @@ class BioCLIPEngine:
     def __init__(
         self,
         species_taxonomy: Optional[List[str]] = None,
-        model_name: str = "ViT-B-32",
-        pretrained: str = "laion2b_s34b_b79k",
+        model_name: Optional[str] = None,
+        pretrained: Optional[str] = None,
         enable_clip: bool = True
     ):
+        model_name = model_name if model_name is not None else vision_config.bioclip_model_name
+        pretrained = pretrained if pretrained is not None else vision_config.bioclip_pretrained
         self.species_taxonomy = species_taxonomy or [
             "Phoenicopterus roseus (Flamant Rose)",
             "Pelecanus onocrotalus (Pélican Blanc)",
