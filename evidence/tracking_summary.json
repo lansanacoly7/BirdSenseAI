@@ -1,0 +1,9 @@
+{
+  "total_frames": 20,
+  "fps": 10,
+  "width": 320,
+  "height": 240,
+  "unique_birds_count": 0,
+  "tracks": [],
+  "annotated_video_path": "C:\\Users\\Kalz\\Documents\\Serward Buspro\\Team Projects\\BirdSense\\BirdSenseAI\\evidence\\test_tracking_annotated.mp4"
+}
