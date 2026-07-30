@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import 'package:lottie/lottie.dart';
 
 class DetectionSuccessDialog extends StatefulWidget {
   final String speciesName;
@@ -22,10 +23,9 @@ class DetectionSuccessDialog extends StatefulWidget {
     required double confidence,
     required String iucnCategory,
   }) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      backgroundColor: Colors.transparent,
-      isScrollControlled: true,
+      barrierColor: Colors.black.withOpacity(0.3),
       builder: (context) => DetectionSuccessDialog(
         speciesName: speciesName,
         scientificName: scientificName,
@@ -49,11 +49,11 @@ class _DetectionSuccessDialogState extends State<DetectionSuccessDialog>
     super.initState();
     _animationController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 500),
     );
     _scaleAnimation = CurvedAnimation(
       parent: _animationController,
-      curve: Curves.elasticOut,
+      curve: Curves.easeOutBack,
     );
     _animationController.forward();
   }
@@ -83,131 +83,130 @@ class _DetectionSuccessDialogState extends State<DetectionSuccessDialog>
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceDark,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: AppColors.accentAmber, width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.accentAmber.withAlpha(40),
-            blurRadius: 20,
-            spreadRadius: 4,
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          // Animated Check Icon / Circle
-          ScaleTransition(
-            scale: _scaleAnimation,
-            child: Container(
-              width: 72,
-              height: 72,
-              decoration: const BoxDecoration(
-                color: AppColors.primaryCanopy,
-                shape: BoxShape.circle,
-              ),
-              child: const Icon(
-                Icons.check_circle,
-                color: AppColors.accentAmber,
-                size: 48,
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
-          const Text(
-            'Espèce Identifiée avec Succès !',
-            style: TextStyle(
-              color: AppColors.accentAmber,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.1,
-            ),
-          ),
-          const SizedBox(height: 8),
-
-          Text(
-            widget.speciesName,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          Text(
-            widget.scientificName,
-            style: const TextStyle(
-              fontSize: 14,
-              fontStyle: FontStyle.italic,
-              color: AppColors.textSecondary,
-            ),
-          ),
-          const SizedBox(height: 20),
-
-          // Confidence & Status Row
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              _buildMetricChip(
-                label: 'Confiance IA',
-                value: '${(widget.confidence * 100).toStringAsFixed(0)}%',
-                color: AppColors.primaryCanopy,
-              ),
-              _buildMetricChip(
-                label: 'Statut UICN',
-                value: widget.iucnCategory,
-                color: _getIucnColor(widget.iucnCategory),
+    return Dialog(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      child: ScaleTransition(
+        scale: _scaleAnimation,
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 20,
+                offset: const Offset(0, 10),
               ),
             ],
           ),
-          const SizedBox(height: 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Success Icon Lottie Animation
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: Lottie.asset(
+                  'assets/lottie/success.json',
+                  repeat: false,
+                  fit: BoxFit.contain,
+                ),
+              ),
+              const SizedBox(height: 24),
 
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Enregistrer dans l\'Historique'),
-            ),
+              Text(
+                widget.speciesName,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.textPrimary,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                widget.scientificName,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 32),
+
+              // Metrics Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _buildMetricBox(
+                    label: 'Confiance IA',
+                    value: '${(widget.confidence * 100).toStringAsFixed(0)}%',
+                    color: AppColors.primaryAction,
+                  ),
+                  _buildMetricBox(
+                    label: 'Statut UICN',
+                    value: widget.iucnCategory,
+                    color: _getIucnColor(widget.iucnCategory),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
+
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    elevation: 0,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  child: const Text('Enregistrer'),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildMetricChip({
+  Widget _buildMetricBox({
     required String label,
     required String value,
     required Color color,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: color.withAlpha(50),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color),
-      ),
-      child: Column(
-        children: [
-          Text(
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Text(
             value,
             style: TextStyle(
-              color: color == AppColors.primaryCanopy ? AppColors.accentAmber : Colors.white,
+              color: color,
               fontWeight: FontWeight.bold,
-              fontSize: 18,
+              fontSize: 20,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          label,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

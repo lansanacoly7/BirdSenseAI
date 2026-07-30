@@ -42,7 +42,7 @@ class _BirdSenseAppState extends ConsumerState<BirdSenseApp> {
     return MaterialApp(
       title: 'BirdSense AI',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
+      theme: AppTheme.lightTheme,
       home: const LoginScreen(),
     );
   }
