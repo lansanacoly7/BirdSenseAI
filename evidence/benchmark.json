@@ -1,0 +1,41 @@
+{
+  "timestamp": "2026-07-30 14:50:52",
+  "system_resources": {
+    "cpu_percent": 34.5,
+    "ram_mb": 379.35
+  },
+  "inference_benchmarks": {
+    "yolo_detection": {
+      "mean_latency_ms": 257.97,
+      "min_latency_ms": 136.04,
+      "max_latency_ms": 487.78,
+      "fps": 3.88,
+      "iterations": 5
+    },
+    "audio_fft": {
+      "mean_latency_ms": 0.79,
+      "min_latency_ms": 0.71,
+      "max_latency_ms": 0.94,
+      "fps": 1265.82,
+      "iterations": 10
+    }
+  },
+  "api_benchmarks": {
+    "GET /api/v1/vision/health": {
+      "status_code": 200,
+      "latency_ms": 5828.98
+    },
+    "POST /api/v1/vision/detect": {
+      "status_code": 200,
+      "latency_ms": 139.91
+    },
+    "POST /api/v1/vision/audio-classify": {
+      "status_code": 200,
+      "latency_ms": 7.34
+    }
+  },
+  "final_system_resources": {
+    "cpu_percent": 66.7,
+    "ram_mb": 1062.67
+  }
+}

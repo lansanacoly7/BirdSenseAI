@@ -1,0 +1,9 @@
+Category,Metric,Value,Unit
+System,RAM_Footprint,1062.67,MB
+System,CPU_Utilization,66.7,%
+Inference,YOLO_Mean_Latency,257.97,ms
+Inference,YOLO_FPS,3.88,fps
+Inference,Audio_FFT_Mean_Latency,0.79,ms
+API,GET_Health_Latency,5828.98,ms
+API,POST_Detect_Latency,139.91,ms
+API,POST_AudioClassify_Latency,7.34,ms

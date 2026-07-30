@@ -239,3 +239,17 @@ class TestVisionPerformanceTracker:
         json_str = tracker.export_json()
         assert '"onnx"' in json_str
         assert '"mean_ms": 50.0' in json_str
+
+
+from scripts.benchmark import run_benchmark
+
+class TestVisionBenchmark:
+    """Tests execution of scripts/benchmark.py and artifact generation."""
+
+    def test_run_benchmark_generates_artifacts(self, tmp_path):
+        results = run_benchmark(output_dir=tmp_path)
+        assert "inference_benchmarks" in results
+        assert "api_benchmarks" in results
+        assert (tmp_path / "benchmark.json").exists()
+        assert (tmp_path / "benchmark.md").exists()
+        assert (tmp_path / "benchmark.csv").exists()
