@@ -3,10 +3,9 @@ BirdSense AI - Centralized Computer Vision Configuration Engine
 Centralizes all vision parameters, model paths, thresholds, and bioacoustic settings.
 """
 
-import os
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Tuple, List, Optional
+from typing import Tuple
 
 
 ROOT_DIR = Path(__file__).resolve().parent.parent.parent

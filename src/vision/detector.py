@@ -11,7 +11,6 @@ import cv2
 from PIL import Image
 from ultralytics import YOLO
 
-# COCO Class ID for Bird is 14
 from .config import vision_config
 from .performance import performance_tracker
 
