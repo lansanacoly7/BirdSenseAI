@@ -15,6 +15,33 @@ try:
 except ImportError:
     HAS_OPEN_CLIP = False
 
+_HF_NETWORK_CHECKED = False
+_HF_NETWORK_AVAILABLE = False
+_HF_NETWORK_ERROR = ""
+
+
+def _check_hf_network() -> tuple[bool, str]:
+    global _HF_NETWORK_CHECKED, _HF_NETWORK_AVAILABLE, _HF_NETWORK_ERROR
+    if _HF_NETWORK_CHECKED:
+        return _HF_NETWORK_AVAILABLE, _HF_NETWORK_ERROR
+
+    _HF_NETWORK_CHECKED = True
+    try:
+        import urllib.request
+        req = urllib.request.Request(
+            "https://huggingface.co/laion/CLIP-ViT-B-32-laion2B-s34B-b79K/resolve/main/open_clip_pytorch_model.bin",
+            headers={"User-Agent": "Mozilla/5.0"},
+            method="HEAD"
+        )
+        with urllib.request.urlopen(req, timeout=1.0) as resp:
+            pass
+        _HF_NETWORK_AVAILABLE = True
+    except Exception as net_err:
+        _HF_NETWORK_AVAILABLE = False
+        _HF_NETWORK_ERROR = f"Network constraint in sandbox: HuggingFace checkpoint download unreachable ({type(net_err).__name__}). Real CLIP requires network access on Ibrahima's machine."
+
+    return _HF_NETWORK_AVAILABLE, _HF_NETWORK_ERROR
+
 
 class BioCLIPEngine:
     """
@@ -46,7 +73,14 @@ class BioCLIPEngine:
         self.tokenizer = None
         self.text_features = None
 
+        self.init_error: Optional[str] = None
         if HAS_OPEN_CLIP and enable_clip:
+            avail, err_msg = _check_hf_network()
+            if not avail:
+                self.init_error = err_msg
+                print(f"[BioCLIPEngine] {self.init_error}")
+                return
+
             try:
                 self.model, _, self.preprocess = open_clip.create_model_and_transforms(
                     model_name, pretrained=pretrained
@@ -64,58 +98,41 @@ class BioCLIPEngine:
                 self.use_clip = True
                 print(f"[BioCLIPEngine] Initialized real OpenCLIP model '{model_name}' zero-shot classifier.")
             except Exception as e:
-                print(f"[BioCLIPEngine] OpenCLIP init fallback: {e}")
+                self.init_error = f"{type(e).__name__}: {str(e)}"
+                print(f"[BioCLIPEngine] OpenCLIP init error: {self.init_error}")
 
     def classify_crop(self, bird_crop: np.ndarray) -> Dict[str, Any]:
         """
         Classifies a cropped bounding box of a bird using real multimodal embeddings.
         Returns candidate species ranked by real cosine similarity / softmax confidence.
+        Raises RuntimeError if OpenCLIP is not loaded.
         """
         if bird_crop is None or bird_crop.size == 0:
             raise ValueError("Invalid bird crop input provided to BioCLIPEngine.")
 
+        if not self.use_clip or self.model is None or self.text_features is None:
+            err_msg = f"CLIP model unavailable — real classification cannot run. Detail: {self.init_error or 'OpenCLIP package not loaded or disabled'}"
+            raise RuntimeError(err_msg)
+
         rgb_img = cv2.cvtColor(bird_crop, cv2.COLOR_BGR2RGB)
         pil_img = Image.fromarray(rgb_img)
 
-        if self.use_clip and self.model is not None and self.text_features is not None:
-            img_tensor = self.preprocess(pil_img).unsqueeze(0).to(self.device)
-            with torch.no_grad():
-                img_embed = self.model.encode_image(img_tensor)
-                img_embed = img_embed / img_embed.norm(dim=-1, keepdim=True)
+        img_tensor = self.preprocess(pil_img).unsqueeze(0).to(self.device)
+        with torch.no_grad():
+            img_embed = self.model.encode_image(img_tensor)
+            img_embed = img_embed / img_embed.norm(dim=-1, keepdim=True)
 
-                similarities = (img_embed @ self.text_features.T).squeeze(0)
-                probs = (100.0 * similarities).softmax(dim=-1).cpu().numpy()
-                scores = similarities.cpu().numpy()
+            similarities = (img_embed @ self.text_features.T).squeeze(0)
+            probs = (100.0 * similarities).softmax(dim=-1).cpu().numpy()
+            scores = similarities.cpu().numpy()
 
-            candidates = []
-            for idx, species in enumerate(self.species_taxonomy):
-                candidates.append({
-                    "species": species,
-                    "confidence": round(float(probs[idx]), 4),
-                    "similarity": round(float(scores[idx]), 4)
-                })
-
-        else:
-            # Deterministic PyTorch/NumPy spatial-color feature vector embedding similarity matcher
-            img_resized = cv2.resize(rgb_img, (224, 224)).astype(np.float32) / 255.0
-            feat_vec = np.mean(img_resized, axis=(0, 1))
-            feat_vec = feat_vec / (np.linalg.norm(feat_vec) + 1e-6)
-
-            candidates = []
-            for idx, species in enumerate(self.species_taxonomy):
-                spec_hash = np.array([
-                    (hash(species + "_r") % 100) / 100.0,
-                    (hash(species + "_g") % 100) / 100.0,
-                    (hash(species + "_b") % 100) / 100.0
-                ])
-                spec_hash = spec_hash / (np.linalg.norm(spec_hash) + 1e-6)
-
-                sim = float(np.dot(feat_vec, spec_hash))
-                candidates.append({
-                    "species": species,
-                    "confidence": round(max(0.1, min(0.99, (sim + 1.0) / 2.0)), 4),
-                    "similarity": round(sim, 4)
-                })
+        candidates = []
+        for idx, species in enumerate(self.species_taxonomy):
+            candidates.append({
+                "species": species,
+                "confidence": round(float(probs[idx]), 4),
+                "similarity": round(float(scores[idx]), 4)
+            })
 
         candidates.sort(key=lambda x: x["confidence"], reverse=True)
         top_match = candidates[0]

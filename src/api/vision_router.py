@@ -17,23 +17,38 @@ from ..vision.bioclip_engine import BioCLIPEngine
 
 router = APIRouter(prefix="/api/v1/vision", tags=["Computer Vision & IA"])
 
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+
 # Singleton model instances
 _detector: Optional[BirdDetector] = None
 _tracker: Optional[ByteTrackTracker] = None
 _bioclip_engine: Optional[BioCLIPEngine] = None
 
 
+def resolve_model_path() -> str:
+    """Detects fine-tuned best.pt weights under runs/ or falls back to base COCO yolov8n.pt with warning."""
+    runs_dir = ROOT_DIR / "runs"
+    best_weights = list(runs_dir.glob("**/weights/best.pt"))
+    if best_weights and best_weights[0].exists() and best_weights[0].stat().st_size > 0:
+        model_p = str(best_weights[0])
+        print(f"[Vision Router] Loaded fine-tuned YOLO model weights: {model_p}")
+        return model_p
+    else:
+        print("[WARN] Aucun modèle fine-tuné trouvé, utilisation du modèle COCO de base — détection limitée à la classe générique 'bird'.")
+        return "yolov8n.pt"
+
+
 def get_detector() -> BirdDetector:
     global _detector
     if _detector is None:
-        _detector = BirdDetector(model_path="yolov8n.pt", confidence_threshold=0.25)
+        _detector = BirdDetector(model_path=resolve_model_path(), confidence_threshold=0.25)
     return _detector
 
 
 def get_tracker() -> ByteTrackTracker:
     global _tracker
     if _tracker is None:
-        _tracker = ByteTrackTracker(model_path="yolov8n.pt", confidence_threshold=0.25)
+        _tracker = ByteTrackTracker(model_path=resolve_model_path(), confidence_threshold=0.25)
     return _tracker
 
 

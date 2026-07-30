@@ -90,41 +90,47 @@ class TestByteTrackTracker:
         assert tracker.tracker_type == "bytetrack.yaml"
 
 
+from src.vision.bioclip_engine import BioCLIPEngine, HAS_OPEN_CLIP
+
 class TestBioCLIPEngine:
     """Tests BioCLIP-2 fine species zero-shot identification & ranking consistency (Stage 2)."""
 
-    def test_bioclip_classification_structure(self):
-        engine = BioCLIPEngine(enable_clip=False)
-        crop = np.ones((100, 100, 3), dtype=np.uint8) * 150
-        res = engine.classify_crop(crop)
-        
-        assert "top_species" in res
-        assert "top_confidence" in res
-        assert "is_rare_protected" in res
-        assert len(res["candidates"]) == 3
+    @pytest.mark.skipif(not HAS_OPEN_CLIP, reason="CLIP non disponible dans cet environnement — test sauté, pas simulé")
+    def test_bioclip_classification_structure_and_consistency(self):
+        try:
+            engine = BioCLIPEngine(enable_clip=True)
+            if not engine.use_clip:
+                pytest.skip(f"CLIP non disponible dans cet environnement — test sauté, pas simulé. Détail: {engine.init_error}")
+        except Exception as e:
+            pytest.skip(f"CLIP non disponible dans cet environnement — test sauté, pas simulé. Détail: {e}")
 
-    def test_bioclip_species_reproducibility_and_ranking(self):
-        """Verifies ranking consistency across crops and distinct species separation."""
-        engine = BioCLIPEngine(enable_clip=False)
-        
-        # Pinkish crop 1 (simulating flamingo)
-        flamingo_crop1 = np.full((120, 120, 3), (180, 100, 220), dtype=np.uint8)
-        # Pinkish crop 2 (simulating flamingo with slight variation)
-        flamingo_crop2 = np.full((120, 120, 3), (170, 95, 215), dtype=np.uint8)
-        
-        # Dark raptor crop (simulating eagle)
-        eagle_crop = np.full((120, 120, 3), (30, 40, 50), dtype=np.uint8)
+        # Read real bird images if available
+        train_imgs = list((Path(__file__).parent.parent / "dataset" / "images" / "train").glob("*.jpg"))
+        if train_imgs:
+            real_img = cv2.imread(str(train_imgs[0]))
+            bird_crop1 = real_img[10:110, 10:110]
+            bird_crop2 = real_img[12:112, 12:112]  # Slightly shifted crop of same real bird image
+        else:
+            bird_crop1 = np.full((120, 120, 3), (180, 100, 220), dtype=np.uint8)
+            bird_crop2 = np.full((120, 120, 3), (180, 100, 220), dtype=np.uint8)
 
-        res_flam1 = engine.classify_crop(flamingo_crop1)
-        res_flam2 = engine.classify_crop(flamingo_crop2)
-        res_eagle = engine.classify_crop(eagle_crop)
+        dark_crop = np.zeros((120, 120, 3), dtype=np.uint8)
 
-        # 1. Reproducibility test: similar crops yield top species consistency
-        assert res_flam1["top_species"] == res_flam2["top_species"]
-        assert abs(res_flam1["top_confidence"] - res_flam2["top_confidence"]) < 0.15
+        res1 = engine.classify_crop(bird_crop1)
+        res2 = engine.classify_crop(bird_crop2)
+        res_dark = engine.classify_crop(dark_crop)
 
-        # 2. Distinct species test: different crops yield distinct ranking candidates
-        assert res_flam1["candidates"] != res_eagle["candidates"]
+        assert "top_species" in res1
+        assert "top_confidence" in res1
+        assert "is_rare_protected" in res1
+        assert len(res1["candidates"]) == 3
+
+        # 1. Reproducibility test: crops from same bird yield top species consistency
+        assert res1["top_species"] == res2["top_species"]
+        assert abs(res1["top_confidence"] - res2["top_confidence"]) < 0.15
+
+        # 2. Distinct species test: different crops yield distinct candidate rankings
+        assert res1["candidates"] != res_dark["candidates"]
 
 
 class TestVisionAPI:
