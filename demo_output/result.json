@@ -1,12 +1,12 @@
 {
-  "timestamp": "2026-07-30 14:38:20",
+  "timestamp": "2026-07-30 15:31:45",
   "input_image": "dataset\\images\\train\\aigle_2.jpg",
   "pipeline": "YOLOv8 Detection -> AR HUD Bounding Boxes -> BioCLIP Zero-Shot -> Audio FFT",
   "vision_summary": {
     "image_width": 640,
     "image_height": 960,
     "detected_birds_count": 0,
-    "bioclip_status": "Network constraint in sandbox: HuggingFace checkpoint download unreachable (URLError). Real CLIP requires network access on Ibrahima's machine.",
+    "bioclip_status": "BioCLIP inactive",
     "detections": []
   },
   "audio_summary": {
@@ -51,27 +51,27 @@
   },
   "performance_metrics": {
     "yolo": {
-      "count": 1,
-      "mean_ms": 112.46,
-      "min_ms": 112.46,
-      "max_ms": 112.46,
-      "fps": 8.89
-    },
-    "onnx": {
-      "count": 0,
-      "mean_ms": 0.0,
-      "min_ms": 0.0,
-      "max_ms": 0.0,
-      "fps": 0.0
-    },
-    "fft": {
-      "count": 1,
-      "mean_ms": 1.03,
-      "min_ms": 1.03,
-      "max_ms": 1.03,
-      "fps": 973.33
+      "count": 9,
+      "mean_ms": 131.55,
+      "min_ms": 61.1,
+      "max_ms": 188.08,
+      "fps": 7.6
     },
     "bytetrack": {
+      "count": 1,
+      "mean_ms": 41.89,
+      "min_ms": 41.89,
+      "max_ms": 41.89,
+      "fps": 23.87
+    },
+    "fft": {
+      "count": 13,
+      "mean_ms": 0.74,
+      "min_ms": 0.59,
+      "max_ms": 1.37,
+      "fps": 1359.21
+    },
+    "onnx": {
       "count": 0,
       "mean_ms": 0.0,
       "min_ms": 0.0,

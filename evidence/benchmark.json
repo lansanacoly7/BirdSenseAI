@@ -1,41 +1,41 @@
 {
-  "timestamp": "2026-07-30 14:50:52",
+  "timestamp": "2026-07-30 15:31:40",
   "system_resources": {
-    "cpu_percent": 34.5,
-    "ram_mb": 379.35
+    "cpu_percent": 62.5,
+    "ram_mb": 1075.99
   },
   "inference_benchmarks": {
     "yolo_detection": {
-      "mean_latency_ms": 257.97,
-      "min_latency_ms": 136.04,
-      "max_latency_ms": 487.78,
-      "fps": 3.88,
+      "mean_latency_ms": 132.75,
+      "min_latency_ms": 125.02,
+      "max_latency_ms": 140.1,
+      "fps": 7.53,
       "iterations": 5
     },
     "audio_fft": {
-      "mean_latency_ms": 0.79,
-      "min_latency_ms": 0.71,
-      "max_latency_ms": 0.94,
-      "fps": 1265.82,
+      "mean_latency_ms": 0.69,
+      "min_latency_ms": 0.64,
+      "max_latency_ms": 0.86,
+      "fps": 1449.28,
       "iterations": 10
     }
   },
   "api_benchmarks": {
     "GET /api/v1/vision/health": {
       "status_code": 200,
-      "latency_ms": 5828.98
+      "latency_ms": 6.0
     },
     "POST /api/v1/vision/detect": {
       "status_code": 200,
-      "latency_ms": 139.91
+      "latency_ms": 73.6
     },
     "POST /api/v1/vision/audio-classify": {
       "status_code": 200,
-      "latency_ms": 7.34
+      "latency_ms": 7.37
     }
   },
   "final_system_resources": {
-    "cpu_percent": 66.7,
-    "ram_mb": 1062.67
+    "cpu_percent": 100.0,
+    "ram_mb": 1121.33
   }
 }
