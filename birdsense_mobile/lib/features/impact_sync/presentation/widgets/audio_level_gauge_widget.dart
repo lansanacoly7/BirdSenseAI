@@ -10,8 +10,10 @@ class AudioLevelGaugeWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Protéger contre les valeurs NaN ou Infinity retournées par l'API native
+    final safeDecibels = decibels.isFinite ? decibels : -120.0;
     // Normaliser de -80 (0%) à 0 (100%)
-    final normalized = ((decibels + 80) / 80).clamp(0.0, 1.0);
+    final normalized = ((safeDecibels + 80) / 80).clamp(0.0, 1.0);
     
     Color barColor;
     if (normalized < 0.4) {

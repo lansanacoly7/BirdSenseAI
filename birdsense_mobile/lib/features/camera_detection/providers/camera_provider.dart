@@ -220,6 +220,9 @@ class CameraNotifier extends StateNotifier<CameraState> {
 
   @override
   void dispose() {
+    if (state.isRecordingVideo) {
+      _audioLevelService.stop();
+    }
     state.controller?.dispose();
     super.dispose();
   }
