@@ -1,4 +1,4 @@
-# 🏆 RAPPORT D'AUDIT FINAL D'INTÉGRATION & FUSION (BRANCHE `test`)
+# 🏆 RAPPORT D'AUDIT FINAL D'INTÉGRATION & ANALYSE DES EXTENSIONS (BRANCHE `test`)
 
 **Projet :** BirdSense AI — Hackathon APD  
 **Branche d'intégration :** `test` (`https://github.com/lansanacoly7/BirdSenseAI/tree/test`)  
@@ -9,97 +9,66 @@
 ## 📌 Résumé Exécutif de la Fusion
 L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionné avec succès sur la branche d'intégration **`test`**.
 
-* **Restauration de la branche personnelle :** La branche **`LansannaColy`** a été réinitialisée et restaurée pour contenir **exclusivement le travail personnel de Lansana Coly**.
+* **Restauration de la branche personnelle :** La branche **`LansannaColy`** contient **exclusivement le travail personnel de Lansana Coly**.
 * **Intégration centralisée :** La branche **`test`** rassemble désormais l'application Mobile Flutter, le Backend FastAPI/PostGIS, le pipeline de Computer Vision YOLO/ByteTrack, l'inférence C++ ONNX, la Fusion Bayésienne, les connecteurs d'APIs et les tests.
 
 ---
 
-## 📊 Tableau Synthétique de l'Audit Final par Membre
+## 📊 Tableau Synthétique de l'Audit (MVP & Extensions)
 
-| Membre & Rôle | Branche Source | Statut Fusion | Conflits Git | Niveau de Complétude Tâches | Score de Propreté Code |
+| Membre & Rôle | Branche | Statut Fusion | MVP Complétude | Extensions Complétude | Score Global |
 | :--- | :--- | :---: | :---: | :---: | :---: |
-| **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | 0 conflit | **100%** | **9.5 / 10** |
-| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | 0 conflit | **40%** | **9.0 / 10** |
-| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | 0 conflit | **100%** | **9.5 / 10** |
-| **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | 0 conflit | **100%** | **10 / 10** |
-| **5. Pathé Fall**<br>*Dev Fullstack Data & Analytics* | `pathe-fall` | **MERGED** | 1 conflit *(résolu)* | **100%** | **9.5 / 10** |
+| **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **0%** *(0/2)* | **8.5 / 10** |
+| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **40%** | **0%** *(0/2)* | **4.0 / 10** |
+| **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **75%** *(1.5/2)* | **9.5 / 10** |
+| **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | **100%** | **100%** *(4/4)* | **10 / 10** |
+| **5. Pathé Fall**<br>*Dev Fullstack Data & Analytics* | `pathe-fall` | **MERGED** | **100%** | **66%** *(2/3)* | **9.5 / 10** |
 
 ---
 
-## 🔬 Audit Détaillé & Niveau de Complétude par Développeur
+## 🔍 Vérification Détaillée des Tâches en Extension (Bonus)
 
 ---
 
 ### 1️⃣ Lansana Coly — Lead Mobile UI & Cartographie
-* **Branche :** `LansannaColy`
-* **Livrables Fusionnés :** `birdsense_mobile/` (Design System Material 3 Dark, Navigation 4 onglets, Fiches Espèces UI, Cartographie Mapbox avec Heatmaps, Dashboard UI).
-* **Niveau de Complétude des Tâches : 100% (MVP)**
-  - [x] T1.1 Design System M3 Dark (`app_colors.dart`, `app_theme.dart`).
-  - [x] T1.2 Navigation & Écrans (`main_navigation_screen.dart`, `login_screen.dart`).
-  - [x] T1.3 Moteur Cartographique (`observation_map_screen.dart` avec bascule Heatmap/Pins).
-  - [x] T1.4 Dashboard & Fiches Espèces (`species_catalog_screen.dart`, `species_detail_screen.dart`, `analytics_dashboard_screen.dart`).
-* **Erreurs / Conflits :** 0 conflit. Code analysé et nettoyé (`flutter analyze` : 0 erreur).
-* **Score de Propreté : 9.5 / 10**
+* **Extension 1 (Tuiles offline .mbtiles) :** ❌ **Non réalisée** — L'UI Mapbox avec bascule Heatmap/Marqueurs est opérationnelle, mais le système de stockage local `.mbtiles` n'a pas été codé.
+* **Extension 2 (Animations Lottie/Rive) :** ❌ **Non réalisée** — Aucun package ni asset Lottie/Rive n'a été importé.
+* **Bilan Extensions : 0 / 2 (0%)**
 
 ---
 
 ### 2️⃣ El Hadji Massogui Diop — Dev Mobile Hardware, Camera & SQLite
-* **Branche :** `El-Hadji-Massogui-Diop-—-Dev-Mobile-Hardware,-Camera-&-SQLite`
-* **Livrables Fusionnés :** `Hackathon_Context.md` (Spécification et grille du hackathon).
-* **Niveau de Complétude des Tâches : 40%**
-  - [x] Cadrage du sujet et intégration du cahier des charges du hackathon.
-  - [ ] T2.1 Stream Caméra 30 FPS réel (Placeholder UI disponible via Lansana).
-  - [ ] T2.2 Persistence SQLite Drift locale.
-  - [ ] T2.3 Client Dio HTTP & Moteur de synchronisation réseau.
-* **Erreurs / Conflits :** 0 conflit lors de la fusion.
-* **Score de Propreté : 9.0 / 10** (Dépôt propre, mais code matériel mobile manquant).
+* **Extension 1 (Sync automatique WorkManager) :** ❌ **Non réalisée** — Seul `Hackathon_Context.md` a été poussé sur sa branche.
+* **Extension 2 (Chiffrement SQLCipher) :** ❌ **Non réalisée**.
+* **Bilan Extensions : 0 / 2 (0%)**
 
 ---
 
 ### 3️⃣ Pape Alioune Sène — Dev Backend Core & Infrastructure
-* **Branche :** `pape-alioune-sene`
-* **Livrables Fusionnés :** `backend/` (FastAPI Async, SQLAlchemy 2.0, PostgreSQL/PostGIS DDL, Auth JWT, Router REST /observations, Middleware de floutage GPS 5 km, Dockerfile & Alembic migrations).
-* **Niveau de Complétude des Tâches : 100% (MVP + Bonus)**
-  - [x] T3.1 Base Spatiale PostGIS (`sql/init_schema.sql`).
-  - [x] T3.2 FastAPI Core & Security (`app/services/auth_service.py`, OAuth2 JWT).
-  - [x] T3.3 Endpoints REST (`app/routers/observations.py`, Ingestion batch sync & Map query).
-  - [x] T3.4 Protection Espèces Menacées (`app/services/gps_blur.py`, floutage 5 km).
-* **Erreurs / Conflits :** 0 conflit lors de la fusion.
-* **Score de Propreté : 9.5 / 10** (Excellente structuration d'architecture Backend).
+* **Extension 1 (Dockerfile & Migrations Alembic) :** ✅ **Réalisée (100%)** — Présence de `backend/Dockerfile`, `backend/alembic.ini` et du dossier `backend/migrations/`.
+* **Extension 2 (Queue Celery + Redis) :** 🟡 **Partiellement réalisée (50%)** — `docker-compose.yml` inclut les services Redis/PostgreSQL, mais l'exécution asynchrone utilise les `BackgroundTasks` natives de FastAPI.
+* **Bilan Extensions : 1.5 / 2 (75%)**
 
 ---
 
 ### 4️⃣ Ibrahima Khalilou Diallo — Ingénieur Computer Vision & YOLO
-* **Branche :** `Kalz`
-* **Livrables Fusionnés :** `src/vision/` (Pipeline YOLOv8, ByteTrack Tracker, Classifier BioCLIP, ONNX Engine), `native/` (Wrapper C++ native ONNX), `flutter_bindings/birdsense_ffi.dart` (Bindings Dart FFI), `tests/test_vision.py` & dossier d'épreuves `evidence/`.
-* **Niveau de Complétude des Tâches : 100% (MVP + Extensions avancées)**
-  - [x] T4.1 YOLO Detection (`src/vision/detector.py`).
-  - [x] T4.2 ByteTrack MOT Tracking (`src/vision/tracker.py`).
-  - [x] T4.3 FastAPI Vision Service (`src/api/vision_router.py`).
-  - [x] Ext 4.1 Binding C++ ONNX Engine & Dart FFI (`native/birdsense_onnx.cpp`, `flutter_bindings/birdsense_ffi.dart`).
-* **Erreurs / Conflits :** 0 conflit lors de la fusion.
-* **Score de Propreté : 10 / 10** (Qualité industrielle, preuves de test d'inférence et vidéos d'évaluation incluses).
+* **Extension 1 (Moteur C++ ONNX Native) :** ✅ **Réalisée (100%)** — Fichiers `native/birdsense_onnx.cpp`, `native/birdsense_onnx.h` et `native/CMakeLists.txt` présents.
+* **Extension 2 (Bindings Flutter Dart FFI) :** ✅ **Réalisée (100%)** — Fichier `flutter_bindings/birdsense_ffi.dart` présent.
+* **Extension 3 (Classifier BioCLIP-2 / OpenCLIP) :** ✅ **Réalisée (100%)** — Fichier `src/vision/bioclip_engine.py` présent.
+* **Extension 4 (Dossier de Preuves / Qualification) :** ✅ **Réalisée (100%)** — Dossier `evidence/` complet (vidéos de tracking annotées, logs d'entraînement et réponses JSON).
+* **Bilan Extensions : 4 / 4 (100% — Performance d'Excellence)**
 
 ---
 
 ### 5️⃣ Pathé Fall — Dev Fullstack Data, Algorithmes & Analytics
-* **Branche :** `pathe-fall`
-* **Livrables Fusionnés :** Algorithme de Fusion Bayésienne Spatio-Temporelle, Connecteurs d'APIs tierces (eBird / GBIF / BirdNET), Module Backend & Mobile Analytics (`FL Chart`), Script de Seeding BDD 500+ points.
-* **Niveau de Complétude des Tâches : 100% (MVP)**
-  - [x] T5.1 Fusion Bayésienne Spatio-Temporelle.
-  - [x] T5.2 Connecteurs APIs (eBird/GBIF).
-  - [x] T5.3 Module Analytics & Stats.
-  - [x] T5.4 Script de Seeding BDD.
-* **Erreurs / Conflits :** **1 Conflit mineur** dans `tests/__init__.py`. 
-  * *Résolution :* Le conflit d'entête de package d'initialisation de test a été fusionné et résolu proprement.
-* **Score de Propreté : 9.5 / 10**
+* **Extension 1 (Connecteurs APIs eBird / GBIF / Audio) :** ✅ **Réalisée (100%)** — Fichiers `tests/analytics/test_connectors.py` et documentation `docs/pathe-analytics.md` présents.
+* **Extension 2 (Intégration Mobile Analytics Flutter) :** ✅ **Réalisée (100%)** — Package `birdsense_mobile/lib/features/analytics/` et tests unitaires `test/features/analytics/analytics_test.dart` présents.
+* **Extension 3 (Tests de charge Locust) :** ❌ **Non réalisée** — Pas de `locustfile.py` commité.
+* **Bilan Extensions : 2 / 3 (66%)**
 
 ---
 
-## 🎯 Bilan Global de l'Intégration (`test`)
-
-L'intégration complète sur la branche **`test`** est un succès majeur :
-1. **L'application Mobile** (`birdsense_mobile/`) dispose de son interface Material 3 Dark complète et réactive.
-2. **Le Backend API** (`backend/`) expose l'ensemble des routes d'authentification, de synchronisation et géospatiales.
-3. **Le Moteur IA** (`src/` & `native/`) intègre YOLOv8, ByteTrack, BioCLIP, les wrappers C++ ONNX et les bindings Flutter FFI.
-4. **La Branche `LansannaColy`** est restée 100% isolée et protégée pour le travail personnel de Lansana Coly.
+## 🎯 Bilan Global des Extensions
+* **Champion de l'Innovation & Extensions :** **Ibrahima Khalilou Diallo** (100% des extensions réalisées avec livraison de code C++ native, bindings FFI et classifier BioCLIP).
+* **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF).
+* **Focus prioritaire à poursuivre :** Les extensions UI/Hardware mobile (tuiles offline Mapbox et synchronisation automatique).
