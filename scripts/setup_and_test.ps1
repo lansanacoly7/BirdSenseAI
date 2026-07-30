@@ -1,7 +1,7 @@
 # Setup et tests — BirdSense AI (Module Analytics)
 
 # 1. Installer les dépendances Python
-pip install pytest pytest-asyncio fastapi httpx pydantic python-dotenv sqlalchemy anyio
+pip install pytest pytest-asyncio fastapi httpx pydantic python-dotenv sqlalchemy anyio librosa soundfile matplotlib locust
 
 # 2. Tests unitaires (T5.1 fusion, T5.2 connecteurs, T5.4 seeder)
 python -m pytest tests/analytics/test_fusion.py tests/analytics/test_connectors.py tests/analytics/test_seeder.py -v
