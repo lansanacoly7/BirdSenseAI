@@ -19,7 +19,7 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 | Membre & Rôle | MVP (Base) | Extensions (Bonus) | Wow Features (Phase 2) | Bilan / Engagement | Score Global |
 | :--- | :---: | :---: | :---: | :--- | :---: |
 | **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | ✅ 100% | ✅ 100% *(2/2)* | ✅ 100% *(4/4)* | Engagement exceptionnel : MVP parfait, extensions validées (MBTiles & Lottie) et Phase 2 entièrement livrée (Radar AR, IA Chat, Jauges). | **9.5 / 10** |
-| **2. Massogui Diop**<br>*Dev Mobile Hardware* | ✅ 100% | ❌ 0% *(0/2)* | ⏳ 0% *(0/2)* | Base MVP très solide (SQLite, Caméra), mais extensions ignorées et retard sur la Phase 2. A besoin d'accélérer. | **7.5 / 10** |
+| **2. Massogui Diop**<br>*Dev Mobile Hardware* | ✅ 100% | ✅ 100% *(2/2)* | ⏳ 0% *(0/2)* | Base MVP très solide (SQLite, Caméra) et extensions de chiffrement/background livrées ! En attente sur la Phase 2. | **10 / 10** |
 | **3. Alioune Sène**<br>*Dev Backend Infra* | ✅ 100% | ✅ 100% *(2/2)* | ⏳ 0% *(0/1)* | Excellente maîtrise backend et infra (Celery/Redis bien présents sur la branche test). Phase 2 à entamer. | **9.5 / 10** |
 | **4. Khalilou Diallo**<br>*Ingénieur CV & YOLO* | ✅ 100% | ✅ 100% *(4/4)* | ⏳ 0% *(0/2)* | Performance d'excellence sur l'IA et C++ (Evidence folder complet). En attente sur les requêtes Phase 2 (HUD/Audio). | **10 / 10** |
 | **5. Pathé Fall**<br>*Dev Fullstack Data* | ✅ 100% | 🟡 66% *(2/3)* | ⏳ 0% *(0/2)* | Très bonne architecture Data (Connecteurs & Analytics Flutter intégrés). Doit finaliser l'IA générative (Chatbot) pour clore la Phase 2. | **9.0 / 10** |
@@ -36,7 +36,7 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 
 ### 2️⃣ El Hadji Massogui Diop — Dev Mobile Hardware, Camera & SQLite
 * **MVP Phase 1 :** ✅ **100%** — Base SQLite (Drift), flux Caméra et Sync Réseau.
-* **Extensions Phase 1 :** ❌ **0%** — Pas de WorkManager (sync background) ni de chiffrement SQLCipher trouvés dans le code.
+* **Extensions Phase 1 :** ✅ **100%** — Intégration de `WorkManager` pour la synchronisation en arrière-plan et de `sqlcipher_flutter_libs` pour le chiffrement de la base de données.
 * **Wow Features Phase 2 :** ⏳ **0%** — Doit coder l'extraction du micro natif (T2.4) et la sauvegarde de l'impact local (T2.5).
 * **Tâches Restantes :** Focus absolu sur la **Phase 2 (Microphone & Base de données Impact)**.
 
@@ -63,7 +63,7 @@ Ce document est la source de vérité absolue de l'état d'avancement du projet 
 ## 🎯 Bilan Global des Extensions
 * **Champion de l'Innovation & Extensions :** **Ibrahima Khalilou Diallo** (100% des extensions réalisées avec livraison de code C++ native, bindings FFI et classifier BioCLIP).
 * **Excellente Contribution Backend & Data :** **Pape Alioune Sène** (Docker + Alembic + Celery + Redis validés) et **Pathé Fall** (Analytics Flutter + Connecteurs eBird/GBIF validés).
-* **Focus prioritaire à poursuivre :** Les tâches de Massogui (sync automatique et chiffrement SQL) n'ont pas été livrées.
+* **Focus prioritaire à poursuivre :** Massogui s'étant rattrapé sur ses extensions, le focus de l'équipe entière se tourne désormais exclusivement vers la **Phase 2 (Wow Features)** !
 
 ---
 
