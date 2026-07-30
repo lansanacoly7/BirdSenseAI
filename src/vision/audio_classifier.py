@@ -58,7 +58,9 @@ BIRD_SPECIES_AUDIO_SIGNATURES = [
 ]
 
 
+import logging
 from .config import vision_config
+from .logger import log_audio
 from .performance import performance_tracker
 
 
@@ -149,16 +151,16 @@ class AudioBirdClassifier:
                     samples = np.frombuffer(raw_data, dtype=np.int16)
                     if len(samples) > 0:
                         decoded = True
-            except Exception:
-                pass
+            except Exception as wav_err:
+                log_audio(f"WAV header parsing failed: {wav_err}. Trying raw PCM fallback.", level=logging.DEBUG)
 
             if not decoded and len(audio_bytes) >= 100:
                 try:
                     samples = np.frombuffer(audio_bytes, dtype=np.int16)
                     if len(samples) > 0:
                         decoded = True
-                except Exception:
-                    pass
+                except Exception as pcm_err:
+                    log_audio(f"Raw PCM buffer decoding failed: {pcm_err}.", level=logging.DEBUG)
 
         if not decoded or len(samples) == 0:
             raise ValueError(f"Impossible de décoder le fichier audio '{filename}' — format non supporté ou fichier corrompu.")
