@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/radar_pulse_animation.dart';
+import '../../core/widgets/radar_scanner_overlay.dart';
 import '../../core/widgets/detection_success_dialog.dart';
 
 class CameraViewScreen extends StatefulWidget {
@@ -46,11 +47,13 @@ class _CameraViewScreenState extends State<CameraViewScreen> {
                     ),
                   ),
                 ),
-                // Simulated Overlays
+                // Simulated Overlays (Bounding Boxes)
                 CustomPaint(
                   size: Size.infinite,
                   painter: MockBoundingBoxPainter(),
                 ),
+                // AR HUD Radar Sweep
+                const RadarScannerOverlay(),
               ],
             ),
           ),
@@ -192,15 +195,35 @@ class MockBoundingBoxPainter extends CustomPainter {
 
     // Mock bounding box 1
     final rect1 = Rect.fromLTWH(size.width * 0.2, size.height * 0.3, 140, 100);
-    canvas.drawRect(rect1, fillPaint);
-    canvas.drawRect(rect1, paint);
+    _drawARBox(canvas, rect1, paint, fillPaint);
     _drawLabel(canvas, rect1, 'Pélican blanc', '94%');
 
     // Mock bounding box 2
     final rect2 = Rect.fromLTWH(size.width * 0.55, size.height * 0.45, 120, 90);
-    canvas.drawRect(rect2, fillPaint);
-    canvas.drawRect(rect2, paint);
+    _drawARBox(canvas, rect2, paint, fillPaint);
     _drawLabel(canvas, rect2, 'Flamant rose', '88%');
+  }
+
+  void _drawARBox(Canvas canvas, Rect rect, Paint strokePaint, Paint fillPaint) {
+    canvas.drawRect(rect, fillPaint);
+    // Draw corners only for AR effect
+    final double cornerSize = 15.0;
+    
+    // Top-Left
+    canvas.drawLine(rect.topLeft, rect.topLeft + Offset(cornerSize, 0), strokePaint);
+    canvas.drawLine(rect.topLeft, rect.topLeft + Offset(0, cornerSize), strokePaint);
+    
+    // Top-Right
+    canvas.drawLine(rect.topRight, rect.topRight + Offset(-cornerSize, 0), strokePaint);
+    canvas.drawLine(rect.topRight, rect.topRight + Offset(0, cornerSize), strokePaint);
+    
+    // Bottom-Left
+    canvas.drawLine(rect.bottomLeft, rect.bottomLeft + Offset(cornerSize, 0), strokePaint);
+    canvas.drawLine(rect.bottomLeft, rect.bottomLeft + Offset(0, -cornerSize), strokePaint);
+    
+    // Bottom-Right
+    canvas.drawLine(rect.bottomRight, rect.bottomRight + Offset(-cornerSize, 0), strokePaint);
+    canvas.drawLine(rect.bottomRight, rect.bottomRight + Offset(0, -cornerSize), strokePaint);
   }
 
   void _drawLabel(Canvas canvas, Rect rect, String title, String conf) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../chat/chat_screen.dart';
 import 'species_detail_screen.dart';
 
 class SpeciesItem {
@@ -108,6 +109,18 @@ class _SpeciesCatalogScreenState extends State<SpeciesCatalogScreen> {
             pinned: true,
             backgroundColor: AppColors.surface,
             elevation: 0,
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.smart_toy, color: AppColors.primaryAction),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const ChatScreen()),
+                  );
+                },
+              ),
+              const SizedBox(width: 8),
+            ],
             flexibleSpace: FlexibleSpaceBar(
               titlePadding: const EdgeInsets.only(left: 20, bottom: 16),
               title: const Text(

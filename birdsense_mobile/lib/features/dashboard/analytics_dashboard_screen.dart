@@ -110,7 +110,42 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 32),
+
+                  // Ecological Impact
+                  const Text(
+                    'Mon Impact Écologique',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface,
+                      borderRadius: BorderRadius.circular(24),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.04),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _buildImpactGauge('Santé\nHabitat', 0.85, AppColors.primaryAction),
+                        _buildImpactGauge('Espèces\nProtégées', 0.62, AppColors.iucnEndangered),
+                        _buildImpactGauge('Score\nGlobal', 0.78, AppColors.secondaryAction),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
 
                   // KPIs
                   Row(
@@ -282,6 +317,47 @@ class AnalyticsDashboardScreen extends StatelessWidget {
                 child: const SizedBox(),
               ),
             ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildImpactGauge(String label, double percentage, Color color) {
+    return Column(
+      children: [
+        Stack(
+          alignment: Alignment.center,
+          children: [
+            SizedBox(
+              width: 70,
+              height: 70,
+              child: CircularProgressIndicator(
+                value: percentage,
+                strokeWidth: 8,
+                backgroundColor: color.withOpacity(0.1),
+                color: color,
+                strokeCap: StrokeCap.round,
+              ),
+            ),
+            Text(
+              '${(percentage * 100).toInt()}%',
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                color: AppColors.textPrimary,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          label,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textSecondary,
           ),
         ),
       ],

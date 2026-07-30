@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/audio_waveform_widget.dart';
 import 'offline_map_manager.dart';
 import 'mbtiles_tile_provider.dart';
 
@@ -154,6 +155,80 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
     );
   }
 
+  void _showAudioScanner() {
+    bool isListening = true;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: AppColors.surface,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => StatefulBuilder(
+        builder: (context, setStateModal) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 24,
+              right: 24,
+              top: 32,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Scan Bioacoustique',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  isListening ? 'Écoute de l\'environnement en cours...' : 'Scan terminé',
+                  style: const TextStyle(color: AppColors.textSecondary),
+                ),
+                const SizedBox(height: 40),
+                AudioWaveformWidget(isRecording: isListening),
+                const SizedBox(height: 40),
+                if (isListening)
+                  ElevatedButton(
+                    onPressed: () {
+                      setStateModal(() => isListening = false);
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.iucnEndangered, // Red stop
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
+                    ),
+                    child: const Text('Arrêter l\'écoute', style: TextStyle(color: Colors.white)),
+                  )
+                else
+                  Column(
+                    children: [
+                      const Icon(Icons.check_circle, color: AppColors.primaryAction, size: 48),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Pélican Blanc détecté !',
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: ElevatedButton.styleFrom(
+                          minimumSize: const Size.fromHeight(50),
+                        ),
+                        child: const Text('Voir les détails'),
+                      ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,6 +237,15 @@ class _ObservationMapScreenState extends State<ObservationMapScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: FloatingActionButton.small(
+              heroTag: 'btn_audio',
+              backgroundColor: AppColors.surface,
+              onPressed: _showAudioScanner,
+              child: const Icon(Icons.mic, color: AppColors.primaryAction),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: FloatingActionButton.small(
