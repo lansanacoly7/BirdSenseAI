@@ -36,13 +36,15 @@ def get_audio_classifier() -> AudioBirdClassifier:
     return _audio_classifier
 
 
+from ..vision.logger import log_vision
+
 def resolve_model_path() -> str:
     """Detects fine-tuned best.pt weights under runs/ or falls back to base COCO yolov8n.pt with warning."""
     model_p = vision_config.resolve_yolo_weights()
     if "best.pt" in model_p:
-        print(f"[Vision Router] Loaded fine-tuned YOLO model weights: {model_p}")
+        log_vision(f"Loaded fine-tuned YOLO model weights: {model_p}")
     else:
-        print("[WARN] Aucun modèle fine-tuné trouvé, utilisation du modèle COCO de base — détection limitée à la classe générique 'bird'.")
+        log_vision("[WARN] Aucun modèle fine-tuné trouvé, utilisation du modèle COCO de base — détection limitée à la classe générique 'bird'.")
     return model_p
 
 

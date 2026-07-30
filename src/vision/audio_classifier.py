@@ -190,9 +190,11 @@ class AudioBirdClassifier:
         }
 
 
+from .logger import log_audio
+
 if __name__ == "__main__":
     classifier = AudioBirdClassifier()
     dummy_wav = np.sin(2 * np.pi * 3200 * np.linspace(0, 1, 22050)).astype(np.float32)
     dummy_bytes = (dummy_wav * 15000).astype(np.int16).tobytes()
     res = classifier.classify_audio_bytes(dummy_bytes)
-    print(f"[AudioBirdClassifier] T4.5 Bioacoustic audio classification complete. Top species: {res['top_species']} ({res['top_confidence']*100:.1f}%)")
+    log_audio(f"T4.5 Bioacoustic audio classification complete. Top species: {res['top_species']} ({res['top_confidence']*100:.1f}%)")

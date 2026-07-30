@@ -11,6 +11,7 @@ from typing import Dict, Any, Optional
 from ultralytics import YOLO
 
 from .dataset_prep import DatasetPreparer
+from .logger import log_yolo
 
 
 class YOLOTrainer:
@@ -46,7 +47,7 @@ class YOLOTrainer:
         extra_args = kwargs or {}
         model = YOLO(self.base_model)
         
-        print(f"[YOLOTrainer] Starting training on model '{self.base_model}' with dataset '{self.data_yaml}'...")
+        log_yolo(f"[YOLOTrainer] Starting training on model '{self.base_model}' with dataset '{self.data_yaml}'...")
         results = model.train(
             data=self.data_yaml,
             epochs=epochs,
@@ -64,7 +65,7 @@ class YOLOTrainer:
         
         onnx_path = None
         if best_pt_path.exists():
-            print(f"[YOLOTrainer] Exporting best model to ONNX format...")
+            log_yolo(f"[YOLOTrainer] Exporting best model to ONNX format...")
             trained_model = YOLO(str(best_pt_path))
             exported_path = trained_model.export(format="onnx", imgsz=imgsz)
             onnx_path = str(exported_path)
@@ -77,4 +78,4 @@ class YOLOTrainer:
 
 if __name__ == "__main__":
     trainer = YOLOTrainer(base_model="yolov8n.pt")
-    print("[YOLOTrainer] Ready to execute training pipeline.")
+    log_yolo("[YOLOTrainer] Ready to execute training pipeline.")

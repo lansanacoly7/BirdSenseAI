@@ -154,8 +154,10 @@ class BirdDetector:
         return img
 
 
+from .logger import log_yolo
+
 if __name__ == "__main__":
     detector = BirdDetector()
     test_img = np.zeros((480, 640, 3), dtype=np.uint8)
     res = detector.detect(test_img)
-    print(f"[BirdDetector] Stage 1 Generic Bird Detector initialized. Output: count={res['count']}")
+    log_yolo(f"Stage 1 Generic Bird Detector initialized. Output: count={res['count']}")

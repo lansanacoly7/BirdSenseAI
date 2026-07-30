@@ -157,6 +157,8 @@ class ByteTrackTracker:
         }
 
 
+from .logger import log_tracking
+
 if __name__ == "__main__":
     tracker = ByteTrackTracker()
-    print(f"[ByteTrackTracker] ByteTrack Tracker initialized on generic bird detection (COCO class 14).")
+    log_tracking(f"ByteTrack Tracker initialized on generic bird detection (COCO class 14).")

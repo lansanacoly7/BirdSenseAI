@@ -44,7 +44,7 @@ def _check_hf_network() -> tuple[bool, str]:
 
 
 from .config import vision_config
-
+from .logger import log_bioclip
 
 class BioCLIPEngine:
     """
@@ -83,7 +83,7 @@ class BioCLIPEngine:
             avail, err_msg = _check_hf_network()
             if not avail:
                 self.init_error = err_msg
-                print(f"[BioCLIPEngine] {self.init_error}")
+                log_bioclip(f"{self.init_error}")
                 return
 
             try:
@@ -101,10 +101,10 @@ class BioCLIPEngine:
                     self.text_features = text_embeds / text_embeds.norm(dim=-1, keepdim=True)
                 
                 self.use_clip = True
-                print(f"[BioCLIPEngine] Initialized real OpenCLIP model '{model_name}' zero-shot classifier.")
+                log_bioclip(f"Initialized real OpenCLIP model '{model_name}' zero-shot classifier.")
             except Exception as e:
                 self.init_error = f"{type(e).__name__}: {str(e)}"
-                print(f"[BioCLIPEngine] OpenCLIP init error: {self.init_error}")
+                log_bioclip(f"OpenCLIP init error: {self.init_error}")
 
     def classify_crop(self, bird_crop: np.ndarray) -> Dict[str, Any]:
         """
