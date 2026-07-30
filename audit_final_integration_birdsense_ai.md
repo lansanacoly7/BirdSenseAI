@@ -19,7 +19,7 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 | Membre & Rôle | Branche | Statut Fusion | MVP Complétude | Extensions Complétude | Score Global |
 | :--- | :--- | :---: | :---: | :---: | :---: |
 | **1. Lansana Coly**<br>*Lead Mobile UI & Carto* | `LansannaColy` | **MERGED** | **100%** | **0%** *(0/2)* | **8.5 / 10** |
-| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **40%** | **0%** *(0/2)* | **4.0 / 10** |
+| **2. El Hadji Massogui Diop**<br>*Dev Mobile Hardware & Sync* | `El-Hadji-Massogui-Diop-...` | **MERGED** | **100%** | **0%** *(0/2)* | **8.0 / 10** |
 | **3. Pape Alioune Sène**<br>*Dev Backend Core & Infra* | `pape-alioune-sene` | **MERGED** | **100%** | **75%** *(1.5/2)* | **9.5 / 10** |
 | **4. Ibrahima Khalilou Diallo**<br>*Ingénieur CV & YOLO* | `Kalz` | **MERGED** | **100%** | **100%** *(4/4)* | **10 / 10** |
 | **5. Pathé Fall**<br>*Dev Fullstack Data & Analytics* | `pathe-fall` | **MERGED** | **100%** | **66%** *(2/3)* | **9.5 / 10** |
@@ -38,8 +38,9 @@ L'ensemble des travaux des 5 membres de l'équipe a été récupéré et fusionn
 ---
 
 ### 2️⃣ El Hadji Massogui Diop — Dev Mobile Hardware, Camera & SQLite
-* **Extension 1 (Sync automatique WorkManager) :** ❌ **Non réalisée** — Seul `Hackathon_Context.md` a été poussé sur sa branche.
-* **Extension 2 (Chiffrement SQLCipher) :** ❌ **Non réalisée**.
+* **MVP (Base de données & Caméra) :** ✅ **Réalisé (100%)** — Le stockage local SQLite (Drift), le `CameraProvider` et le service de synchronisation réseau ont été intégrés.
+* **Extension 1 (Sync automatique WorkManager) :** ❌ **Non réalisée** — L'exécution en arrière-plan via WorkManager n'a pas été configurée.
+* **Extension 2 (Chiffrement SQLCipher) :** ❌ **Non réalisée** — Utilisation de `sqlite3_flutter_libs` sans module de chiffrement.
 * **Bilan Extensions : 0 / 2 (0%)**
 
 ---
