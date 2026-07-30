@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  api:
+    build: .
+    container_name: birdsense_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      # Sur dev local, on se connecte via Docker à Supabase (si l'URL est dans .env)
+      # ou on surcharge ici.
+      - DATABASE_URL=${DATABASE_URL}
+      - SECRET_KEY=${SECRET_KEY}
+      - ENVIRONMENT=development
+      - DEBUG=True
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload

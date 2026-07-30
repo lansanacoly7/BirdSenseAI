@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "filename": "sample_test_video.mp4",
+  "data": {
+    "total_frames": 20,
+    "fps": 10,
+    "width": 320,
+    "height": 240,
+    "unique_birds_count": 0,
+    "tracks": [],
+    "annotated_video_path": null
+  }
+}
