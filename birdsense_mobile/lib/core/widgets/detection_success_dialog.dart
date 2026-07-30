@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
+import 'package:lottie/lottie.dart';
 
 class DetectionSuccessDialog extends StatefulWidget {
   final String speciesName;
@@ -103,18 +104,14 @@ class _DetectionSuccessDialogState extends State<DetectionSuccessDialog>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Success Icon
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: AppColors.primaryAction.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.check,
-                  color: AppColors.primaryAction,
-                  size: 36,
+              // Success Icon Lottie Animation
+              SizedBox(
+                width: 120,
+                height: 120,
+                child: Lottie.asset(
+                  'assets/lottie/success.json',
+                  repeat: false,
+                  fit: BoxFit.contain,
                 ),
               ),
               const SizedBox(height: 24),
