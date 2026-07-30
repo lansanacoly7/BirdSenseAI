@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "filename": "real_bird.jpg",
+  "data": {
+    "width": 640,
+    "height": 960,
+    "count": 1,
+    "detections": [
+      {
+        "class_id": 15,
+        "class_name": "cat",
+        "confidence": 0.8426,
+        "box_pixel": [
+          0.0,
+          179.68,
+          640.0,
+          959.19
+        ],
+        "box_normalized": [
+          0.0,
+          0.1872,
+          1.0,
+          0.9992
+        ]
+      }
+    ]
+  }
+}
