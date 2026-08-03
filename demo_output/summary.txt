@@ -1,0 +1,50 @@
+==================================================
+ BIRD SENSE AI — COMPUTER VISION & AUDIO DEMO SUMMARY
+==================================================
+Date/Time         : 2026-07-30 15:31:45
+Input Image       : dataset\images\train\aigle_2.jpg
+Birds Detected    : 0
+YOLO Model Weights: C:\Users\Kalz\Documents\Serward Buspro\Team Projects\BirdSense\BirdSenseAI\runs\detect\runs\detect\birdsense_yolo\weights\best.pt
+BioCLIP Status    : BioCLIP inactive
+Audio Top Species : Haliaeetus vocifer (Aigle Pêcheur) (97.0%)
+Audio Peak Freq   : 3200.0 Hz
+--------------------------------------------------
+ PERFORMANCE METRICS SUMMARY (MS & FPS):
+{
+  "yolo": {
+    "count": 9,
+    "mean_ms": 131.55,
+    "min_ms": 61.1,
+    "max_ms": 188.08,
+    "fps": 7.6
+  },
+  "bytetrack": {
+    "count": 1,
+    "mean_ms": 41.89,
+    "min_ms": 41.89,
+    "max_ms": 41.89,
+    "fps": 23.87
+  },
+  "fft": {
+    "count": 13,
+    "mean_ms": 0.74,
+    "min_ms": 0.59,
+    "max_ms": 1.37,
+    "fps": 1359.21
+  },
+  "onnx": {
+    "count": 0,
+    "mean_ms": 0.0,
+    "min_ms": 0.0,
+    "max_ms": 0.0,
+    "fps": 0.0
+  },
+  "bioclip": {
+    "count": 0,
+    "mean_ms": 0.0,
+    "min_ms": 0.0,
+    "max_ms": 0.0,
+    "fps": 0.0
+  }
+}
+==================================================

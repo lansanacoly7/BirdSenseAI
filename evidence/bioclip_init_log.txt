@@ -1,0 +1,3 @@
+[BioCLIPEngine] Initialized real OpenCLIP model 'ViT-B-32' zero-shot classifier successfully.
+HAS_OPEN_CLIP: True
+use_clip: True

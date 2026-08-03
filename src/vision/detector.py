@@ -11,30 +11,60 @@ import cv2
 from PIL import Image
 from ultralytics import YOLO
 
+from .config import vision_config
+from .performance import performance_tracker
+
 # COCO Class ID for Bird is 14
 COCO_BIRD_CLASS_ID = 14
 
 
 class BirdDetector:
     """
-    BirdDetector handles loading YOLO model weights and performing generic bird object detection on images.
+    Description:
+        Moteur de détection d'objets générique d'oiseaux basatif sur YOLOv8.
+        Exécute le premier étage (Stage 1) du pipeline multimodal.
+
+    Responsabilités:
+        - Charger les poids du modèle YOLO (`best.pt` fine-tuné ou `yolov8n.pt`).
+        - Préparer et normaliser l'image d'entrée (Path, bytes, ndarray, PIL Image).
+        - Extraire les bounding boxes pixel et normalisées ($[0.0, 1.0]$).
+        - Formater les coordonnées `ar_hud_box: { "x": x, "y": y, "width": width, "height": height }` pour le HUD AR Flutter de Lansana (T4.4).
+        - Dessiner les superpositions graphiques et bannières sur l'image d'origine.
+
+    Entrées:
+        - `image_input`: Image sous forme de fichier Path, chaîne de caractères, bytes bruts, tableau NumPy BGR ou PIL Image.
+        - `conf`: Seuil de confiance optionnel.
+
+    Sorties:
+        - Dictionnaire contenant `width`, `height`, `count`, `detections` (liste des objets détectés) et `raw_image`.
+
+    Exceptions:
+        - `ValueError`: Si le fichier image est introuvable ou illisible.
+        - `TypeError`: Si le format de l'image d'entrée n'est pas supporté.
+
+    Exemple d'utilisation:
+        >>> from src.vision.detector import BirdDetector
+        >>> detector = BirdDetector()
+        >>> res = detector.detect("sample.jpg", conf=0.25)
+        >>> print(res["count"])
+        2
     """
 
     def __init__(
         self,
-        model_path: str = "yolov8n.pt",
-        confidence_threshold: float = 0.25,
+        model_path: Optional[str] = None,
+        confidence_threshold: Optional[float] = None,
         target_classes: Optional[List[int]] = None
     ):
         """
-        :param model_path: Path to .pt or .onnx model weights file (default: yolov8n.pt).
+        :param model_path: Path to .pt or .onnx model weights file (default: vision_config.yolo_model_path).
         :param confidence_threshold: Minimum confidence score to accept detection.
         :param target_classes: Target class IDs (defaults to [14] for generic COCO bird detection).
         """
-        self.model_path = model_path
-        self.confidence_threshold = confidence_threshold
+        self.model_path = model_path if model_path is not None else vision_config.yolo_model_path
+        self.confidence_threshold = confidence_threshold if confidence_threshold is not None else vision_config.confidence_threshold
         self.target_classes = target_classes if target_classes is not None else [COCO_BIRD_CLASS_ID]
-        self.model = YOLO(model_path)
+        self.model = YOLO(self.model_path)
 
     def _prepare_image(self, image_input: Union[str, Path, bytes, np.ndarray, Image.Image]) -> np.ndarray:
         """
@@ -72,12 +102,13 @@ class BirdDetector:
         height, width = img.shape[:2]
         confidence = conf if conf is not None else self.confidence_threshold
 
-        results = self.model.predict(
-            source=img,
-            conf=confidence,
-            classes=self.target_classes,
-            verbose=False
-        )
+        with performance_tracker.measure("yolo"):
+            results = self.model.predict(
+                source=img,
+                conf=confidence,
+                classes=self.target_classes,
+                verbose=False
+            )
 
         detections: List[Dict[str, Any]] = []
         if len(results) > 0 and results[0].boxes is not None:
@@ -95,12 +126,22 @@ class BirdDetector:
                     round(xyxy[3] / height, 4),
                 ]
 
+                # T4.4: Normalized (x, y, width, height) format for Lansana's AR HUD DetectionDto
+                x1_n, y1_n, x2_n, y2_n = norm_box
+                ar_hud_box = {
+                    "x": round(x1_n, 4),
+                    "y": round(y1_n, 4),
+                    "width": round(max(0.0, x2_n - x1_n), 4),
+                    "height": round(max(0.0, y2_n - y1_n), 4)
+                }
+
                 detections.append({
                     "class_id": cls_id,
                     "class_name": cls_name,
                     "confidence": round(conf_score, 4),
                     "box_pixel": [round(c, 2) for c in xyxy],
-                    "box_normalized": norm_box
+                    "box_normalized": norm_box,
+                    "ar_hud_box": ar_hud_box
                 })
 
         return {
@@ -136,13 +177,30 @@ class BirdDetector:
             # Label banner
             (w, h), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.5, 1)
             cv2.rectangle(img, (x1, max(0, y1 - 22)), (x1 + w + 10, y1), (43, 58, 30), -1)
-            cv2.putText(img, label, (x1 + 5, max(12, y1 - 6)), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
-
         return img
 
+    @staticmethod
+    def compute_iou(boxA: List[float], boxB: List[float]) -> float:
+        """
+        Calculates Intersection over Union (IoU) overlap score between two bounding boxes [x1, y1, x2, y2].
+        """
+        xA = max(boxA[0], boxB[0])
+        yA = max(boxA[1], boxB[1])
+        xB = min(boxA[2], boxB[2])
+        yB = min(boxA[3], boxB[3])
+
+        interArea = max(0.0, xB - xA) * max(0.0, yB - yA)
+        boxAArea = (boxA[2] - boxA[0]) * (boxA[3] - boxA[1])
+        boxBArea = (boxB[2] - boxB[0]) * (boxB[3] - boxB[1])
+
+        iou = interArea / float(boxAArea + boxBArea - interArea + 1e-9)
+        return round(float(iou), 4)
+
+
+from .logger import log_yolo
 
 if __name__ == "__main__":
     detector = BirdDetector()
     test_img = np.zeros((480, 640, 3), dtype=np.uint8)
     res = detector.detect(test_img)
-    print(f"[BirdDetector] Stage 1 Generic Bird Detector initialized. Output: count={res['count']}")
+    log_yolo(f"Stage 1 Generic Bird Detector initialized. Output: count={res['count']}")

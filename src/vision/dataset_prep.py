@@ -95,9 +95,11 @@ class DatasetPreparer:
         return counts
 
 
+from .logger import log_vision
+
 if __name__ == "__main__":
     preparer = DatasetPreparer()
     yaml_file = preparer.create_yaml_config()
     stats = preparer.validate_dataset()
-    print(f"[DatasetPreparer] Generated YAML config at: {yaml_file}")
-    print(f"[DatasetPreparer] Dataset Stats: {stats}")
+    log_vision(f"Generated YAML config at: {yaml_file}")
+    log_vision(f"Dataset Stats: {stats}")

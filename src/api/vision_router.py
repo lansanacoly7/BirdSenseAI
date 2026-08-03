@@ -15,25 +15,50 @@ from ..vision.detector import BirdDetector
 from ..vision.tracker import ByteTrackTracker
 from ..vision.bioclip_engine import BioCLIPEngine
 
+from ..vision.audio_classifier import AudioBirdClassifier
+from ..vision.config import vision_config
+
 router = APIRouter(prefix="/api/v1/vision", tags=["Computer Vision & IA"])
+
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 
 # Singleton model instances
 _detector: Optional[BirdDetector] = None
 _tracker: Optional[ByteTrackTracker] = None
 _bioclip_engine: Optional[BioCLIPEngine] = None
+_audio_classifier: Optional[AudioBirdClassifier] = None
+
+
+def get_audio_classifier() -> AudioBirdClassifier:
+    global _audio_classifier
+    if _audio_classifier is None:
+        _audio_classifier = AudioBirdClassifier()
+    return _audio_classifier
+
+
+from ..vision.logger import log_vision
+
+def resolve_model_path() -> str:
+    """Detects fine-tuned best.pt weights under runs/ or falls back to base COCO yolov8n.pt with warning."""
+    model_p = vision_config.resolve_yolo_weights()
+    if "best.pt" in model_p:
+        log_vision(f"Loaded fine-tuned YOLO model weights: {model_p}")
+    else:
+        log_vision("[WARN] Aucun modèle fine-tuné trouvé, utilisation du modèle COCO de base — détection limitée à la classe générique 'bird'.")
+    return model_p
 
 
 def get_detector() -> BirdDetector:
     global _detector
     if _detector is None:
-        _detector = BirdDetector(model_path="yolov8n.pt", confidence_threshold=0.25)
+        _detector = BirdDetector(model_path=resolve_model_path(), confidence_threshold=0.25)
     return _detector
 
 
 def get_tracker() -> ByteTrackTracker:
     global _tracker
     if _tracker is None:
-        _tracker = ByteTrackTracker(model_path="yolov8n.pt", confidence_threshold=0.25)
+        _tracker = ByteTrackTracker(model_path=resolve_model_path(), confidence_threshold=0.25)
     return _tracker
 
 
@@ -44,16 +69,57 @@ def get_bioclip_engine() -> BioCLIPEngine:
     return _bioclip_engine
 
 
+MAX_IMAGE_SIZE_BYTES = 10 * 1024 * 1024  # 10 MB
+MAX_VIDEO_SIZE_BYTES = 50 * 1024 * 1024  # 50 MB
+MAX_AUDIO_SIZE_BYTES = 20 * 1024 * 1024  # 20 MB
+
+ALLOWED_IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
+ALLOWED_VIDEO_EXTENSIONS = {".mp4", ".avi", ".mov", ".mkv"}
+ALLOWED_AUDIO_EXTENSIONS = {".wav", ".mp3", ".ogg", ".flac", ".pcm"}
+
+
+def validate_upload_security(
+    file: UploadFile,
+    contents: bytes,
+    allowed_extensions: set,
+    max_bytes: int,
+    file_type_label: str
+) -> str:
+    """
+    Validates file extension, sanitizes filename against Path Traversal, and enforces max size to prevent DoS.
+    """
+    raw_filename = file.filename or f"upload.{file_type_label}"
+    # Sanitize against Path Traversal
+    safe_filename = Path(raw_filename).name
+
+    ext = Path(safe_filename).suffix.lower()
+    if ext not in allowed_extensions:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Format de fichier non autorisé ('{ext}'). Formats acceptés : {', '.join(sorted(allowed_extensions))}"
+        )
+
+    if len(contents) > max_bytes:
+        max_mb = max_bytes // (1024 * 1024)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Taille de fichier trop grande ({len(contents) / (1024*1024):.1f} Mo). Limite maximale : {max_mb} Mo."
+        )
+
+    return safe_filename
+
+
 @router.get("/health", summary="Statut du Service Vision IA")
 def vision_health() -> Dict[str, Any]:
     detector = get_detector()
     bioclip = get_bioclip_engine()
     return {
         "status": "online",
-        "service": "BirdSense AI 2-Stage Computer Vision Engine",
+        "service": "BirdSense AI 2-Stage Computer Vision & Audio Engine",
         "stage_1_detector": f"YOLOv8 Generic Bird Detector ({detector.model_path})",
         "stage_2_classifier": f"Zero-Shot CLIP Species Classifier (Active: {bioclip.use_clip})",
-        "backend": "Ultralytics YOLO + ByteTrack + OpenCLIP Zero-Shot"
+        "audio_classifier": "Bioacoustic FFT & Spectral Classifier Active (T4.5)",
+        "backend": "Ultralytics YOLO + ByteTrack + OpenCLIP Zero-Shot + Audio Bioacoustics"
     }
 
 
@@ -64,17 +130,13 @@ async def detect_birds_in_image(
 ) -> Dict[str, Any]:
     """
     Pipeline 2-Étages complet :
-    - Étage 1 : Détection et localisation des oiseaux avec YOLOv8 (COCO class 14)
+    - Étage 1 : Détection et localisation des oiseaux avec YOLOv8 (COCO class 14) + format ar_hud_box (T4.4)
     - Étage 2 : Découpage de chaque Bounding Box et classification d'espèce zéro-shot CLIP
     """
-    if not file.content_type or not file.content_type.startswith("image/"):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Le fichier fourni doit être une image valide (image/jpeg, image/png, etc.)"
-        )
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE_BYTES, "image")
 
     try:
-        contents = await file.read()
         detector = get_detector()
         bioclip = get_bioclip_engine()
 
@@ -121,25 +183,22 @@ async def track_birds_in_video(
     file: UploadFile = File(...),
     conf: float = Query(0.25, ge=0.01, le=1.0, description="Seuil de confiance minimum")
 ) -> Dict[str, Any]:
-    if not file.filename or not any(file.filename.endswith(ext) for ext in [".mp4", ".avi", ".mov", ".mkv"]):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Le fichier fourni doit être un fichier vidéo (.mp4, .avi, .mov, .mkv)"
-        )
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_VIDEO_EXTENSIONS, MAX_VIDEO_SIZE_BYTES, "video")
 
     temp_dir = tempfile.mkdtemp()
-    temp_video_path = Path(temp_dir) / file.filename
+    temp_video_path = Path(temp_dir) / safe_filename
 
     try:
         with open(temp_video_path, "wb") as buffer:
-            buffer.write(await file.read())
+            buffer.write(contents)
 
         tracker = get_tracker()
         result = tracker.track_video(video_path=temp_video_path, conf=conf)
 
         return {
             "success": True,
-            "filename": file.filename,
+            "filename": safe_filename,
             "data": result
         }
 
@@ -154,3 +213,29 @@ async def track_birds_in_video(
                 os.remove(temp_video_path)
             except OSError:
                 pass
+
+
+@router.post("/audio-classify", summary="Classifier un fichier audio bioacoustique de chant d'oiseau (T4.5)")
+async def classify_bird_audio(
+    file: UploadFile = File(...)
+) -> Dict[str, Any]:
+    """
+    Analyse bioacoustique spectrale du signal audio (WAV, MP3, OGG) pour la reconnaissance des chants d'oiseaux.
+    """
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_AUDIO_EXTENSIONS, MAX_AUDIO_SIZE_BYTES, "audio")
+
+    try:
+        classifier = get_audio_classifier()
+        result = classifier.classify_audio_bytes(contents, filename=safe_filename)
+        return result
+    except ValueError as ve:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(ve)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors du traitement de la classification audio bioacoustique : {str(e)}"
+        )
