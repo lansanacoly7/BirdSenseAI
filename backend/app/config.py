@@ -42,6 +42,10 @@ class Settings(BaseSettings):
     # Celery & Redis (File d'attente pour traitement vidéo)
     redis_url: str = "redis://localhost:6379/0"
 
+    # LLM API Keys
+    groq_api_key: str | None = None
+    gemini_api_key: str | None = None
+
 
 @lru_cache
 def get_settings() -> Settings:

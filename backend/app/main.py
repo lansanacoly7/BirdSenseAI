@@ -9,35 +9,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import auth_router, obs_router, chat_router
+from app.routers import auth_router, obs_router, chat_router, stats_router, species_router
 
 settings = get_settings()
-
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    """
-    Gestion du cycle de vie de l'application FastAPI.
-    - Initialisation (startup) : on pourrait setup Redis, charger le cache, etc.
-    - Fermeture (shutdown) : on ferme proprement les connexions DB.
-    """
-    # Startup
-    yield
-    # Shutdown
-    from app.database import engine
-    await engine.dispose()
-
 
 app = FastAPI(
     title=settings.app_name,
     version=settings.app_version,
-    description="Backend API pour l'application mobile BirdSense AI. Détection, comptage et protection des oiseaux.",
-    lifespan=lifespan,
-    docs_url="/docs",
-    redoc_url="/redoc",
 )
 
-# Configuration CORS (Cross-Origin Resource Sharing)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.allowed_origins_list,
@@ -46,10 +26,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # Inscription des routeurs (Endpoints REST)
 app.include_router(auth_router)
 app.include_router(obs_router)
+app.include_router(stats_router)
+app.include_router(species_router)
 app.include_router(chat_router, prefix="/api/v1")
 
 

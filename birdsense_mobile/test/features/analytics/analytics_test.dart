@@ -1,8 +1,10 @@
-"""Tests Flutter pour le module analytics (T5.3 Mobile).
+/*
+Tests Flutter pour le module analytics (T5.3 Mobile).
 
 Ces tests vérifient le parsing JSON et les trois états de l'AnalyticsNotifier
 (loading, loaded, error) sans appels réseau réels.
-"""
+*/
+
 
 // test/features/analytics/analytics_test.dart
 

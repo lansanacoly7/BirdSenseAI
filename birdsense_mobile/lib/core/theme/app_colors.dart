@@ -1,28 +1,43 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  // Brand Colors (Apple Style Professional)
-  static const Color primaryAction = Color(0xFF34C759); // Vert vif (Nature/Action)
-  static const Color secondaryAction = Color(0xFF007AFF); // Bleu (Liens/Infos)
-  static const Color accent = Color(0xFFFF9500); // Orange (Alertes)
+  // Brand Colors (Emerald Bio-Tech & Apple Style)
+  static const Color primaryAction = Color(0xFF10B981); // Emerald Bio Vert
+  static const Color secondaryAction = Color(0xFF06B6D4); // Cyber Cyan (Audio/Stats)
+  static const Color accent = Color(0xFFF59E0B); // Amber (Tendances/Alertes)
+  static const Color danger = Color(0xFFEF4444); // Crimson (Urgence/Alertes)
 
-  // Background & Surfaces (Apple Light Mode)
-  static const Color background = Color(0xFFF2F2F7); // Gris très clair reposant
-  static const Color surface = Color(0xFFFFFFFF); // Blanc pur pour les cartes
-  static const Color surfaceElevated = Color(0xFFFFFFFF); 
+  // Light Mode Colors (Apple Weather Clean)
+  static const Color lightBackground = Color(0xFFF8FAFC); 
+  static const Color lightSurface = Color(0xFFFFFFFF); 
+  static const Color lightSurfaceElevated = Color(0xFFFFFFFF);
+  static const Color lightTextPrimary = Color(0xFF0F172A);
+  static const Color lightTextSecondary = Color(0xFF64748B);
+  static const Color lightTextMuted = Color(0xFF94A3B8);
+  static const Color lightBorder = Color(0xFFE2E8F0);
 
-  // Status & Badges (IUCN)
-  static const Color iucnLeastConcern = Color(0xFF34C759); 
-  static const Color iucnNearThreatened = Color(0xFFFFCC00); 
-  static const Color iucnVulnerable = Color(0xFFFF9500); 
-  static const Color iucnEndangered = Color(0xFFFF3B30); 
-  static const Color iucnCriticallyEndangered = Color(0xFF8B0000); 
+  // Dark Mode Colors (Obsidian Navy & Soft Glass)
+  static const Color darkBackground = Color(0xFF0B132B); 
+  static const Color darkSurface = Color(0xFF1C2541); 
+  static const Color darkSurfaceElevated = Color(0xFF253258);
+  static const Color darkTextPrimary = Color(0xFFFFFFFF);
+  static const Color darkTextSecondary = Color(0xFFCBD5E1);
+  static const Color darkTextMuted = Color(0xFF64748B);
+  static const Color darkBorder = Color(0x1FFFFFFF); // 12% White Border
 
-  // Text
-  static const Color textPrimary = Color(0xFF000000);
-  static const Color textSecondary = Color(0xFF8E8E93);
-  static const Color textMuted = Color(0xFFC7C7CC);
+  // Legacy compatibility getters (Default to dynamic theme-aware values)
+  static const Color background = lightBackground;
+  static const Color surface = lightSurface;
+  static const Color textPrimary = lightTextPrimary;
+  static const Color textSecondary = lightTextSecondary;
+  static const Color textMuted = lightTextMuted;
+  static const Color border = lightBorder;
 
-  // Borders & Dividers
-  static const Color border = Color(0xFFE5E5EA);
+  // IUCN Status Colors
+  static const Color iucnLeastConcern = Color(0xFF10B981); 
+  static const Color iucnNearThreatened = Color(0xFFEAB308); 
+  static const Color iucnVulnerable = Color(0xFFF97316); 
+  static const Color iucnEndangered = Color(0xFFEF4444); 
+  static const Color iucnCriticallyEndangered = Color(0xFF991B1B); 
 }
+

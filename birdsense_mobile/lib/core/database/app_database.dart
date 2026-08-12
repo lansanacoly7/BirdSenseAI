@@ -1,27 +1,20 @@
-import 'dart:io';
-
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
 
+import 'connection/db_connection.dart';
 import 'tables/local_observation_items.dart';
 import 'tables/local_observations.dart';
 
 part 'app_database.g.dart';
 
-/// Base de données SQLite locale de BirdSense AI.
-///
-/// Gère le stockage offline des observations de terrain et de leurs
-/// détections IA associées. Fournit des méthodes CRUD spécialisées
-/// pour le workflow de synchronisation.
+/// Base de données locale de BirdSense AI (Mobile / Web).
 @DriftDatabase(tables: [LocalObservations, LocalObservationItems])
 class AppDatabase extends _$AppDatabase {
-  /// Constructeur par défaut utilisant la connexion SQLite native.
-  AppDatabase() : super(_openConnection());
+  /// Constructeur par défaut utilisant la connexion cross-plateforme.
+  AppDatabase() : super(openConnection());
 
   /// Constructeur injectable pour les tests unitaires.
   AppDatabase.forTesting(super.connection);
+
 
   @override
   int get schemaVersion => 1;
@@ -106,27 +99,3 @@ class AppDatabase extends _$AppDatabase {
   }
 }
 
-/// Ouvre la connexion SQLite en arrière-plan avec chiffrement SQLCipher.
-///
-/// Le fichier de base de données est stocké dans le répertoire
-/// documents de l'application sous le nom `birdsense_db.sqlite`.
-LazyDatabase _openConnection() {
-  return LazyDatabase(() async {
-    final dbFolder = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dbFolder.path, 'birdsense_db.sqlite'));
-
-    // Chiffrement SQLCipher activé
-    return NativeDatabase.createInBackground(
-      file,
-      setup: (rawDb) {
-        // En production, cette clé doit provenir du module Auth ou du SecureStorage.
-        // Pour l'extension, on utilise une clé statique forte configurée via environnement.
-        const cipherKey = String.fromEnvironment(
-          'SQLCIPHER_KEY',
-          defaultValue: 'birdsense_secure_key_2026',
-        );
-        rawDb.execute("PRAGMA key = '$cipherKey';");
-      },
-    );
-  });
-}

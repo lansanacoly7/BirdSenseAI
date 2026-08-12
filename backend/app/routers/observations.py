@@ -207,6 +207,9 @@ async def get_map_observations(
 
     # Limite
     query = query.limit(filter_in.limit)
+    
+    # Disable cache to avoid GeoAlchemy2 SQLAlchemy 2.0 _static_cache_key error
+    query = query.execution_options(compiled_cache=None)
 
     result = await db.execute(query)
     rows = result.all()

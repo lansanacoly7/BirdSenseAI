@@ -1,4 +1,6 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 
 import 'database/app_database.dart';
 import 'network/api_client.dart';
@@ -29,7 +31,7 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 final apiClientProvider = Provider<ApiClient>((ref) {
   const baseUrl = String.fromEnvironment(
     'API_BASE_URL',
-    defaultValue: 'https://api.birdsense.test',
+    defaultValue: 'http://localhost:8000',
   );
   return ApiClient(baseUrl: baseUrl);
 });
@@ -51,7 +53,8 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   );
 });
 
-/// Fournit le repository de persistance des observations.
-final observationRepositoryProvider = Provider<ObservationRepository>((ref) {
-  return ObservationRepository(ref.watch(databaseProvider));
+/// Provider pour basculer dynamiquement entre Thème Clair et Thème Sombre.
+final themeModeProvider = StateProvider<ThemeMode>((ref) {
+  return ThemeMode.system; // Par défaut automatique, peut être basculé par l'utilisateur
 });
+
