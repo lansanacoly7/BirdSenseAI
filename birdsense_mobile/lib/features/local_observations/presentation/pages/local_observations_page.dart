@@ -34,13 +34,13 @@ class LocalObservationsPage extends ConsumerWidget {
     final observationsAsync = ref.watch(localObservationsStreamProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         title: const Text(
           'Observations Locales',
           style: TextStyle(color: Colors.white),
         ),
-        backgroundColor: AppColors.primaryCanopy,
+        backgroundColor: AppColors.primaryAction,
         iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
@@ -53,7 +53,7 @@ class LocalObservationsPage extends ConsumerWidget {
       body: observationsAsync.when(
         data: (observations) => _buildList(observations),
         loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.accentAmber),
+          child: CircularProgressIndicator(color: AppColors.accent),
         ),
         error: (err, _) => Center(
           child: Padding(
@@ -94,7 +94,7 @@ class LocalObservationsPage extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: observations.length,
       separatorBuilder: (_, _) =>
-          const Divider(color: AppColors.surfaceGlass, height: 1),
+          const Divider(color: AppColors.border, height: 1),
       itemBuilder: (_, index) {
         final obs = observations[index];
         return _ObservationTile(observation: obs);
@@ -194,7 +194,7 @@ class _StatusIcon extends StatelessWidget {
     return switch (status) {
       'pending' => const Icon(
         Icons.cloud_upload_outlined,
-        color: AppColors.accentAmber,
+        color: AppColors.accent,
       ),
       'syncing' => const SizedBox(
         width: 24,
@@ -208,3 +208,4 @@ class _StatusIcon extends StatelessWidget {
     };
   }
 }
+

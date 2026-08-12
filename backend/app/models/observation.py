@@ -5,7 +5,6 @@ Auteur : Pape Alioune Sène
 import uuid
 from datetime import datetime
 
-from geoalchemy2 import Geography
 from sqlalchemy import (
     Boolean,
     DateTime,
@@ -39,14 +38,10 @@ class Observation(Base):
     )
 
     # Coordonnées GPS réelles (stockage interne — jamais exposées si espèce protégée)
-    location: Mapped[Geography] = mapped_column(
-        Geography(geometry_type="POINT", srid=4326), nullable=False
-    )
+    location: Mapped[str] = mapped_column(String, nullable=False)
 
     # Coordonnées floutées exposées publiquement (5 km de décalage aléatoire)
-    location_public: Mapped[Geography | None] = mapped_column(
-        Geography(geometry_type="POINT", srid=4326), nullable=True
-    )
+    location_public: Mapped[str | None] = mapped_column(String, nullable=True)
 
     altitude_m: Mapped[float | None] = mapped_column(Float, nullable=True)
     location_accuracy_m: Mapped[float | None] = mapped_column(Float, nullable=True)

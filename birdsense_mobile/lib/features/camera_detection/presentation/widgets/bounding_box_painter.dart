@@ -11,8 +11,8 @@ import '../../../../core/theme/app_colors.dart';
 ///
 /// Règles d'affichage :
 /// - Confiance < 50 % → masqué.
-/// - Confiance ≥ 70 % → bordure verte ([AppColors.primaryCanopy]).
-/// - Confiance 50–69 % → bordure ambre ([AppColors.accentAmber]).
+/// - Confiance ≥ 70 % → bordure verte ([AppColors.primaryAction]).
+/// - Confiance 50–69 % → bordure ambre ([AppColors.accent]).
 class BoundingBoxPainter extends CustomPainter {
   /// Liste des détections à dessiner.
   final List<DetectionDto> detections;
@@ -38,18 +38,18 @@ class BoundingBoxPainter extends CustomPainter {
     if (detections.isEmpty || imageSize == Size.zero) return;
 
     final paintHigh = Paint()
-      ..color = AppColors.primaryCanopy
+      ..color = AppColors.primaryAction
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
 
     final paintMedium = Paint()
-      ..color = AppColors.accentAmber
+      ..color = AppColors.accent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0;
 
     const labelStyle = TextStyle(
       color: Colors.white,
-      backgroundColor: AppColors.surfaceDark,
+      backgroundColor: AppColors.background,
       fontSize: 12,
       fontWeight: FontWeight.bold,
     );
@@ -155,3 +155,4 @@ class _BoxFitTransform {
     required this.offsetY,
   });
 }
+

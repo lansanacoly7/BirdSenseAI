@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/providers.dart';
 import '../models/detection_dto.dart';
 import '../services/detection_service.dart';
 import '../services/fake_detection_service.dart';
@@ -12,17 +13,18 @@ import '../../impact_sync/models/impact_score_dto.dart';
 import '../../impact_sync/providers/audio_level_provider.dart';
 import '../../impact_sync/providers/impact_score_repository_provider.dart';
 import 'package:uuid/uuid.dart';
+import '../services/remote_detection_service.dart';
 
 // =============================================================================
-// Providers — Module Camera (Massogui Diop)
+// Providers — Module Camera
 // =============================================================================
 
 /// Fournit l'implémentation active de [DetectionService].
 ///
-/// Utilise [FakeDetectionService] par défaut (MVP hors-ligne).
-/// Pour basculer en mode réseau, remplacer par [RemoteDetectionService].
+/// Tente d'utiliser [RemoteDetectionService] pour la détection IA backend.
 final detectionServiceProvider = Provider<DetectionService>((ref) {
-  return FakeDetectionService();
+  final apiClient = ref.watch(apiClientProvider);
+  return RemoteDetectionService(apiClient.dio);
 });
 
 // =============================================================================

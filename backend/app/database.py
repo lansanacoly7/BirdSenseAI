@@ -15,15 +15,19 @@ from app.config import get_settings
 
 settings = get_settings()
 
-# Création de l'engine async PostgreSQL via asyncpg
+engine_kwargs = {"echo": settings.debug}
+if "sqlite" not in settings.database_url:
+    engine_kwargs.update({
+        "pool_size": 10,
+        "max_overflow": 20,
+        "pool_timeout": 30,
+        "pool_recycle": 1800,
+        "pool_pre_ping": True,
+    })
+
 engine = create_async_engine(
     settings.database_url,
-    echo=settings.debug,
-    pool_size=10,
-    max_overflow=20,
-    pool_timeout=30,
-    pool_recycle=1800,
-    pool_pre_ping=True,  # Vérifie la connexion avant utilisation
+    **engine_kwargs,
 )
 
 # Factory de sessions async

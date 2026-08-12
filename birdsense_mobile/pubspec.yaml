@@ -52,6 +52,11 @@ dependencies:
   sqlite3: ^3.5.0
   record: ^5.2.0
   permission_handler: ^11.3.1
+  fl_chart: ^1.2.0
+  http: ^1.6.0
+  image_picker: ^1.2.3
+  web_socket_channel: ^3.0.3
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:
@@ -64,7 +69,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   build_runner: ^2.15.1
-  drift_dev: ^2.34.5
+  drift_dev: 2.34.0
   json_serializable: ^6.14.0
 
 # For information on the generic Dart part of this file, see the
@@ -80,6 +85,8 @@ flutter:
 
   assets:
     - assets/lottie/
+    - assets/birds/
+    - assets/logo.png
   # https://flutter.dev/to/resolution-aware-images
 
   # For details regarding adding assets from package dependencies, see
