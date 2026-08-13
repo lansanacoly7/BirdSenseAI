@@ -40,6 +40,8 @@ from app.schemas.community import (
     VALID_REPORT_REASONS,
 )
 from app.services.auth_service import get_current_user
+from app.services.gps_blur import get_public_coords
+from app.services.notification_service import notify_comment, notify_validation
 
 router = APIRouter(prefix="/api/v1/community", tags=["Communauté"])
 
@@ -62,21 +64,16 @@ async def _get_observation_or_404(db: AsyncSession, observation_id: uuid.UUID) -
 
 def _public_coords(obs: Observation) -> tuple[float | None, float | None]:
     """
-    Retourne les coordonnées à exposer publiquement.
-    Si l'observation a une espèce protégée, on renvoie None (les coordonnées
-    floues seront calculées côté service ou masquées complètement).
-    Pour le feed public, on laisse au GPS floutage : si location_public existe, OK.
+    Délègue au service gps_blur pour obtenir les coordonnées publiques correctes.
+    - Espèces protégées sans location_public → (None, None) : masquage complet.
+    - Espèces protégées avec location_public → coordonnées floutées.
+    - Autres → coordonnées réelles.
     """
-    if obs.has_protected_species:
-        return None, None
-    # location est une string "lat,lon" dans notre SQLite local
-    if obs.location:
-        try:
-            parts = obs.location.split(",")
-            return float(parts[0]), float(parts[1])
-        except (ValueError, IndexError):
-            return None, None
-    return None, None
+    return get_public_coords(
+        location=obs.location,
+        location_public=obs.location_public,
+        has_protected_species=obs.has_protected_species,
+    )
 
 
 # =============================================================================
@@ -192,7 +189,7 @@ async def create_comment(
     db: AsyncSession = Depends(get_db),
 ) -> CommentOut:
     """Crée un commentaire sur une observation. Authentification requise."""
-    await _get_observation_or_404(db, observation_id)
+    obs = await _get_observation_or_404(db, observation_id)
     comment = Comment(
         observation_id=observation_id,
         user_id=current_user.id,
@@ -200,6 +197,16 @@ async def create_comment(
     )
     db.add(comment)
     await db.flush()
+
+    # Notifier le propriétaire de l'observation (si ce n'est pas lui-même qui commente)
+    if obs.user_id != current_user.id:
+        await notify_comment(
+            observation_owner_id=obs.user_id,
+            commenter_username=current_user.username,
+            observation_id=observation_id,
+            comment_preview=body.content,
+        )
+
     return CommentOut.model_validate(comment)
 
 
@@ -289,6 +296,7 @@ async def create_validation(
         )
 
     # Si contestation, une espèce proposée est recommandée (pas bloquant pour le MVP)
+    obs = await _get_observation_or_404(db, observation_id)
     validation = Validation(
         observation_id=observation_id,
         user_id=current_user.id,
@@ -298,6 +306,16 @@ async def create_validation(
     )
     db.add(validation)
     await db.flush()
+
+    # Notifier le propriétaire de l'observation
+    if obs.user_id != current_user.id:
+        await notify_validation(
+            observation_owner_id=obs.user_id,
+            validator_username=current_user.username,
+            observation_id=observation_id,
+            is_confirmation=body.is_confirmation,
+        )
+
     return ValidationOut.model_validate(validation)
 
 

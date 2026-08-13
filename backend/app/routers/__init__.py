@@ -5,5 +5,6 @@ from app.routers.chat import router as chat_router
 from app.routers.stats import router as stats_router
 from app.routers.species import router as species_router
 from app.routers.community import router as community_router
+from app.routers.notifications import router as notifications_router
 
-__all__ = ["auth_router", "obs_router", "chat_router", "stats_router", "species_router", "community_router"]
+__all__ = ["auth_router", "obs_router", "chat_router", "stats_router", "species_router", "community_router", "notifications_router"]
