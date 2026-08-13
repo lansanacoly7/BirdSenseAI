@@ -5,7 +5,7 @@ Auteur : Pape Alioune Sène
 import uuid
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, String, Text, func, ForeignKey
+from sqlalchemy import Boolean, DateTime, String, Text, func, ForeignKey, Integer
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -25,6 +25,8 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     is_verified: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     role: Mapped[str] = mapped_column(String(50), nullable=False, default="observer")
+    points: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    level: Mapped[str] = mapped_column(String(50), nullable=False, default="Novice")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -38,6 +40,21 @@ class User(Base):
     )
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(  # noqa: F821
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
+    )
+    comments: Mapped[list["Comment"]] = relationship(  # noqa: F821
+        "Comment", back_populates="user", cascade="all, delete-orphan"
+    )
+    validations: Mapped[list["Validation"]] = relationship(  # noqa: F821
+        "Validation", back_populates="user", cascade="all, delete-orphan"
+    )
+    reports: Mapped[list["Report"]] = relationship(  # noqa: F821
+        "Report", back_populates="user", cascade="all, delete-orphan"
+    )
+    favorites: Mapped[list["Favorite"]] = relationship(  # noqa: F821
+        "Favorite", back_populates="user", cascade="all, delete-orphan"
+    )
+    badges: Mapped[list["UserBadge"]] = relationship(  # noqa: F821
+        "UserBadge", back_populates="user", cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

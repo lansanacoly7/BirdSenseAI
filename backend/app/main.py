@@ -10,6 +10,9 @@ from fastapi.responses import JSONResponse
 
 from app.config import get_settings
 from app.routers import auth_router, obs_router, chat_router, stats_router, species_router
+from app.routers.search import router as search_router
+from app.routers.profiles import router as profiles_router
+from app.routers.admin import router as admin_router
 
 settings = get_settings()
 
@@ -29,6 +32,9 @@ app.add_middleware(
 # Inscription des routeurs (Endpoints REST)
 app.include_router(auth_router)
 app.include_router(obs_router)
+app.include_router(search_router)
+app.include_router(profiles_router)
+app.include_router(admin_router)
 app.include_router(stats_router)
 app.include_router(species_router)
 app.include_router(chat_router, prefix="/api/v1")

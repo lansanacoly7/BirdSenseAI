@@ -33,7 +33,8 @@ async def get_bird_assistant_response(
     user_message: str, 
     local_species: List[str], 
     user_stats: Dict[str, int],
-    history: List[Dict[str, str]] = None
+    history: List[Dict[str, str]] = None,
+    community_context: str = ""
 ) -> str:
     """
     Interroge l'assistant via Groq ou Gemini sans dépendance externe lourde.
@@ -47,6 +48,12 @@ Voici les informations spécifiques à l'utilisateur actuel pour t'aider à pers
 - Espèces récemment vues dans la zone : {', '.join(local_species) if local_species else 'Aucune pour le moment.'}
 - Scan réussis : {user_stats.get('total_scans', 0)}
 - Score d'impact : {user_stats.get('impact_score', 0)}
+---
+"""
+    if community_context:
+        context_prompt += f"""
+[CONTEXTE COMMUNAUTAIRE DYNAMIQUE]
+{community_context}
 ---
 """
 
