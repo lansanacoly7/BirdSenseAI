@@ -19,8 +19,12 @@ from src.vision.detector import BirdDetector
 from src.vision.tracker import ByteTrackTracker
 from src.vision.bioclip_engine import BioCLIPEngine
 from src.vision.onnx_engine import ONNXInferenceEngine
+from src.vision.explainability import VisionExplainabilityEngine
+from src.vision.arbitration import AIArbitrationEngine
+from src.vision.expert_validation import AutomatedExpertValidationEngine
 
 client = TestClient(app)
+
 
 
 class TestDatasetPrep:
@@ -278,3 +282,150 @@ class TestVisionSecurity:
         response = client.post("/api/v1/vision/detect", files=files)
         assert response.status_code == 400
         assert "Taille de fichier trop grande" in response.json()["detail"]
+
+
+class TestVisionExplainability:
+    """Tests T4.1 AI Explainability Engine ("Pourquoi cette identification ?")."""
+
+    def test_generate_explanation_structure(self):
+        engine = VisionExplainabilityEngine()
+        crop = np.full((100, 100, 3), (120, 180, 200), dtype=np.uint8)
+        
+        candidates = [
+            {"species": "Phoenicopterus roseus (Flamant Rose)", "confidence": 0.85},
+            {"species": "Pelecanus onocrotalus (Pélican Blanc)", "confidence": 0.10}
+        ]
+
+        exp = engine.generate_explanation(
+            crop_bgr=crop,
+            top_species="Phoenicopterus roseus (Flamant Rose)",
+            top_confidence=0.85,
+            candidates=candidates
+        )
+
+        assert exp["top_species"] == "Phoenicopterus roseus (Flamant Rose)"
+        assert exp["confidence_score"] == 0.85
+        assert exp["certainty_level"] == "Très Élevé"
+        assert exp["confidence_margin"] == 0.75
+        assert "color_analysis" in exp
+        assert "morphology" in exp
+        assert len(exp["explanation_bullets"]) >= 4
+
+
+class TestAIArbitration:
+    """Tests T4.2 AI vs Human Arbitration Engine."""
+
+    def test_arbitration_confirmed_match(self):
+        engine = AIArbitrationEngine()
+        res = engine.arbitrate(
+            ai_species="Phoenicopterus roseus (Flamant Rose)",
+            ai_confidence=0.90,
+            suggested_species_votes={"Phoenicopterus roseus (Flamant Rose)": 10},
+            total_validations=10
+        )
+        assert res["consensus_status"] == "CONFIRMED_MATCH"
+        assert res["anomaly_score"] < 0.20
+        assert res["recommended_action"] == "ACCEPT"
+
+    def test_arbitration_anomaly_contradiction(self):
+        engine = AIArbitrationEngine()
+        res = engine.arbitrate(
+            ai_species="Phoenicopterus roseus (Flamant Rose)",
+            ai_confidence=0.85,
+            suggested_species_votes={"Pelecanus onocrotalus (Pélican Blanc)": 12},
+            total_validations=12
+        )
+        assert res["consensus_status"] == "ANOMALY_CONTRADICTION"
+        assert res["anomaly_score"] > 0.80
+        assert res["recommended_action"] == "RE_INFER_HEAVY_MODEL"
+
+
+class TestAutomatedExpertValidation:
+    """Tests T4.3 Automated Expert Validation & TTA Re-inference Engine."""
+
+    @pytest.mark.skipif(not HAS_OPEN_CLIP, reason="CLIP non disponible dans cet environnement — test sauté, pas simulé")
+    def test_run_expert_validation_job(self):
+        try:
+            bioclip_engine = BioCLIPEngine(enable_clip=True)
+            if not bioclip_engine.use_clip:
+                pytest.skip(f"CLIP non disponible dans cet environnement — test sauté, pas simulé. Détail: {bioclip_engine.init_error}")
+        except Exception as e:
+            pytest.skip(f"CLIP non disponible dans cet environnement — test sauté, pas simulé. Détail: {e}")
+
+        validation_engine = AutomatedExpertValidationEngine()
+        crop = np.zeros((100, 100, 3), dtype=np.uint8)
+        
+        report = validation_engine.run_expert_validation(
+            crop_bgr=crop,
+            initial_ai_species="Phoenicopterus roseus (Flamant Rose)",
+            community_suggested_species="Pelecanus onocrotalus (Pélican Blanc)",
+            bioclip_engine=bioclip_engine
+        )
+
+        assert "expert_verdict_species" in report
+        assert "decision" in report
+        assert report["tta_views_analyzed"] == 4
+        assert len(report["tta_audit_log"]) == 4
+
+    def test_expert_validation_without_bioclip_raises_error(self):
+        validation_engine = AutomatedExpertValidationEngine()
+        crop = np.zeros((100, 100, 3), dtype=np.uint8)
+        
+        with pytest.raises(RuntimeError) as exc_info:
+            validation_engine.run_expert_validation(
+                crop_bgr=crop,
+                initial_ai_species="Phoenicopterus roseus (Flamant Rose)",
+                bioclip_engine=None
+            )
+        assert "Validation experte impossible" in str(exc_info.value)
+
+
+class TestVisionCommunityAPI:
+    """Tests FastAPI Phase 2 Community Vision REST endpoints (/explain, /arbitrate, /expert-validate)."""
+
+    def test_explain_endpoint(self):
+        img = Image.new("RGB", (200, 200), color=(100, 150, 200))
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format="JPEG")
+        img_byte_arr.seek(0)
+
+        files = {"file": ("bird.jpg", img_byte_arr, "image/jpeg")}
+        response = client.post("/api/v1/vision/explain", files=files)
+        assert response.status_code == 200
+        json_resp = response.json()
+        assert json_resp["success"] is True
+
+    def test_arbitrate_endpoint(self):
+        payload = {
+            "ai_species": "Phoenicopterus roseus (Flamant Rose)",
+            "ai_confidence": 0.88,
+            "suggested_species_votes": {"Phoenicopterus roseus (Flamant Rose)": 5, "Pelecanus onocrotalus": 1},
+            "total_validations": 6
+        }
+        response = client.post("/api/v1/vision/arbitrate", json=payload)
+        assert response.status_code == 200
+        json_resp = response.json()
+        assert json_resp["success"] is True
+        assert json_resp["data"]["consensus_status"] == "CONFIRMED_MATCH"
+
+    def test_expert_validate_endpoint(self):
+        img = Image.new("RGB", (200, 200), color=(120, 120, 120))
+        img_byte_arr = io.BytesIO()
+        img.save(img_byte_arr, format="JPEG")
+        img_byte_arr.seek(0)
+
+        files = {"file": ("bird_test.jpg", img_byte_arr, "image/jpeg")}
+        data = {
+            "initial_ai_species": "Phoenicopterus roseus (Flamant Rose)",
+            "community_suggested_species": "Pelecanus onocrotalus (Pélican Blanc)"
+        }
+        response = client.post("/api/v1/vision/expert-validate", files=files, data=data)
+        if response.status_code == 200:
+            json_resp = response.json()
+            assert json_resp["success"] is True
+            assert "report" in json_resp
+        else:
+            assert response.status_code == 503
+            assert "Validation experte impossible" in response.json()["detail"]
+
+

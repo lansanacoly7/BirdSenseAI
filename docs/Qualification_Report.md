@@ -3,8 +3,8 @@
 **Projet :** BirdSense AI  
 **Auteur / Rôle :** Ibrahima Khalilou Diallo — Ingénieur Computer Vision & YOLO (Membre 4)  
 **Branche Git :** `Kalz`  
-**Date de Qualification :** 30 Juillet 2026  
-**Statut Global :** ✅ **QUALIFIÉ & VALIDÉ À 100%** (17/17 Tests Réussis)
+**Date de Qualification :** 13 Août 2026  
+**Statut Global :** ✅ **QUALIFIÉ & VALIDÉ À 100%** (28/28 Tests Réussis)
 
 ---
 
@@ -22,6 +22,9 @@ Au cours du développement et des audits successifs du sous-système Vision, les
    - Les seuils de confiance, résolutions et chemins de modèles étaient dupliqués à travers plusieurs modules.
 5. **Absence de Système de Logs Professionnel (Résolu) :**
    - Utilisation d'instructions `print()` brutes sans catégorisation ni niveau de sévérité.
+6. **Fallback à scores fixes dans le moteur de validation experte (Résolu) :**
+   - Des valeurs de confiance codées en dur (0.88 / 0.75) étaient utilisées comme repli silencieux quand BioCLIP n'était pas actif, avec un biais structurel favorisant l'IA d'origine. Remplacé par une erreur explicite `RuntimeError` (et HTTP 503 Service Unavailable).
+
 
 ---
 
@@ -33,11 +36,13 @@ Pour chaque problème identifié, les révisions strictes suivantes ont été mi
 | :--- | :--- | :--- |
 | **Stage 1 (YOLO & HUD AR)** | Ajout du format `ar_hud_box: { "x", "y", "width", "height" }` normalisé $[0.0, 1.0]$. | Compatibilité 100% avec le DTO Flutter `DetectionDto` de Lansana (T4.4). |
 | **Stage 2 (BioCLIP Zéro-Shot)** | OpenCLIP réel (`ViT-B-32`) avec gestion explicite des contraintes réseau sandbox. | Fin des fausses prédictions d'espèces. |
+| **Validation Experte (T4.3)** | Élimination totale des fallbacks à scores fictifs (0.88/0.75). Levée d'une `RuntimeError` / HTTP 503 explicite si BioCLIP est inactif. | Zéro fausses valeurs simulées, transparence technique 100%. |
 | **Analyse Audio FFT (T4.5)** | Classifieur spectral par analyse de pic fréquentiel (Hz) et RMS (dB) sans fallback aléatoire. | Erreur explicite **HTTP 400 Bad Request** sur fichier corrompu. |
 | **Configuration Centralisée** | Création de `src/vision/config.py` (`VisionConfig`). | Source unique de vérité pour tous les modules Vision. |
 | **Système de Logs** | Logger catégorisé dans `src/vision/logger.py` (`[YOLO]`, `[TRACKING]`, `[AUDIO]`, etc.). | Élimination de 100% des `print()` dans `src/vision/`. |
 | **Tracker de Métriques** | Création de `src/vision/performance.py` (`VisionPerformanceTracker`). | Chronométrage non-intrusif (ms) et calcul des FPS. |
 | **Démo & Benchmark** | Création de `run_demo.py` et `scripts/benchmark.py`. | Exportation automatique des artéfacts dans `demo_output/` et `evidence/`. |
+
 
 ---
 

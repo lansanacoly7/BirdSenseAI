@@ -9,14 +9,24 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import cv2
 import numpy as np
-from fastapi import APIRouter, File, UploadFile, Query, HTTPException, status
+from fastapi import APIRouter, File, UploadFile, Form, Query, HTTPException, status
+from pydantic import BaseModel, Field
 
 from ..vision.detector import BirdDetector
 from ..vision.tracker import ByteTrackTracker
 from ..vision.bioclip_engine import BioCLIPEngine
-
 from ..vision.audio_classifier import AudioBirdClassifier
+from ..vision.explainability import explainability_engine
+from ..vision.arbitration import arbitration_engine
+from ..vision.expert_validation import expert_validation_engine
 from ..vision.config import vision_config
+
+class ArbitrateRequest(BaseModel):
+    ai_species: str = Field(..., description="Nom de l'espèce identifiée par l'IA")
+    ai_confidence: float = Field(..., ge=0.0, le=1.0, description="Confiance de l'IA (0.0 à 1.0)")
+    suggested_species_votes: Optional[Dict[str, int]] = Field(default=None, description="Votes par espèce")
+    total_validations: int = Field(default=0, ge=0, description="Nombre total de validations")
+
 
 router = APIRouter(prefix="/api/v1/vision", tags=["Computer Vision & IA"])
 
@@ -239,3 +249,145 @@ async def classify_bird_audio(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Erreur lors du traitement de la classification audio bioacoustique : {str(e)}"
         )
+
+
+@router.post("/explain", summary="Générer l'explicabilité visuelle 'Pourquoi cette identification ?' (T4.1)")
+async def explain_identification(
+    file: UploadFile = File(...)
+) -> Dict[str, Any]:
+    """
+    T4.1: Analyse l'image et génère le rapport d'explicabilité 'Pourquoi cette identification ?'.
+    """
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE_BYTES, "image")
+
+    try:
+        detector = get_detector()
+        bioclip = get_bioclip_engine()
+
+        # Step 1: Detect
+        det_res = detector.detect(image_input=contents)
+        raw_img = det_res.pop("raw_image", None)
+        detections = det_res.get("detections", [])
+
+        if raw_img is None or len(detections) == 0:
+            return {
+                "success": True,
+                "message": "Aucun oiseau détecté sur l'image.",
+                "explanation": None
+            }
+
+        top_det = detections[0]
+        x1, y1, x2, y2 = [int(v) for v in top_det["box_pixel"]]
+        h_img, w_img = raw_img.shape[:2]
+        crop = raw_img[max(0, y1):min(h_img, y2), max(0, x1):min(w_img, x2)]
+
+        try:
+            species_res = bioclip.classify_crop(crop)
+            top_species = species_res["top_species"]
+            top_confidence = species_res["top_confidence"]
+            candidates = species_res.get("candidates", [])
+        except Exception:
+            top_species = "Bird (Generic)"
+            top_confidence = top_det["confidence"]
+            candidates = []
+
+        explanation = explainability_engine.generate_explanation(
+            crop_bgr=crop,
+            top_species=top_species,
+            top_confidence=top_confidence,
+            candidates=candidates,
+            ar_hud_box=top_det.get("ar_hud_box"),
+            detector_confidence=top_det["confidence"]
+        )
+
+        return {
+            "success": True,
+            "filename": safe_filename,
+            "explanation": explanation
+        }
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la génération de l'explicabilité IA : {str(e)}"
+        )
+
+
+@router.post("/arbitrate", summary="Arbitrer entre la confiance IA et les votes communautaires (T4.2)")
+def arbitrate_ai_vs_community(payload: ArbitrateRequest) -> Dict[str, Any]:
+    """
+    T4.2: Évalue l'alignement IA vs Communauté, calcule le score d'anomalie et recommande l'action.
+    """
+    try:
+        result = arbitration_engine.arbitrate(
+            ai_species=payload.ai_species,
+            ai_confidence=payload.ai_confidence,
+            suggested_species_votes=payload.suggested_species_votes,
+            total_validations=payload.total_validations
+        )
+        return {
+            "success": True,
+            "data": result
+        }
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de l'arbitrage IA vs Communauté : {str(e)}"
+        )
+
+
+@router.post("/expert-validate", summary="Ré-inférence automatisée TTA et validation experte (T4.3)")
+async def run_expert_validation_job(
+    file: UploadFile = File(...),
+    initial_ai_species: str = Form(..., description="Espèce initialement prédite"),
+    community_suggested_species: Optional[str] = Form(None, description="Espèce proposée par la communauté")
+) -> Dict[str, Any]:
+    """
+    T4.3: Exécute un job de ré-inférence automatisée (multi-crops + Test-Time Augmentations).
+    """
+    contents = await file.read()
+    safe_filename = validate_upload_security(file, contents, ALLOWED_IMAGE_EXTENSIONS, MAX_IMAGE_SIZE_BYTES, "image")
+
+    try:
+        detector = get_detector()
+        bioclip = get_bioclip_engine()
+
+        det_res = detector.detect(image_input=contents)
+        raw_img = det_res.pop("raw_image", None)
+        detections = det_res.get("detections", [])
+
+        if raw_img is not None and len(detections) > 0:
+            top_det = detections[0]
+            x1, y1, x2, y2 = [int(v) for v in top_det["box_pixel"]]
+            h_img, w_img = raw_img.shape[:2]
+            crop = raw_img[max(0, y1):min(h_img, y2), max(0, x1):min(w_img, x2)]
+        else:
+            # Fallback if no box found: use whole image as crop
+            crop = detector._prepare_image(contents)
+
+        report = expert_validation_engine.run_expert_validation(
+            crop_bgr=crop,
+            initial_ai_species=initial_ai_species,
+            community_suggested_species=community_suggested_species,
+            bioclip_engine=bioclip
+        )
+
+        return {
+            "success": True,
+            "filename": safe_filename,
+            "report": report
+        }
+
+    except RuntimeError as re:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=str(re)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Erreur lors de la validation experte automatisée : {str(e)}"
+        )
+
+
