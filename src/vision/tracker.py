@@ -12,30 +12,59 @@ from ultralytics import YOLO
 COCO_BIRD_CLASS_ID = 14
 
 
+from .config import vision_config
+from .performance import performance_tracker
+
+
 class ByteTrackTracker:
     """
-    ByteTrackTracker runs YOLO object detection integrated with ByteTrack algorithm
-    to track object trajectories across video frames and eliminate over-counting.
+    Description:
+        Moteur de suivi multi-objets vidéo (Multi-Object Tracking - MOT) utilisant l'algorithme ByteTrack.
+        Associe des trajectoires temporelles aux oiseaux et évite le sur-comptage.
+
+    Responsabilités:
+        - Traiter les fichiers vidéo frame par frame.
+        - Assigner des identifiants uniques de trajectoire `track_id` à chaque oiseau unique.
+        - Calculer le nombre total d'individus uniques observés au fil de la séquence.
+        - Générer la vidéo annotée d'exportation avec les identifiants visuels.
+
+    Entrées:
+        - `video_path`: Chemin du fichier vidéo (.mp4, .avi, .mov).
+        - `output_path`: Chemin d'export optionnel pour la vidéo annotée.
+        - `conf`: Seuil de confiance optionnel.
+
+    Sorties:
+        - Dictionnaire contenant `total_frames`, `fps`, `width`, `height`, `unique_birds_count` et la liste des `tracks`.
+
+    Exceptions:
+        - `FileNotFoundError`: Si le fichier vidéo spécifié n'existe pas.
+
+    Exemple d'utilisation:
+        >>> from src.vision.tracker import ByteTrackTracker
+        >>> tracker = ByteTrackTracker()
+        >>> res = tracker.track_video("flight.mp4", output_path="annotated_flight.mp4")
+        >>> print(res["unique_birds_count"])
+        4
     """
 
     def __init__(
         self,
-        model_path: str = "yolov8n.pt",
-        tracker_type: str = "bytetrack.yaml",
-        confidence_threshold: float = 0.25,
+        model_path: Optional[str] = None,
+        tracker_type: Optional[str] = None,
+        confidence_threshold: Optional[float] = None,
         target_classes: Optional[List[int]] = None
     ):
         """
-        :param model_path: Path to YOLO weights.
+        :param model_path: Path to YOLO weights (defaults to vision_config.yolo_model_path).
         :param tracker_type: Tracker configuration file ('bytetrack.yaml' or 'botsort.yaml').
         :param confidence_threshold: Minimum detection confidence threshold.
         :param target_classes: Target class IDs (defaults to [14] for generic COCO bird detection).
         """
-        self.model_path = model_path
-        self.tracker_type = tracker_type
-        self.confidence_threshold = confidence_threshold
+        self.model_path = model_path if model_path is not None else vision_config.yolo_model_path
+        self.tracker_type = tracker_type if tracker_type is not None else vision_config.tracker_config
+        self.confidence_threshold = confidence_threshold if confidence_threshold is not None else vision_config.tracking_threshold
         self.target_classes = target_classes if target_classes is not None else [COCO_BIRD_CLASS_ID]
-        self.model = YOLO(model_path)
+        self.model = YOLO(self.model_path)
 
     def track_video(
         self,
@@ -69,14 +98,15 @@ class ByteTrackTracker:
         tracks_summary: Dict[int, Dict[str, Any]] = {}
         frame_idx = 0
 
-        results = self.model.track(
-            source=str(video_path),
-            conf=confidence,
-            classes=self.target_classes,
-            tracker=self.tracker_type,
-            stream=True,
-            verbose=False
-        )
+        with performance_tracker.measure("bytetrack"):
+            results = self.model.track(
+                source=str(video_path),
+                conf=confidence,
+                classes=self.target_classes,
+                tracker=self.tracker_type,
+                stream=True,
+                verbose=False
+            )
 
         for result in results:
             frame_idx += 1
@@ -133,6 +163,17 @@ class ByteTrackTracker:
 
         formatted_tracks = []
         for track_id, data in sorted(tracks_summary.items()):
+            positions = data["positions"]
+            if len(positions) >= 2:
+                dx = positions[-1]["x"] - positions[0]["x"]
+                dy = positions[-1]["y"] - positions[0]["y"]
+                dt = max(1, data["last_frame"] - data["first_frame"])
+                speed_px_per_frame = round(float(np.hypot(dx, dy) / dt), 2)
+                heading_deg = round(float(np.degrees(np.arctan2(dy, dx))), 1)
+            else:
+                speed_px_per_frame = 0.0
+                heading_deg = 0.0
+
             formatted_tracks.append({
                 "track_id": track_id,
                 "class_name": data["class_name"],
@@ -140,7 +181,9 @@ class ByteTrackTracker:
                 "duration_frames": data["last_frame"] - data["first_frame"] + 1,
                 "first_frame": data["first_frame"],
                 "last_frame": data["last_frame"],
-                "trajectory_length": len(data["positions"])
+                "trajectory_length": len(positions),
+                "speed_px_per_frame": speed_px_per_frame,
+                "heading_angle_deg": heading_deg
             })
 
         return {
@@ -154,6 +197,8 @@ class ByteTrackTracker:
         }
 
 
+from .logger import log_tracking
+
 if __name__ == "__main__":
     tracker = ByteTrackTracker()
-    print(f"[ByteTrackTracker] ByteTrack Tracker initialized on generic bird detection (COCO class 14).")
+    log_tracking(f"ByteTrack Tracker initialized on generic bird detection (COCO class 14).")

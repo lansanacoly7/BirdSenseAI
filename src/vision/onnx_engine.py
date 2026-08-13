@@ -10,22 +10,51 @@ import cv2
 import onnxruntime as ort
 
 
+from .config import vision_config
+
+
+from .performance import performance_tracker
+
+
 class ONNXInferenceEngine:
     """
-    Direct ONNX Runtime execution engine for YOLO models exported to .onnx format with Class-wise NMS.
+    Description:
+        Moteur d'inférence direct ONNX Runtime pour les modèles YOLO exportés au format `.onnx`.
+        Utilisé pour les déploiements optimisés C++ natifs et mobiles sans dépendance PyTorch.
+
+    Responsabilités:
+        - Charger la session d'inférence ONNX Runtime (`InferenceSession`).
+        - Prétraiter l'image (letterboxing, redimensionnement 640x640, BGR vers RGB, normalisation $[0, 1]$, format CHW).
+        - Effectuer le post-traitement avec suppression des non-maximaux par classe (Class-wise NMS).
+
+    Entrées:
+        - `image`: Tableau NumPy (BGR) de l'image d'entrée.
+
+    Sorties:
+        - Dictionnaire contenant `count`, `image_shape` et la liste des `detections` (box pixel, score, class_id).
+
+    Exceptions:
+        - `FileNotFoundError`: Si le fichier modèle `.onnx` est introuvable.
+
+    Exemple d'utilisation:
+        >>> from src.vision.onnx_engine import ONNXInferenceEngine
+        >>> engine = ONNXInferenceEngine("yolov8n.onnx")
+        >>> res = engine.run_inference(img_numpy)
+        >>> print(res["count"])
+        1
     """
 
     def __init__(
         self,
         onnx_model_path: str,
-        input_size: int = 640,
-        confidence_threshold: float = 0.25,
-        iou_threshold: float = 0.45
+        input_size: Optional[int] = None,
+        confidence_threshold: Optional[float] = None,
+        iou_threshold: Optional[float] = None
     ):
         self.model_path = Path(onnx_model_path)
-        self.input_size = input_size
-        self.confidence_threshold = confidence_threshold
-        self.iou_threshold = iou_threshold
+        self.input_size = input_size if input_size is not None else vision_config.image_size[0]
+        self.confidence_threshold = confidence_threshold if confidence_threshold is not None else vision_config.confidence_threshold
+        self.iou_threshold = iou_threshold if iou_threshold is not None else vision_config.iou_threshold
 
         if not self.model_path.exists():
             raise FileNotFoundError(f"ONNX model not found at {self.model_path}")
@@ -63,7 +92,8 @@ class ONNXInferenceEngine:
         h_orig, w_orig = image.shape[:2]
         input_tensor = self.preprocess(image)
 
-        outputs = self.session.run(self.output_names, {self.input_name: input_tensor})
+        with performance_tracker.measure("onnx"):
+            outputs = self.session.run(self.output_names, {self.input_name: input_tensor})
         raw_output = outputs[0]  # Shape: [1, 84, 8400] or similar
 
         scale = min(self.input_size / h_orig, self.input_size / w_orig)

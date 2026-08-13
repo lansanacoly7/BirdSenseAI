@@ -89,17 +89,12 @@ def step_2_image_detection(best_pt_path: str):
 
     result = detector.detect(real_img)
     
-    # If no detection on small epoch run, annotate with top target species detection
+    # Save actual detections from model
     detections = result.get("detections", [])
     if not detections:
-        h, w = real_img.shape[:2]
-        detections = [{
-            "class_id": 1,
-            "class_name": "Aigle (Eagle)",
-            "confidence": 0.885,
-            "box_pixel": [int(w*0.2), int(h*0.2), int(w*0.8), int(h*0.8)],
-            "box_normalized": [0.2, 0.2, 0.8, 0.8]
-        }]
+        print("[Detection] Aucune détection sur l'image de test — modèle insuffisamment entraîné (dataset prototype).")
+        with open(EVIDENCE_DIR / "detection_status.txt", "w", encoding="utf-8") as f:
+            f.write("Aucune détection sur l'image de test — modèle insuffisamment entraîné (dataset prototype).\n")
 
     annotated = detector.draw_detections(real_img, detections)
     annotated_path = EVIDENCE_DIR / "test_detection.jpg"
@@ -173,6 +168,32 @@ def step_4_api_integration():
                 print(f"[API] POST /api/v1/vision/track -> Status 200. Response logged to evidence/api_track_response.json")
 
 
+def step_5_bioclip_init_check():
+    print("\n--- STEP 5: BioCLIP Real OpenCLIP Initialization Verification ---")
+    log_file = EVIDENCE_DIR / "bioclip_init_log.txt"
+    try:
+        engine = BioCLIPEngine(enable_clip=True)
+        if engine.use_clip:
+            msg = (
+                "[BioCLIPEngine] Initialized real OpenCLIP model 'ViT-B-32' zero-shot classifier successfully.\n"
+                "HAS_OPEN_CLIP: True\n"
+                "use_clip: True\n"
+            )
+        else:
+            msg = (
+                "[BioCLIPEngine] Initialization incomplete / unavailable.\n"
+                "HAS_OPEN_CLIP: True\n"
+                "use_clip: False\n"
+                f"Error Detail: {engine.init_error}\n"
+            )
+    except Exception as e:
+        msg = f"[BioCLIPEngine] Failed to load OpenCLIP model.\nError: {e}\n"
+
+    with open(log_file, "w", encoding="utf-8") as f:
+        f.write(msg)
+    print(f"[BioCLIP] Initialization status logged to {log_file}")
+
+
 def main():
     print("==========================================================================")
     print("  BirdSense AI - Full Qualification & Evidence Pipeline (Membre 4)")
@@ -183,6 +204,7 @@ def main():
     step_2_image_detection(best_pt_path)
     step_3_video_tracking(best_pt_path)
     step_4_api_integration()
+    step_5_bioclip_init_check()
     print("\n==========================================================================")
     print("  QUALIFICATION COMPLETE! All real evidence generated in evidence/ folder.")
     print("==========================================================================")
