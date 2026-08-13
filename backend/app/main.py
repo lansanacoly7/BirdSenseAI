@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.config import get_settings
-from app.routers import auth_router, obs_router, chat_router, stats_router, species_router
+from app.routers import auth_router, obs_router, chat_router, stats_router, species_router, community_router
 
 settings = get_settings()
 
@@ -20,7 +20,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins_list,
+    allow_origin_regex="^https?://(localhost|127\.0\.0\.1)(:[0-9]+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,6 +32,7 @@ app.include_router(obs_router)
 app.include_router(stats_router)
 app.include_router(species_router)
 app.include_router(chat_router, prefix="/api/v1")
+app.include_router(community_router)
 
 
 @app.get("/health", tags=["Système"], summary="Vérification de l'état du serveur")

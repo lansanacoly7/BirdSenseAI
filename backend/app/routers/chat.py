@@ -53,7 +53,6 @@ async def chat_stream(websocket: WebSocket):
             history.append({"role": "assistant", "content": llm_response})
 
             # Streaming de la réponse en simulant un délai de calcul LLM
->>>>>>> 7f270642fd47218a73ee12e0223334765b266e64
             words = llm_response.split(" ")
             for word in words:
                 chunk = {"chunk": word + " "}
