@@ -71,6 +71,18 @@ class Observation(Base):
         cascade="all, delete-orphan",
         lazy="selectin",
     )
+    comments: Mapped[list["Comment"]] = relationship(  # noqa: F821
+        "Comment", back_populates="observation", cascade="all, delete-orphan"
+    )
+    validations: Mapped[list["Validation"]] = relationship(  # noqa: F821
+        "Validation", back_populates="observation", cascade="all, delete-orphan"
+    )
+    reports: Mapped[list["Report"]] = relationship(  # noqa: F821
+        "Report", back_populates="observation", cascade="all, delete-orphan"
+    )
+    favorited_by: Mapped[list["Favorite"]] = relationship(  # noqa: F821
+        "Favorite", back_populates="observation", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Observation id={self.id} user_id={self.user_id} observed_at={self.observed_at}>"

@@ -39,6 +39,18 @@ class User(Base):
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(  # noqa: F821
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
     )
+    comments: Mapped[list["Comment"]] = relationship(  # noqa: F821
+        "Comment", back_populates="user", cascade="all, delete-orphan"
+    )
+    validations: Mapped[list["Validation"]] = relationship(  # noqa: F821
+        "Validation", back_populates="user", cascade="all, delete-orphan"
+    )
+    reports: Mapped[list["Report"]] = relationship(  # noqa: F821
+        "Report", back_populates="user", cascade="all, delete-orphan"
+    )
+    favorites: Mapped[list["Favorite"]] = relationship(  # noqa: F821
+        "Favorite", back_populates="user", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<User id={self.id} username={self.username}>"
