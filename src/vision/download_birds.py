@@ -181,16 +181,18 @@ def download_real_bird_dataset(dataset_dir: Path) -> int:
                 with open(lbl_path, "w", encoding="utf-8") as lf:
                     lf.write(f"{sample['class_id']} {cx} {cy} {w} {h}\n")
                 downloaded_count += 1
-                print(f"[DatasetDownloader] Downloaded & annotated: {sample['filename']} ({sample['species']})")
+                log_vision(f"Downloaded & annotated: {sample['filename']} ({sample['species']})")
             else:
                 if img_path.exists():
                     os.remove(img_path)
         except Exception as e:
-            print(f"[DatasetDownloader] Could not download {sample['filename']}: {e}")
+            log_vision(f"Could not download {sample['filename']}: {e}")
 
     return downloaded_count
 
 
+from .logger import log_vision
+
 if __name__ == "__main__":
     count = download_real_bird_dataset(Path("dataset"))
-    print(f"[DatasetDownloader] Successfully downloaded and annotated {count} real bird images.")
+    log_vision(f"Successfully downloaded and annotated {count} real bird images.")
