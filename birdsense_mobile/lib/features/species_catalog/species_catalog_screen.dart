@@ -5,6 +5,19 @@ import '../../core/providers.dart';
 import '../chat/chat_screen.dart';
 import 'species_detail_screen.dart';
 
+String _getIucnDescriptionFR(String? category) {
+  switch (category) {
+    case 'LC': return 'Préoccupation mineure';
+    case 'NT': return 'Quasi menacée';
+    case 'VU': return 'Vulnérable';
+    case 'EN': return 'En danger';
+    case 'CR': return 'En danger critique';
+    case 'EW': return 'Éteinte à l\'état sauvage';
+    case 'EX': return 'Éteinte';
+    default: return 'Non évalué';
+  }
+}
+
 class SpeciesItem {
   final String id;
   final String scientificName;
@@ -180,7 +193,7 @@ class SpeciesItem {
       family: json['family'] ?? 'Inconnue',
       order: json['order_name'] ?? 'Inconnu',
       iucnCategory: json['iucn_status'] ?? 'NE',
-      iucnDescription: 'Status UICN: ${json['iucn_status']}',
+      iucnDescription: _getIucnDescriptionFR(json['iucn_status']),
       imageUrl: json['image_url'] ?? '',
       assetImage: 'assets/birds/pelican_blanc.png', // Default fallback
       illustrationUrl: json['image_url'] ?? '',

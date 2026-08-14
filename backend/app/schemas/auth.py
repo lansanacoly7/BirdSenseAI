@@ -20,8 +20,8 @@ class UserRegisterRequest(BaseModel):
     @field_validator("password")
     @classmethod
     def password_strength(cls, v: str) -> str:
-        if not any(c.isupper() for c in v):
-            raise ValueError("Le mot de passe doit contenir au moins une lettre majuscule.")
+        if not any(c.isalpha() for c in v):
+            raise ValueError("Le mot de passe doit contenir au moins une lettre.")
         if not any(c.isdigit() for c in v):
             raise ValueError("Le mot de passe doit contenir au moins un chiffre.")
         return v
@@ -76,3 +76,13 @@ class TokenPayload(BaseModel):
     exp: int          # Timestamp d'expiration
     type: str         # "access" ou "refresh"
     jti: str | None = None  # JWT ID unique (pour blacklist)
+
+# =============================================================================
+# Auth : Google Login
+# =============================================================================
+from typing import Optional
+
+class GoogleLoginRequest(BaseModel):
+    id_token: Optional[str] = None
+    access_token: Optional[str] = None
+

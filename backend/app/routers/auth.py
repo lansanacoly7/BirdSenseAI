@@ -4,6 +4,9 @@ Auteur : Pape Alioune Sène
 """
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import text
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 from app.database import get_db
 from app.models.user import User
@@ -13,6 +16,7 @@ from app.schemas.auth import (
     UserLoginRequest,
     UserRegisterRequest,
     UserResponse,
+    GoogleLoginRequest,
 )
 from app.services.auth_service import (
     authenticate_user,
@@ -117,6 +121,87 @@ async def refresh_token(
         expires_in=settings.access_token_expire_minutes * 60,
     )
 
+
+@router.post(
+    "/google",
+    response_model=TokenResponse,
+    summary="Connexion via Google Sign-In",
+)
+async def google_login(
+    google_data: GoogleLoginRequest, db: AsyncSession = Depends(get_db)
+) -> TokenResponse:
+    """
+    Vérifie le token Google ID, et connecte ou inscrit l'utilisateur.
+    """
+    from app.config import get_settings
+    settings = get_settings()
+    client_id = os.environ.get("GOOGLE_CLIENT_ID", "")
+    
+    try:
+        # Si on n'a pas de client ID pour valider, on by-pass la validation strict en mode dev (hackathon)
+        # Mais l'idéal est de valider avec client_id
+        if google_data.id_token:
+            if client_id:
+                idinfo = id_token.verify_oauth2_token(google_data.id_token, requests.Request(), client_id)
+            else:
+                # En mode dev / hackathon si pas de client ID défini, on lit juste les claims (NON SÉCURISÉ EN PROD)
+                import jwt as pyjwt
+                idinfo = pyjwt.decode(google_data.id_token, options={"verify_signature": False})
+                
+            email = idinfo.get("email")
+            name = idinfo.get("name", "Utilisateur Google")
+            
+        elif google_data.access_token:
+            import httpx
+            # Fallback for flutter web which sometimes only provides access_token
+            async with httpx.AsyncClient() as client:
+                resp = await client.get(
+                    "https://www.googleapis.com/oauth2/v3/userinfo",
+                    headers={"Authorization": f"Bearer {google_data.access_token}"}
+                )
+                if resp.status_code != 200:
+                    raise ValueError(f"Access token invalide ou expiré: {resp.text}")
+                user_info = resp.json()
+                email = user_info.get("email")
+                name = user_info.get("name", "Utilisateur Google")
+        else:
+            raise ValueError("Aucun token fourni.")
+        
+        if not email:
+            raise HTTPException(status_code=400, detail="Token Google invalide : email manquant.")
+            
+        # Chercher l'utilisateur
+        user = await get_user_by_email(db, email)
+        if not user:
+            # Inscription automatique
+            # On génère un mot de passe aléatoire car il se connectera toujours via Google
+            import secrets
+            random_password = secrets.token_urlsafe(16)
+            username = email.split('@')[0]
+            
+            # S'assurer que le nom d'utilisateur est unique, sinon on ajoute un suffixe
+            existing = await db.scalars(text("SELECT id FROM users WHERE username = :u"), {"u": username})
+            if existing.first():
+                username = f"{username}_{secrets.token_hex(4)}"
+                
+            user = await create_user(
+                db=db,
+                email=email,
+                username=username,
+                plain_password=random_password,
+                full_name=name,
+            )
+            
+        return await build_token_response(db, user)
+        
+    except ValueError as e:
+        # Invalid token
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=f"Token Google invalide: {str(e)}",
+        )
+
+import os
 
 @router.get(
     "/me",

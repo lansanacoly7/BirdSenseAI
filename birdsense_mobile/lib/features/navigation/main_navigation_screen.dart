@@ -8,6 +8,7 @@ import '../observation_map/observation_map_screen.dart';
 import '../species_catalog/species_catalog_screen.dart';
 import '../dashboard/analytics_dashboard_screen.dart';
 import '../chat/chat_screen.dart';
+import '../community/screens/community_feed_screen.dart';
 
 class MainNavigationScreen extends ConsumerStatefulWidget {
   const MainNavigationScreen({super.key});
@@ -25,6 +26,7 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
     ObservationMapScreen(),    // index 1
     SpeciesCatalogScreen(),    // index 2
     AnalyticsDashboardScreen(),// index 3
+    CommunityFeedScreen(),     // index 4
   ];
 
   @override
@@ -138,6 +140,13 @@ class _MainNavigationScreenState extends ConsumerState<MainNavigationScreen> {
                     activeIcon: Icons.bar_chart_rounded,
                     label: 'Stats',
                     index: 3,
+                    isDark: isDark,
+                  ),
+                  _buildNavTab(
+                    icon: Icons.groups_outlined,
+                    activeIcon: Icons.groups_rounded,
+                    label: 'Communauté',
+                    index: 4,
                     isDark: isDark,
                   ),
                 ],
