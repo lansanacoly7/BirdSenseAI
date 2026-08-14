@@ -6,9 +6,15 @@ import 'core/network/network_observer.dart';
 import 'core/providers.dart';
 import 'core/theme/app_theme.dart';
 import 'features/onboarding/splash_screen.dart';
+import 'core/network/background_sync_worker.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  if (!kIsWeb) {
+    await initBackgroundSync();
+  }
+  
   runApp(const ProviderScope(child: BirdSenseApp()));
 }
 

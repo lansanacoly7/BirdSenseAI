@@ -3,16 +3,19 @@ import 'package:drift/drift.dart';
 import 'connection/db_connection.dart';
 import 'tables/local_observation_items.dart';
 import 'tables/local_observations.dart';
-import 'tables/local_impact_scores.dart';
+import 'tables/community_tables.dart';
 
 part 'app_database.g.dart';
 
-/// Base de données SQLite locale de BirdSense AI (Mobile / Web).
-///
-/// Gère le stockage offline des observations de terrain et de leurs
-/// détections IA associées. Fournit des méthodes CRUD spécialisées
-/// pour le workflow de synchronisation.
-@DriftDatabase(tables: [LocalObservations, LocalObservationItems, LocalImpactScores])
+/// Base de données locale de BirdSense AI (Mobile / Web).
+@DriftDatabase(tables: [
+  LocalObservations, 
+  LocalObservationItems,
+  CommunityFeed,
+  UserFavorites,
+  UserCollection,
+  PendingActions
+])
 class AppDatabase extends _$AppDatabase {
   /// Constructeur par défaut utilisant la connexion cross-plateforme.
   AppDatabase() : super(openConnection());
@@ -104,30 +107,65 @@ class AppDatabase extends _$AppDatabase {
   }
 
   // ---------------------------------------------------------------------------
-  // Écriture — Impact Scores (Phase 2)
+  // Communauté - DAO (Data Access Object)
   // ---------------------------------------------------------------------------
-
-  /// Ajoute ou met à jour un score d'impact pour une observation
-  Future<void> upsertImpactScore(LocalImpactScore score) async {
-    await into(localImpactScores).insertOnConflictUpdate(score);
+  
+  /// Insère ou met à jour une liste d'observations communautaires (mise en cache).
+  Future<void> cacheCommunityFeed(List<CommunityObservation> observations) async {
+    await batch((batch) {
+      batch.insertAll(
+        communityFeed, 
+        observations, 
+        mode: InsertMode.insertOrReplace,
+      );
+    });
   }
 
-  /// Récupère le score le plus récent pour une observation
-  Future<LocalImpactScore?> getLatestImpactScoreForObservation(String observationId) async {
-    return (select(localImpactScores)
-          ..where((t) => t.observationId.equals(observationId))
-          ..orderBy([(t) => OrderingTerm(expression: t.computedAt, mode: OrderingMode.desc)])
-          ..limit(1))
-        .getSingleOrNull();
+  /// Récupère le flux des observations communautaires (triées par date décroissante).
+  Stream<List<CommunityObservation>> watchCommunityFeed() {
+    return (select(communityFeed)
+          ..orderBy([(t) => OrderingTerm(expression: t.createdAt, mode: OrderingMode.desc)]))
+        .watch();
   }
 
-  /// Observe en temps réel le score d'impact d'une observation
-  Stream<LocalImpactScore?> watchLatestImpactScoreForObservation(String observationId) {
-    return (select(localImpactScores)
-          ..where((t) => t.observationId.equals(observationId))
-          ..orderBy([(t) => OrderingTerm(expression: t.computedAt, mode: OrderingMode.desc)])
-          ..limit(1))
-        .watchSingleOrNull();
+  /// Ajoute ou retire un favori.
+  Future<void> toggleFavorite(String observationId) async {
+    final existing = await (select(userFavorites)..where((t) => t.observationId.equals(observationId))).getSingleOrNull();
+    if (existing != null) {
+      await (delete(userFavorites)..where((t) => t.observationId.equals(observationId))).go();
+    } else {
+      await into(userFavorites).insert(
+        UserFavoritesCompanion.insert(
+          observationId: observationId,
+          savedAt: DateTime.now().toUtc(),
+        ),
+      );
+    }
+  }
+
+  /// Ajoute une action asynchrone (Validation, Signalement) dans la file d'attente WorkManager.
+  Future<int> queuePendingAction(String actionType, String payloadJson) {
+    return into(pendingActions).insert(
+      PendingActionsCompanion.insert(
+        actionType: actionType,
+        payloadJson: payloadJson,
+      ),
+    );
+  }
+
+  /// Récupère les actions en attente pour le WorkManager.
+  Future<List<PendingAction>> getPendingActions() {
+    return (select(pendingActions)..where((t) => t.status.equals('pending'))).get();
+  }
+
+  /// Marque une action comme échouée après tentative du WorkManager.
+  Future<void> markActionAsFailed(int id, int currentRetryCount) async {
+    await (update(pendingActions)..where((t) => t.id.equals(id))).write(
+      PendingActionsCompanion(
+        retryCount: Value(currentRetryCount + 1),
+        status: const Value('failed'),
+      )
+    );
   }
 }
 

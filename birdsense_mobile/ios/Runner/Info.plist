@@ -2,10 +2,17 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>BirdSense a besoin du microphone pour capter le niveau de bruit environnant.</string>
-	<key>NSCameraUsageDescription</key>
-	<string>BirdSense a besoin de la caméra pour analyser la biodiversité.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>processing</string>
+	</array>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+	<array>
+		<string>workmanager.background.task</string>
+	</array>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>BirdSense a besoin d'accéder à vos photos pour enregistrer et partager vos observations communautaires.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
