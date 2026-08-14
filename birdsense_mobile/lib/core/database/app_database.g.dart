@@ -294,16 +294,35 @@ class $LocalObservationsTable extends LocalObservations
 
 class LocalObservation extends DataClass
     implements Insertable<LocalObservation> {
+  /// UUID v4 généré côté mobile. Sert de clé d'idempotence pour la synchro.
   final String id;
+
+  /// Identifiant de l'utilisateur ayant capturé l'observation.
   final String userId;
+
+  /// Horodatage de la capture, stocké en UTC.
   final DateTime createdAt;
+
+  /// Coordonnées GPS au moment de la capture (nullable si GPS désactivé).
   final double? latitude;
   final double? longitude;
+
+  /// Chemin absolu local vers la photo capturée.
   final String? localPhotoPath;
+
+  /// Chemin absolu local vers la vidéo capturée.
   final String? localVideoPath;
+
+  /// Statut de synchronisation : 'pending', 'syncing', 'synced', 'failed', 'abandoned'.
   final String status;
+
+  /// Nombre de tentatives de synchronisation échouées.
   final int retryCount;
+
+  /// Message d'erreur de la dernière tentative échouée.
   final String? lastSyncError;
+
+  /// UUID attribué par le serveur après synchronisation réussie.
   final String? serverId;
   const LocalObservation({
     required this.id,
@@ -921,14 +940,31 @@ class $LocalObservationItemsTable extends LocalObservationItems
 
 class LocalObservationItem extends DataClass
     implements Insertable<LocalObservationItem> {
+  /// UUID v4 unique de cet item de détection.
   final String id;
+
+  /// Clé étrangère vers [LocalObservations.id].
   final String observationId;
+
+  /// Nom de l'espèce détectée (ex: "pélican blanc").
   final String label;
+
+  /// Score de confiance du modèle IA, entre 0.0 et 1.0.
   final double confidence;
+
+  /// Identifiant de suivi inter-frames (tracking). Nullable si pas de suivi.
   final String? trackId;
+
+  /// Coordonnée X du coin supérieur gauche de la bounding box (normalisée).
   final double x;
+
+  /// Coordonnée Y du coin supérieur gauche de la bounding box (normalisée).
   final double y;
+
+  /// Largeur de la bounding box (normalisée).
   final double width;
+
+  /// Hauteur de la bounding box (normalisée).
   final double height;
   const LocalObservationItem({
     required this.id,
@@ -1238,6 +1274,538 @@ class LocalObservationItemsCompanion
   }
 }
 
+class $LocalImpactScoresTable extends LocalImpactScores
+    with TableInfo<$LocalImpactScoresTable, LocalImpactScore> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalImpactScoresTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _observationIdMeta = const VerificationMeta(
+    'observationId',
+  );
+  @override
+  late final GeneratedColumn<String> observationId = GeneratedColumn<String>(
+    'observation_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES local_observations (id)',
+    ),
+  );
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<double> score = GeneratedColumn<double>(
+    'score',
+    aliasedName,
+    false,
+    type: DriftSqlType.double,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _levelMeta = const VerificationMeta('level');
+  @override
+  late final GeneratedColumn<String> level = GeneratedColumn<String>(
+    'level',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _calculationVersionMeta =
+      const VerificationMeta('calculationVersion');
+  @override
+  late final GeneratedColumn<String> calculationVersion =
+      GeneratedColumn<String>(
+        'calculation_version',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _computedAtMeta = const VerificationMeta(
+    'computedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> computedAt = GeneratedColumn<DateTime>(
+    'computed_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _componentsJsonMeta = const VerificationMeta(
+    'componentsJson',
+  );
+  @override
+  late final GeneratedColumn<String> componentsJson = GeneratedColumn<String>(
+    'components_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    observationId,
+    score,
+    level,
+    calculationVersion,
+    computedAt,
+    componentsJson,
+    updatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_impact_scores';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalImpactScore> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('observation_id')) {
+      context.handle(
+        _observationIdMeta,
+        observationId.isAcceptableOrUnknown(
+          data['observation_id']!,
+          _observationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_observationIdMeta);
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+        _scoreMeta,
+        score.isAcceptableOrUnknown(data['score']!, _scoreMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scoreMeta);
+    }
+    if (data.containsKey('level')) {
+      context.handle(
+        _levelMeta,
+        level.isAcceptableOrUnknown(data['level']!, _levelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_levelMeta);
+    }
+    if (data.containsKey('calculation_version')) {
+      context.handle(
+        _calculationVersionMeta,
+        calculationVersion.isAcceptableOrUnknown(
+          data['calculation_version']!,
+          _calculationVersionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_calculationVersionMeta);
+    }
+    if (data.containsKey('computed_at')) {
+      context.handle(
+        _computedAtMeta,
+        computedAt.isAcceptableOrUnknown(data['computed_at']!, _computedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_computedAtMeta);
+    }
+    if (data.containsKey('components_json')) {
+      context.handle(
+        _componentsJsonMeta,
+        componentsJson.isAcceptableOrUnknown(
+          data['components_json']!,
+          _componentsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalImpactScore map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalImpactScore(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      observationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}observation_id'],
+      )!,
+      score: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}score'],
+      )!,
+      level: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}level'],
+      )!,
+      calculationVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}calculation_version'],
+      )!,
+      computedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}computed_at'],
+      )!,
+      componentsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}components_json'],
+      ),
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $LocalImpactScoresTable createAlias(String alias) {
+    return $LocalImpactScoresTable(attachedDatabase, alias);
+  }
+}
+
+class LocalImpactScore extends DataClass
+    implements Insertable<LocalImpactScore> {
+  final String id;
+  final String observationId;
+  final double score;
+  final String level;
+  final String calculationVersion;
+  final DateTime computedAt;
+  final String? componentsJson;
+  final DateTime updatedAt;
+  const LocalImpactScore({
+    required this.id,
+    required this.observationId,
+    required this.score,
+    required this.level,
+    required this.calculationVersion,
+    required this.computedAt,
+    this.componentsJson,
+    required this.updatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['observation_id'] = Variable<String>(observationId);
+    map['score'] = Variable<double>(score);
+    map['level'] = Variable<String>(level);
+    map['calculation_version'] = Variable<String>(calculationVersion);
+    map['computed_at'] = Variable<DateTime>(computedAt);
+    if (!nullToAbsent || componentsJson != null) {
+      map['components_json'] = Variable<String>(componentsJson);
+    }
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  LocalImpactScoresCompanion toCompanion(bool nullToAbsent) {
+    return LocalImpactScoresCompanion(
+      id: Value(id),
+      observationId: Value(observationId),
+      score: Value(score),
+      level: Value(level),
+      calculationVersion: Value(calculationVersion),
+      computedAt: Value(computedAt),
+      componentsJson: componentsJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(componentsJson),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory LocalImpactScore.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalImpactScore(
+      id: serializer.fromJson<String>(json['id']),
+      observationId: serializer.fromJson<String>(json['observationId']),
+      score: serializer.fromJson<double>(json['score']),
+      level: serializer.fromJson<String>(json['level']),
+      calculationVersion: serializer.fromJson<String>(
+        json['calculationVersion'],
+      ),
+      computedAt: serializer.fromJson<DateTime>(json['computedAt']),
+      componentsJson: serializer.fromJson<String?>(json['componentsJson']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'observationId': serializer.toJson<String>(observationId),
+      'score': serializer.toJson<double>(score),
+      'level': serializer.toJson<String>(level),
+      'calculationVersion': serializer.toJson<String>(calculationVersion),
+      'computedAt': serializer.toJson<DateTime>(computedAt),
+      'componentsJson': serializer.toJson<String?>(componentsJson),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  LocalImpactScore copyWith({
+    String? id,
+    String? observationId,
+    double? score,
+    String? level,
+    String? calculationVersion,
+    DateTime? computedAt,
+    Value<String?> componentsJson = const Value.absent(),
+    DateTime? updatedAt,
+  }) => LocalImpactScore(
+    id: id ?? this.id,
+    observationId: observationId ?? this.observationId,
+    score: score ?? this.score,
+    level: level ?? this.level,
+    calculationVersion: calculationVersion ?? this.calculationVersion,
+    computedAt: computedAt ?? this.computedAt,
+    componentsJson: componentsJson.present
+        ? componentsJson.value
+        : this.componentsJson,
+    updatedAt: updatedAt ?? this.updatedAt,
+  );
+  LocalImpactScore copyWithCompanion(LocalImpactScoresCompanion data) {
+    return LocalImpactScore(
+      id: data.id.present ? data.id.value : this.id,
+      observationId: data.observationId.present
+          ? data.observationId.value
+          : this.observationId,
+      score: data.score.present ? data.score.value : this.score,
+      level: data.level.present ? data.level.value : this.level,
+      calculationVersion: data.calculationVersion.present
+          ? data.calculationVersion.value
+          : this.calculationVersion,
+      computedAt: data.computedAt.present
+          ? data.computedAt.value
+          : this.computedAt,
+      componentsJson: data.componentsJson.present
+          ? data.componentsJson.value
+          : this.componentsJson,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalImpactScore(')
+          ..write('id: $id, ')
+          ..write('observationId: $observationId, ')
+          ..write('score: $score, ')
+          ..write('level: $level, ')
+          ..write('calculationVersion: $calculationVersion, ')
+          ..write('computedAt: $computedAt, ')
+          ..write('componentsJson: $componentsJson, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    observationId,
+    score,
+    level,
+    calculationVersion,
+    computedAt,
+    componentsJson,
+    updatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalImpactScore &&
+          other.id == this.id &&
+          other.observationId == this.observationId &&
+          other.score == this.score &&
+          other.level == this.level &&
+          other.calculationVersion == this.calculationVersion &&
+          other.computedAt == this.computedAt &&
+          other.componentsJson == this.componentsJson &&
+          other.updatedAt == this.updatedAt);
+}
+
+class LocalImpactScoresCompanion extends UpdateCompanion<LocalImpactScore> {
+  final Value<String> id;
+  final Value<String> observationId;
+  final Value<double> score;
+  final Value<String> level;
+  final Value<String> calculationVersion;
+  final Value<DateTime> computedAt;
+  final Value<String?> componentsJson;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const LocalImpactScoresCompanion({
+    this.id = const Value.absent(),
+    this.observationId = const Value.absent(),
+    this.score = const Value.absent(),
+    this.level = const Value.absent(),
+    this.calculationVersion = const Value.absent(),
+    this.computedAt = const Value.absent(),
+    this.componentsJson = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LocalImpactScoresCompanion.insert({
+    required String id,
+    required String observationId,
+    required double score,
+    required String level,
+    required String calculationVersion,
+    required DateTime computedAt,
+    this.componentsJson = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       observationId = Value(observationId),
+       score = Value(score),
+       level = Value(level),
+       calculationVersion = Value(calculationVersion),
+       computedAt = Value(computedAt);
+  static Insertable<LocalImpactScore> custom({
+    Expression<String>? id,
+    Expression<String>? observationId,
+    Expression<double>? score,
+    Expression<String>? level,
+    Expression<String>? calculationVersion,
+    Expression<DateTime>? computedAt,
+    Expression<String>? componentsJson,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (observationId != null) 'observation_id': observationId,
+      if (score != null) 'score': score,
+      if (level != null) 'level': level,
+      if (calculationVersion != null) 'calculation_version': calculationVersion,
+      if (computedAt != null) 'computed_at': computedAt,
+      if (componentsJson != null) 'components_json': componentsJson,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LocalImpactScoresCompanion copyWith({
+    Value<String>? id,
+    Value<String>? observationId,
+    Value<double>? score,
+    Value<String>? level,
+    Value<String>? calculationVersion,
+    Value<DateTime>? computedAt,
+    Value<String?>? componentsJson,
+    Value<DateTime>? updatedAt,
+    Value<int>? rowid,
+  }) {
+    return LocalImpactScoresCompanion(
+      id: id ?? this.id,
+      observationId: observationId ?? this.observationId,
+      score: score ?? this.score,
+      level: level ?? this.level,
+      calculationVersion: calculationVersion ?? this.calculationVersion,
+      computedAt: computedAt ?? this.computedAt,
+      componentsJson: componentsJson ?? this.componentsJson,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (observationId.present) {
+      map['observation_id'] = Variable<String>(observationId.value);
+    }
+    if (score.present) {
+      map['score'] = Variable<double>(score.value);
+    }
+    if (level.present) {
+      map['level'] = Variable<String>(level.value);
+    }
+    if (calculationVersion.present) {
+      map['calculation_version'] = Variable<String>(calculationVersion.value);
+    }
+    if (computedAt.present) {
+      map['computed_at'] = Variable<DateTime>(computedAt.value);
+    }
+    if (componentsJson.present) {
+      map['components_json'] = Variable<String>(componentsJson.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalImpactScoresCompanion(')
+          ..write('id: $id, ')
+          ..write('observationId: $observationId, ')
+          ..write('score: $score, ')
+          ..write('level: $level, ')
+          ..write('calculationVersion: $calculationVersion, ')
+          ..write('computedAt: $computedAt, ')
+          ..write('componentsJson: $componentsJson, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1245,6 +1813,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $LocalObservationsTable(this);
   late final $LocalObservationItemsTable localObservationItems =
       $LocalObservationItemsTable(this);
+  late final $LocalImpactScoresTable localImpactScores =
+      $LocalImpactScoresTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1252,6 +1822,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   List<DatabaseSchemaEntity> get allSchemaEntities => [
     localObservations,
     localObservationItems,
+    localImpactScores,
   ];
 }
 
@@ -1319,6 +1890,28 @@ final class $$LocalObservationsTableReferences
 
     final cache = $_typedResult.readTableOrNull(
       _localObservationItemsRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$LocalImpactScoresTable, List<LocalImpactScore>>
+  _localImpactScoresRefsTable(_$AppDatabase db) =>
+      MultiTypedResultKey.fromTable(
+        db.localImpactScores,
+        aliasName:
+            'local_observations__id__local_impact_scores__observation_id',
+      );
+
+  $$LocalImpactScoresTableProcessedTableManager get localImpactScoresRefs {
+    final manager = $$LocalImpactScoresTableTableManager(
+      $_db,
+      $_db.localImpactScores,
+    ).filter((f) => f.observationId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _localImpactScoresRefsTable($_db),
     );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
@@ -1413,6 +2006,31 @@ class $$LocalObservationsTableFilterComposer
                     $removeJoinBuilderFromRootComposer,
               ),
         );
+    return f(composer);
+  }
+
+  Expression<bool> localImpactScoresRefs(
+    Expression<bool> Function($$LocalImpactScoresTableFilterComposer f) f,
+  ) {
+    final $$LocalImpactScoresTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.localImpactScores,
+      getReferencedColumn: (t) => t.observationId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocalImpactScoresTableFilterComposer(
+            $db: $db,
+            $table: $db.localImpactScores,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
     return f(composer);
   }
 }
@@ -1557,6 +2175,32 @@ class $$LocalObservationsTableAnnotationComposer
         );
     return f(composer);
   }
+
+  Expression<T> localImpactScoresRefs<T extends Object>(
+    Expression<T> Function($$LocalImpactScoresTableAnnotationComposer a) f,
+  ) {
+    final $$LocalImpactScoresTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.id,
+          referencedTable: $db.localImpactScores,
+          getReferencedColumn: (t) => t.observationId,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$LocalImpactScoresTableAnnotationComposer(
+                $db: $db,
+                $table: $db.localImpactScores,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return f(composer);
+  }
 }
 
 class $$LocalObservationsTableTableManager
@@ -1572,7 +2216,10 @@ class $$LocalObservationsTableTableManager
           $$LocalObservationsTableUpdateCompanionBuilder,
           (LocalObservation, $$LocalObservationsTableReferences),
           LocalObservation,
-          PrefetchHooks Function({bool localObservationItemsRefs})
+          PrefetchHooks Function({
+            bool localObservationItemsRefs,
+            bool localImpactScoresRefs,
+          })
         > {
   $$LocalObservationsTableTableManager(
     _$AppDatabase db,
@@ -1654,40 +2301,66 @@ class $$LocalObservationsTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({localObservationItemsRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [
-                if (localObservationItemsRefs) db.localObservationItems,
-              ],
-              addJoins: null,
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (localObservationItemsRefs)
-                    await $_getPrefetchedData<
-                      LocalObservation,
-                      $LocalObservationsTable,
-                      LocalObservationItem
-                    >(
-                      currentTable: table,
-                      referencedTable: $$LocalObservationsTableReferences
-                          ._localObservationItemsRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$LocalObservationsTableReferences(
-                            db,
-                            table,
-                            p0,
-                          ).localObservationItemsRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where(
-                            (e) => e.observationId == item.id,
-                          ),
-                      typedResults: items,
-                    ),
-                ];
+          prefetchHooksCallback:
+              ({
+                localObservationItemsRefs = false,
+                localImpactScoresRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (localObservationItemsRefs) db.localObservationItems,
+                    if (localImpactScoresRefs) db.localImpactScores,
+                  ],
+                  addJoins: null,
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (localObservationItemsRefs)
+                        await $_getPrefetchedData<
+                          LocalObservation,
+                          $LocalObservationsTable,
+                          LocalObservationItem
+                        >(
+                          currentTable: table,
+                          referencedTable: $$LocalObservationsTableReferences
+                              ._localObservationItemsRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$LocalObservationsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).localObservationItemsRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.observationId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (localImpactScoresRefs)
+                        await $_getPrefetchedData<
+                          LocalObservation,
+                          $LocalObservationsTable,
+                          LocalImpactScore
+                        >(
+                          currentTable: table,
+                          referencedTable: $$LocalObservationsTableReferences
+                              ._localImpactScoresRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$LocalObservationsTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).localImpactScoresRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.observationId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
+                  },
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -1704,7 +2377,10 @@ typedef $$LocalObservationsTableProcessedTableManager =
       $$LocalObservationsTableUpdateCompanionBuilder,
       (LocalObservation, $$LocalObservationsTableReferences),
       LocalObservation,
-      PrefetchHooks Function({bool localObservationItemsRefs})
+      PrefetchHooks Function({
+        bool localObservationItemsRefs,
+        bool localImpactScoresRefs,
+      })
     >;
 typedef $$LocalObservationItemsTableCreateCompanionBuilder =
     LocalObservationItemsCompanion Function({
@@ -2126,6 +2802,405 @@ typedef $$LocalObservationItemsTableProcessedTableManager =
       LocalObservationItem,
       PrefetchHooks Function({bool observationId})
     >;
+typedef $$LocalImpactScoresTableCreateCompanionBuilder =
+    LocalImpactScoresCompanion Function({
+      required String id,
+      required String observationId,
+      required double score,
+      required String level,
+      required String calculationVersion,
+      required DateTime computedAt,
+      Value<String?> componentsJson,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+typedef $$LocalImpactScoresTableUpdateCompanionBuilder =
+    LocalImpactScoresCompanion Function({
+      Value<String> id,
+      Value<String> observationId,
+      Value<double> score,
+      Value<String> level,
+      Value<String> calculationVersion,
+      Value<DateTime> computedAt,
+      Value<String?> componentsJson,
+      Value<DateTime> updatedAt,
+      Value<int> rowid,
+    });
+
+final class $$LocalImpactScoresTableReferences
+    extends
+        BaseReferences<
+          _$AppDatabase,
+          $LocalImpactScoresTable,
+          LocalImpactScore
+        > {
+  $$LocalImpactScoresTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $LocalObservationsTable _observationIdTable(_$AppDatabase db) =>
+      db.localObservations.createAlias(
+        'local_impact_scores__observation_id__local_observations__id',
+      );
+
+  $$LocalObservationsTableProcessedTableManager get observationId {
+    final $_column = $_itemColumn<String>('observation_id')!;
+
+    final manager = $$LocalObservationsTableTableManager(
+      $_db,
+      $_db.localObservations,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_observationIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$LocalImpactScoresTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalImpactScoresTable> {
+  $$LocalImpactScoresTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get calculationVersion => $composableBuilder(
+    column: $table.calculationVersion,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get computedAt => $composableBuilder(
+    column: $table.computedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get componentsJson => $composableBuilder(
+    column: $table.componentsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$LocalObservationsTableFilterComposer get observationId {
+    final $$LocalObservationsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.observationId,
+      referencedTable: $db.localObservations,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocalObservationsTableFilterComposer(
+            $db: $db,
+            $table: $db.localObservations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LocalImpactScoresTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalImpactScoresTable> {
+  $$LocalImpactScoresTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get score => $composableBuilder(
+    column: $table.score,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get level => $composableBuilder(
+    column: $table.level,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get calculationVersion => $composableBuilder(
+    column: $table.calculationVersion,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get computedAt => $composableBuilder(
+    column: $table.computedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get componentsJson => $composableBuilder(
+    column: $table.componentsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$LocalObservationsTableOrderingComposer get observationId {
+    final $$LocalObservationsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.observationId,
+      referencedTable: $db.localObservations,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$LocalObservationsTableOrderingComposer(
+            $db: $db,
+            $table: $db.localObservations,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LocalImpactScoresTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalImpactScoresTable> {
+  $$LocalImpactScoresTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<double> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<String> get level =>
+      $composableBuilder(column: $table.level, builder: (column) => column);
+
+  GeneratedColumn<String> get calculationVersion => $composableBuilder(
+    column: $table.calculationVersion,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get computedAt => $composableBuilder(
+    column: $table.computedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get componentsJson => $composableBuilder(
+    column: $table.componentsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  $$LocalObservationsTableAnnotationComposer get observationId {
+    final $$LocalObservationsTableAnnotationComposer composer =
+        $composerBuilder(
+          composer: this,
+          getCurrentColumn: (t) => t.observationId,
+          referencedTable: $db.localObservations,
+          getReferencedColumn: (t) => t.id,
+          builder:
+              (
+                joinBuilder, {
+                $addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer,
+              }) => $$LocalObservationsTableAnnotationComposer(
+                $db: $db,
+                $table: $db.localObservations,
+                $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+                joinBuilder: joinBuilder,
+                $removeJoinBuilderFromRootComposer:
+                    $removeJoinBuilderFromRootComposer,
+              ),
+        );
+    return composer;
+  }
+}
+
+class $$LocalImpactScoresTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalImpactScoresTable,
+          LocalImpactScore,
+          $$LocalImpactScoresTableFilterComposer,
+          $$LocalImpactScoresTableOrderingComposer,
+          $$LocalImpactScoresTableAnnotationComposer,
+          $$LocalImpactScoresTableCreateCompanionBuilder,
+          $$LocalImpactScoresTableUpdateCompanionBuilder,
+          (LocalImpactScore, $$LocalImpactScoresTableReferences),
+          LocalImpactScore,
+          PrefetchHooks Function({bool observationId})
+        > {
+  $$LocalImpactScoresTableTableManager(
+    _$AppDatabase db,
+    $LocalImpactScoresTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalImpactScoresTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalImpactScoresTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalImpactScoresTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> observationId = const Value.absent(),
+                Value<double> score = const Value.absent(),
+                Value<String> level = const Value.absent(),
+                Value<String> calculationVersion = const Value.absent(),
+                Value<DateTime> computedAt = const Value.absent(),
+                Value<String?> componentsJson = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalImpactScoresCompanion(
+                id: id,
+                observationId: observationId,
+                score: score,
+                level: level,
+                calculationVersion: calculationVersion,
+                computedAt: computedAt,
+                componentsJson: componentsJson,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String observationId,
+                required double score,
+                required String level,
+                required String calculationVersion,
+                required DateTime computedAt,
+                Value<String?> componentsJson = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => LocalImpactScoresCompanion.insert(
+                id: id,
+                observationId: observationId,
+                score: score,
+                level: level,
+                calculationVersion: calculationVersion,
+                computedAt: computedAt,
+                componentsJson: componentsJson,
+                updatedAt: updatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable(table),
+                  $$LocalImpactScoresTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({observationId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (observationId) {
+                      state =
+                          state.withJoin(
+                                currentTable: table,
+                                currentColumn: table.observationId,
+                                referencedTable:
+                                    $$LocalImpactScoresTableReferences
+                                        ._observationIdTable(db),
+                                referencedColumn:
+                                    $$LocalImpactScoresTableReferences
+                                        ._observationIdTable(db)
+                                        .id,
+                              )
+                              as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$LocalImpactScoresTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalImpactScoresTable,
+      LocalImpactScore,
+      $$LocalImpactScoresTableFilterComposer,
+      $$LocalImpactScoresTableOrderingComposer,
+      $$LocalImpactScoresTableAnnotationComposer,
+      $$LocalImpactScoresTableCreateCompanionBuilder,
+      $$LocalImpactScoresTableUpdateCompanionBuilder,
+      (LocalImpactScore, $$LocalImpactScoresTableReferences),
+      LocalImpactScore,
+      PrefetchHooks Function({bool observationId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2134,4 +3209,6 @@ class $AppDatabaseManager {
       $$LocalObservationsTableTableManager(_db, _db.localObservations);
   $$LocalObservationItemsTableTableManager get localObservationItems =>
       $$LocalObservationItemsTableTableManager(_db, _db.localObservationItems);
+  $$LocalImpactScoresTableTableManager get localImpactScores =>
+      $$LocalImpactScoresTableTableManager(_db, _db.localImpactScores);
 }

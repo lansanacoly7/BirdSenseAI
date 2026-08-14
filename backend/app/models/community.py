@@ -1,5 +1,5 @@
 """
-BirdSense AI — Modèles ORM Communauté (Comment, Validation, Report, Favorite, Badge)
+BirdSense AI — Modèles ORM Communauté (Comment, Validation, Report, Favorite, UserBadge)
 Auteur : Pape Alioune Sène
 """
 import uuid
@@ -31,6 +31,7 @@ class Comment(Base):
         index=True,
     )
     content: Mapped[str] = mapped_column(Text, nullable=False)
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
@@ -38,6 +39,7 @@ class Comment(Base):
         DateTime(timezone=True), nullable=False, server_default=func.now(), onupdate=func.now()
     )
 
+    # Relations
     observation: Mapped["Observation"] = relationship("Observation", back_populates="comments")  # noqa: F821
     user: Mapped["User"] = relationship("User", back_populates="comments")  # noqa: F821
 
@@ -63,16 +65,26 @@ class Validation(Base):
         nullable=False,
         index=True,
     )
-    is_valid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    proposed_species_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("species.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
+    is_confirmation: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    comment: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
+    # Relations
     observation: Mapped["Observation"] = relationship("Observation", back_populates="validations")  # noqa: F821
     user: Mapped["User"] = relationship("User", back_populates="validations")  # noqa: F821
+    proposed_species: Mapped["Species | None"] = relationship("Species")  # noqa: F821
 
     def __repr__(self) -> str:
-        return f"<Validation id={self.id} is_valid={self.is_valid}>"
+        return f"<Validation id={self.id} user_id={self.user_id} is_confirmation={self.is_confirmation}>"
 
 
 class Report(Base):
@@ -93,16 +105,20 @@ class Report(Base):
         nullable=False,
         index=True,
     )
-    reason: Mapped[str] = mapped_column(String(255), nullable=False)
+    reason: Mapped[str] = mapped_column(String(100), nullable=False)
+    details: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(50), nullable=False, default="pending")  # pending, reviewed, dismissed
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
+    # Relations
     observation: Mapped["Observation"] = relationship("Observation", back_populates="reports")  # noqa: F821
     user: Mapped["User"] = relationship("User", back_populates="reports")  # noqa: F821
 
     def __repr__(self) -> str:
-        return f"<Report id={self.id} reason={self.reason}>"
+        return f"<Report id={self.id} user_id={self.user_id} status={self.status}>"
 
 
 class Favorite(Base):
@@ -123,15 +139,17 @@ class Favorite(Base):
         nullable=False,
         index=True,
     )
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
     )
 
+    # Relations
     observation: Mapped["Observation"] = relationship("Observation", back_populates="favorites")  # noqa: F821
     user: Mapped["User"] = relationship("User", back_populates="favorites")  # noqa: F821
 
     def __repr__(self) -> str:
-        return f"<Favorite id={self.id}>"
+        return f"<Favorite id={self.id} user_id={self.user_id} observation_id={self.observation_id}>"
 
 
 class UserBadge(Base):
@@ -155,3 +173,4 @@ class UserBadge(Base):
 
     def __repr__(self) -> str:
         return f"<UserBadge id={self.id} name={self.badge_name}>"
+

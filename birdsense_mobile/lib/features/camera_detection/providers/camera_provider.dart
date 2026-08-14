@@ -7,6 +7,12 @@ import '../../../core/providers.dart';
 import '../models/detection_dto.dart';
 import '../services/detection_service.dart';
 import '../services/fake_detection_service.dart';
+import '../../impact_sync/services/audio_level_service.dart';
+import '../../impact_sync/data/impact_score_repository.dart';
+import '../../impact_sync/models/impact_score_dto.dart';
+import '../../impact_sync/providers/audio_level_provider.dart';
+import '../../impact_sync/providers/impact_score_repository_provider.dart';
+import 'package:uuid/uuid.dart';
 import '../services/remote_detection_service.dart';
 
 // =============================================================================
@@ -74,12 +80,19 @@ const int _kFrameThrottleMs = 400;
 /// - Enregistrement vidéo MP4 avec arrêt de l'IA pendant la capture.
 class CameraNotifier extends StateNotifier<CameraState> {
   final DetectionService _detectionService;
+  final AudioLevelService _audioLevelService;
+  final ImpactScoreRepository _impactScoreRepository;
 
   bool _isProcessingFrame = false;
   DateTime? _lastFrameTime;
 
-  CameraNotifier(this._detectionService) : super(const CameraState()) {
+  CameraNotifier(
+    this._detectionService,
+    this._audioLevelService,
+    this._impactScoreRepository,
+  ) : super(const CameraState()) {
     _initCamera();
+    _audioLevelService.init();
   }
 
   /// Initialise le [CameraController] et démarre le stream d'inférence.
@@ -171,6 +184,18 @@ class CameraNotifier extends StateNotifier<CameraState> {
     try {
       if (state.isRecordingVideo) {
         final file = await controller.stopVideoRecording();
+        await _audioLevelService.stop();
+
+        // [Step 4] Injecter un fake ImpactScore à la fin de la vidéo
+        final mockScore = ImpactScoreDto(
+          id: const Uuid().v4(),
+          observationId: 'obs_${DateTime.now().millisecondsSinceEpoch}',
+          score: 85.5,
+          level: 'high',
+          calculationVersion: '1.0',
+          computedAt: DateTime.now().toUtc().toIso8601String(),
+        );
+        await _impactScoreRepository.saveImpactScore(mockScore);
 
         if (!mounted) return;
 
@@ -183,6 +208,7 @@ class CameraNotifier extends StateNotifier<CameraState> {
         if (controller.value.isStreamingImages) {
           await controller.stopImageStream();
         }
+        await _audioLevelService.start();
         await controller.startVideoRecording();
 
         if (!mounted) return;
@@ -196,6 +222,9 @@ class CameraNotifier extends StateNotifier<CameraState> {
 
   @override
   void dispose() {
+    if (state.isRecordingVideo) {
+      _audioLevelService.stop();
+    }
     state.controller?.dispose();
     super.dispose();
   }
@@ -207,5 +236,9 @@ class CameraNotifier extends StateNotifier<CameraState> {
 /// n'est plus affiché, évitant les fuites de ressources.
 final cameraProvider =
     StateNotifierProvider.autoDispose<CameraNotifier, CameraState>((ref) {
-      return CameraNotifier(ref.watch(detectionServiceProvider));
+      return CameraNotifier(
+        ref.watch(detectionServiceProvider),
+        ref.watch(audioLevelServiceProvider),
+        ref.watch(impactScoreRepositoryProvider),
+      );
     });

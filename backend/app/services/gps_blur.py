@@ -128,3 +128,85 @@ def build_wkt_point(latitude: float, longitude: float) -> str:
     Format : 'POINT(longitude latitude)' — note l'ordre lon/lat pour WGS84.
     """
     return f"SRID=4326;POINT({longitude} {latitude})"
+
+
+def parse_location_string(location: str) -> tuple[float, float] | None:
+    """
+    Parse une chaîne de localisation stockée localement en SQLite.
+    Formats supportés :
+      - "lat,lon"  (format SQLite local)
+      - "SRID=4326;POINT(lon lat)"  (format WKT PostGIS)
+
+    Returns:
+        (latitude, longitude) ou None si le format est inconnu.
+    """
+    if not location:
+        return None
+    try:
+        # Format WKT PostGIS : SRID=4326;POINT(lon lat)
+        if "POINT" in location:
+            inner = location.split("POINT(")[1].rstrip(")")
+            lon_str, lat_str = inner.split()
+            return float(lat_str), float(lon_str)
+        # Format SQLite local : "lat,lon"
+        parts = location.split(",")
+        return float(parts[0].strip()), float(parts[1].strip())
+    except (ValueError, IndexError):
+        return None
+
+
+def get_public_coords(
+    location: str | None,
+    location_public: str | None,
+    has_protected_species: bool,
+) -> tuple[float | None, float | None]:
+    """
+    Retourne les coordonnées à exposer publiquement selon la politique de protection :
+
+    - Si espèce protégée ET location_public disponible → coordonnées floutées pré-calculées.
+    - Si espèce protégée SANS location_public → masquage total (None, None).
+    - Si espèce non protégée → coordonnées réelles.
+
+    C'est le point d'entrée unique pour toute exposition publique de coordonnées GPS.
+    """
+    if has_protected_species:
+        if location_public:
+            parsed = parse_location_string(location_public)
+            return parsed if parsed else (None, None)
+        # Pas de coordonnées floutées disponibles → masquage complet
+        return None, None
+
+    if location:
+        parsed = parse_location_string(location)
+        return parsed if parsed else (None, None)
+
+    return None, None
+
+
+def get_public_zone_label(latitude: float | None, longitude: float | None) -> str | None:
+    """
+    Retourne une étiquette textuelle approximative de la zone géographique
+    pour les espèces protégées dont les coordonnées sont masquées.
+    Exemple : "Zone de Dakar", "Zone de Saint-Louis".
+
+    Pour un MVP, on se base sur des grandes régions du Sénégal (extensible).
+    """
+    if latitude is None or longitude is None:
+        return "Localisation protégée"
+
+    # Carte approximative des grandes régions du Sénégal (lat_min, lat_max, lon_min, lon_max, label)
+    REGIONS = [
+        (14.5, 15.1, -17.6, -17.0, "Zone de Dakar"),
+        (15.8, 16.2, -16.7, -16.2, "Zone de Saint-Louis"),
+        (12.3, 13.0, -16.8, -16.2, "Zone de Ziguinchor"),
+        (13.7, 14.3, -16.8, -16.1, "Zone de Kaolack"),
+        (14.6, 15.0, -14.5, -13.8, "Zone de Tambacounda"),
+        (14.5, 14.9, -17.0, -16.2, "Zone de Thiès"),
+        (15.5, 16.0, -15.6, -14.9, "Zone de Louga"),
+        (12.8, 13.4, -14.5, -13.7, "Zone de Kédougou"),
+    ]
+    for lat_min, lat_max, lon_min, lon_max, label in REGIONS:
+        if lat_min <= latitude <= lat_max and lon_min <= longitude <= lon_max:
+            return label
+
+    return "Zone Ouest-Africaine"

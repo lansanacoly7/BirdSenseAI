@@ -8,6 +8,7 @@ import '../../core/widgets/detection_success_dialog.dart';
 import '../../core/providers.dart';
 import '../chat/chat_screen.dart';
 import 'providers/camera_provider.dart';
+import '../impact_sync/presentation/widgets/live_audio_level_gauge.dart';
 
 /// Premium Camera View — Modern AI Vision Interface
 /// No radar, no scanner, no green rectangles.
@@ -134,6 +135,14 @@ class _CameraViewScreenState extends ConsumerState<CameraViewScreen>
 
           // ─── Top HUD Status Bar ───
           _buildTopHUD(activeDetections.length),
+
+          // Audio Level Gauge on the right
+          if (cameraState.isRecordingVideo)
+            const Positioned(
+              right: 16,
+              bottom: 150,
+              child: LiveAudioLevelGauge(),
+            ),
 
           // ─── Bottom Controls Bar ───
           _buildBottomControls(),
@@ -475,6 +484,20 @@ class _CameraViewScreenState extends ConsumerState<CameraViewScreen>
                       label: 'Galerie',
                       isActive: false,
                       onTap: _onPickGallery,
+                    ),
+
+                    // Video Button
+                    FloatingActionButton.small(
+                      heroTag: 'video_btn',
+                      backgroundColor: ref.watch(cameraProvider).isRecordingVideo
+                          ? Colors.red
+                          : AppColors.surfaceDark,
+                      onPressed: ref.read(cameraProvider.notifier).toggleVideoRecording,
+                      child: Icon(
+                        ref.watch(cameraProvider).isRecordingVideo ? Icons.stop : Icons.videocam,
+                        color: Colors.white,
+                        size: 22,
+                      ),
                     ),
 
                     // Shutter Button

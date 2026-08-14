@@ -3,11 +3,16 @@ import 'package:drift/drift.dart';
 import 'connection/db_connection.dart';
 import 'tables/local_observation_items.dart';
 import 'tables/local_observations.dart';
+import 'tables/local_impact_scores.dart';
 
 part 'app_database.g.dart';
 
-/// Base de données locale de BirdSense AI (Mobile / Web).
-@DriftDatabase(tables: [LocalObservations, LocalObservationItems])
+/// Base de données SQLite locale de BirdSense AI (Mobile / Web).
+///
+/// Gère le stockage offline des observations de terrain et de leurs
+/// détections IA associées. Fournit des méthodes CRUD spécialisées
+/// pour le workflow de synchronisation.
+@DriftDatabase(tables: [LocalObservations, LocalObservationItems, LocalImpactScores])
 class AppDatabase extends _$AppDatabase {
   /// Constructeur par défaut utilisant la connexion cross-plateforme.
   AppDatabase() : super(openConnection());
@@ -96,6 +101,33 @@ class AppDatabase extends _$AppDatabase {
         retryCount: Value(newRetryCount),
       ),
     );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Écriture — Impact Scores (Phase 2)
+  // ---------------------------------------------------------------------------
+
+  /// Ajoute ou met à jour un score d'impact pour une observation
+  Future<void> upsertImpactScore(LocalImpactScore score) async {
+    await into(localImpactScores).insertOnConflictUpdate(score);
+  }
+
+  /// Récupère le score le plus récent pour une observation
+  Future<LocalImpactScore?> getLatestImpactScoreForObservation(String observationId) async {
+    return (select(localImpactScores)
+          ..where((t) => t.observationId.equals(observationId))
+          ..orderBy([(t) => OrderingTerm(expression: t.computedAt, mode: OrderingMode.desc)])
+          ..limit(1))
+        .getSingleOrNull();
+  }
+
+  /// Observe en temps réel le score d'impact d'une observation
+  Stream<LocalImpactScore?> watchLatestImpactScoreForObservation(String observationId) {
+    return (select(localImpactScores)
+          ..where((t) => t.observationId.equals(observationId))
+          ..orderBy([(t) => OrderingTerm(expression: t.computedAt, mode: OrderingMode.desc)])
+          ..limit(1))
+        .watchSingleOrNull();
   }
 }
 

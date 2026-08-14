@@ -14,6 +14,8 @@ from app.database import AsyncSessionLocal
 from app.models.observation import Observation, ObservationItem
 from app.models.species import Species
 
+from app.analytics.llm_assistant import get_bird_assistant_response
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/chat", tags=["Chat & IA"])
@@ -24,7 +26,7 @@ async def chat_stream(websocket: WebSocket):
     """
     Endpoint WebSocket pour la Phase 2 :
     Permet de recevoir un message et de streamer la réponse
-    mot par mot (effet machine à écrire) depuis l'API Groq/Gemini.
+    mot par mot (effet machine à écrire) à partir du RAG/LLM (Groq/Gemini).
     """
     await websocket.accept()
     logger.info("Nouvelle connexion WebSocket acceptée sur /chat/stream")
@@ -39,8 +41,8 @@ async def chat_stream(websocket: WebSocket):
             logger.info(f"Message reçu via WS: {data}")
             
             # Valeurs contextuelles (en prod, à récupérer via un appel DB ou le token)
-            local_species = ["Héron", "Pélican blanc"]
-            user_stats = {"total_scans": 15, "impact_score": 300}
+            local_species = ["Aigle royal", "Héron garde-bœufs"]
+            user_stats = {"total_scans": 5, "impact_score": 120}
             
             # Détection d'intention communautaire
             community_keywords = ["communauté", "autour de moi", "rares", "récent", "autres"]
@@ -72,12 +74,15 @@ async def chat_stream(websocket: WebSocket):
             
             # Mise à jour de l'historique
             history.append({"role": "user", "content": data})
-            history.append({"role": "assistant", "content": llm_response})
+            
+            # Streaming de la réponse (chunking simulé pour l'instant)sponse})
             
             # Limiter l'historique aux 20 derniers messages pour éviter de saturer le token limit
             if len(history) > 20:
                 history = history[-20:]
             
+            history.append({"role": "assistant", "content": llm_response})
+
             # Streaming de la réponse en simulant un délai de calcul LLM
             words = llm_response.split(" ")
             for word in words:

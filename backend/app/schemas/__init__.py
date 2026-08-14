@@ -19,6 +19,13 @@ from app.schemas.observation import (
     MapObservationsResponse,
 )
 from app.schemas.species import SpeciesResponse, SpeciesListResponse
+from app.schemas.community import (
+    CommentIn, CommentOut, CommentsListResponse,
+    ValidationIn, ValidationOut, ValidationsListResponse,
+    ReportIn, ReportOut,
+    FavoriteOut, FavoritesListResponse,
+    CommunityObservationItem, CommunityFeedResponse,
+)
 
 __all__ = [
     "UserRegisterRequest", "UserLoginRequest", "TokenResponse",
@@ -27,4 +34,9 @@ __all__ = [
     "BatchSyncResponse", "BoundingBoxFilter", "ObservationOut",
     "ObservationItemOut", "ObservationMapPoint", "MapObservationsResponse",
     "SpeciesResponse", "SpeciesListResponse",
+    "CommentIn", "CommentOut", "CommentsListResponse",
+    "ValidationIn", "ValidationOut", "ValidationsListResponse",
+    "ReportIn", "ReportOut",
+    "FavoriteOut", "FavoritesListResponse",
+    "CommunityObservationItem", "CommunityFeedResponse",
 ]

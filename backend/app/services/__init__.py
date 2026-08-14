@@ -10,7 +10,15 @@ from app.services.auth_service import (
     validate_and_rotate_refresh_token,
     verify_password,
 )
-from app.services.gps_blur import blur_coordinates, build_wkt_point, compute_distance_m, should_blur
+from app.services.gps_blur import (
+    blur_coordinates,
+    build_wkt_point,
+    compute_distance_m,
+    should_blur,
+    parse_location_string,
+    get_public_coords,
+    get_public_zone_label,
+)
 
 __all__ = [
     "authenticate_user",
@@ -26,4 +34,7 @@ __all__ = [
     "build_wkt_point",
     "compute_distance_m",
     "should_blur",
+    "parse_location_string",
+    "get_public_coords",
+    "get_public_zone_label",
 ]

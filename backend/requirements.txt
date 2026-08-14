@@ -39,3 +39,6 @@ structlog==24.4.0
 # Traitement Asynchrone (Celery + Redis)
 celery==5.4.0
 redis==5.2.0
+
+# IA / LLM (RAG)
+openai==1.55.3
