@@ -53,8 +53,8 @@ class Observation(Base):
     sync_status: Mapped[str] = mapped_column(String(20), nullable=False, default="synced", index=True)
     device_id: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
-    # Flag : True si au moins un item contient une espèce IUCN EN/CR
     has_protected_species: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    is_hidden: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, server_default=func.now()
@@ -70,6 +70,18 @@ class Observation(Base):
         back_populates="observation",
         cascade="all, delete-orphan",
         lazy="selectin",
+    )
+    comments: Mapped[list["Comment"]] = relationship(  # noqa: F821
+        "Comment", back_populates="observation", cascade="all, delete-orphan", lazy="selectin"
+    )
+    validations: Mapped[list["Validation"]] = relationship(  # noqa: F821
+        "Validation", back_populates="observation", cascade="all, delete-orphan", lazy="selectin"
+    )
+    reports: Mapped[list["Report"]] = relationship(  # noqa: F821
+        "Report", back_populates="observation", cascade="all, delete-orphan", lazy="selectin"
+    )
+    favorites: Mapped[list["Favorite"]] = relationship(  # noqa: F821
+        "Favorite", back_populates="observation", cascade="all, delete-orphan", lazy="selectin"
     )
 
     def __repr__(self) -> str:
